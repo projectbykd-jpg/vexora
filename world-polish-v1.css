@@ -4,6 +4,8 @@
 .world-title{font-size:11px!important;gap:7px!important}.pill{font-size:8px!important;padding:3px 6px!important}
 .game-actions{gap:5px!important}.game-actions button{height:29px!important;padding:0 9px!important;border-radius:7px!important;font-size:9px!important;background:rgba(22,25,36,.96)!important;transition:background .15s,border-color .15s,transform .15s}.game-actions button:hover{background:#252a3a!important;border-color:rgba(255,255,255,.2)!important}.game-actions button:active{transform:translateY(1px)}
 .game-shell{height:calc(100vh - 54px)!important}
+.game-shell:after{content:"";position:absolute;inset:0;pointer-events:none;z-index:5;background:radial-gradient(ellipse at center,transparent 48%,rgba(3,6,12,.20) 100%)}
+.game-shell #gameCanvas canvas{filter:saturate(1.08) contrast(1.03)}
 .hud{left:12px!important;top:12px!important;width:194px!important;gap:6px!important}.hud-card{padding:9px 11px!important;border-radius:9px!important;background:rgba(8,11,18,.72)!important;box-shadow:0 6px 20px rgba(0,0,0,.14)!important}.hud-card span{font-size:7px!important}.hud-card b{font-size:12px!important}.hud-card small{font-size:8px!important}.hud-card.controls{gap:4px!important}.hud-card.controls small{line-height:1.2!important}
 .status{right:12px!important;top:12px!important;padding:7px 9px!important;font-size:8px!important}
 .location{top:12px!important;padding:6px 10px!important;border-radius:8px!important}.location b{font-size:8px!important}.location span{font-size:7px!important}
