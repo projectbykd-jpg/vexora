@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0716" />
+  <title>VEXORA — World</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body class="game-page">
+  <header class="game-topbar">
+    <a class="game-brand" href="./dashboard.html"><span class="game-brand-mark">V</span> VEXORA</a>
+    <div class="world-title-wrap"><span class="world-live-dot"></span><strong id="worldName">Loading world…</strong><span id="worldType" class="world-type-pill">NORMAL</span></div>
+    <div class="game-actions"><button id="buildMode" class="game-tool active">BUILD</button><button id="backHome" class="game-tool">EXIT</button></div>
+  </header>
+
+  <main class="game-shell">
+    <div id="gameCanvas" class="game-canvas" aria-label="VEXORA 3D world"></div>
+    <aside class="game-hud">
+      <div class="hud-card"><span class="hud-label">VEXA CORE</span><strong>LEVEL 1</strong><div class="core-bar"><span></span></div><small>World foundation online</small></div>
+      <div class="hud-card controls-card"><span class="hud-label">BUILD MODE</span><p><kbd>CLICK</kbd> place block</p><p><kbd>SHIFT</kbd> remove block</p><p><kbd>DRAG</kbd> rotate world</p></div>
+      <div class="hud-card inventory-card"><span class="hud-label">BLOCKS</span><div class="block-choice active" data-block="grass"><i class="block grass"></i><span>Grass</span><b>∞</b></div><div class="block-choice" data-block="stone"><i class="block stone"></i><span>Stone</span><b>∞</b></div><div class="block-choice" data-block="crystal"><i class="block crystal"></i><span>Crystal</span><b>∞</b></div></div>
+    </aside>
+    <div class="game-tip">VEXORA 3D SANDBOX · Prototype 0.1</div>
+  </main>
+  <script type="module" src="./world.js"></script>
+</body>
+</html>
