@@ -1,60 +1,74 @@
-// VEXORA v8 FPS controls: Minecraft-style mouse look with safe pointer lock.
+// VEXORA v8: Minecraft-style FPS mouse look layered safely over world-v7.
 (() => {
-  const canvasHost = document.getElementById('gameCanvas');
-  const canvas = canvasHost?.querySelector('canvas');
+  const host = document.getElementById('gameCanvas');
+  const canvas = host?.querySelector('canvas');
   if (!canvas) return;
 
-  const getState = () => ({ started: window.vexoraStarted !== false, paused: window.vexoraPaused === true });
+  let virtualX = innerWidth / 2;
+  let virtualY = innerHeight / 2;
 
-  // The existing engine exposes its state through these small bridges below.
-  const setCursor = (locked) => {
+  const uiOpen = () => document.getElementById('inventoryPanel')?.hidden === false || document.getElementById('pausePanel')?.hidden === false || document.getElementById('chatPanel')?.classList.contains('open');
+  const gameReady = () => document.getElementById('startOverlay')?.style.display === 'none' && !uiOpen();
+  const setCursor = locked => {
     document.body.classList.toggle('vexora-pointer-locked', locked);
     canvas.style.cursor = locked ? 'none' : 'default';
   };
-
-  const requestLock = () => {
-    if (!document.pointerLockElement && document.activeElement?.tagName !== 'INPUT') {
-      try { canvas.requestPointerLock({ unadjustedMovement: false }); } catch { try { canvas.requestPointerLock(); } catch {} }
-    }
+  const lock = () => {
+    if (!gameReady() || document.pointerLockElement === canvas) return;
+    try { canvas.requestPointerLock({ unadjustedMovement: false }); } catch { try { canvas.requestPointerLock(); } catch {} }
   };
 
-  canvas.addEventListener('click', () => {
-    if (document.getElementById('startOverlay')?.style.display === 'none' &&
-        document.getElementById('inventoryPanel')?.hidden !== false &&
-        document.getElementById('pausePanel')?.hidden !== false) requestLock();
-  });
+  // Minecraft-style: clicking Play enters the world and captures the mouse.
+  document.getElementById('playNow')?.addEventListener('click', () => setTimeout(lock, 60), { capture: true });
+  document.getElementById('resumeButton')?.addEventListener('click', () => setTimeout(lock, 60), { capture: true });
+  canvas.addEventListener('click', () => setTimeout(lock, 0));
 
   document.addEventListener('pointerlockchange', () => {
     const locked = document.pointerLockElement === canvas;
     setCursor(locked);
-    if (!locked) {
-      // Browser ESC releases pointer lock. The base engine handles pause.
-      window.dispatchEvent(new CustomEvent('vexora:pointer-unlocked'));
+    if (locked) {
+      virtualX = innerWidth / 2;
+      virtualY = innerHeight / 2;
+      // Make world-v7's existing MMB-look handler active while pointer lock is held.
+      canvas.dispatchEvent(new MouseEvent('mousedown', { button: 1, buttons: 4, clientX: virtualX, clientY: virtualY, bubbles: true }));
+    } else {
+      canvas.dispatchEvent(new MouseEvent('mouseup', { button: 1, buttons: 0, clientX: virtualX, clientY: virtualY, bubbles: true }));
+      setCursor(false);
     }
   });
 
-  document.addEventListener('mousemove', (event) => {
-    if (document.pointerLockElement !== canvas) return;
-    if (document.getElementById('pausePanel')?.hidden === false || document.getElementById('inventoryPanel')?.hidden === false) return;
-    // world-v7.js keeps yaw/pitch private, so use its public camera rotation as the bridge.
-    const camera = window.vexoraCamera;
-    if (!camera) return;
-    const sensitivity = 0.0024;
-    camera.rotation.order = 'YXZ';
-    camera.rotation.y -= event.movementX * sensitivity;
-    camera.rotation.x = Math.max(-1.45, Math.min(1.45, camera.rotation.x - event.movementY * sensitivity));
-    window.vexoraSetLook?.(camera.rotation.y, camera.rotation.x);
+  // Feed pointer-lock movement into world-v7's existing camera handler.
+  document.addEventListener('mousemove', event => {
+    if (document.pointerLockElement !== canvas || !gameReady()) return;
+    virtualX += event.movementX;
+    virtualY += event.movementY;
+    canvas.dispatchEvent(new MouseEvent('mousemove', {
+      clientX: virtualX,
+      clientY: virtualY,
+      movementX: event.movementX,
+      movementY: event.movementY,
+      bubbles: true
+    }));
+  }, true);
+
+  // ESC is the browser's native pointer-lock exit. The base engine also opens pause.
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && document.pointerLockElement === canvas) {
+      document.exitPointerLock();
+      setCursor(false);
+    }
+  }, true);
+
+  // Never capture the pointer over menus, chat or inventory.
+  ['inventoryButton','closeInventory','chatToggle','chatClose','saveWorld','backHome','modeButton','resumeButton','pauseInventory','pauseExit'].forEach(id => {
+    document.getElementById(id)?.addEventListener('click', () => {
+      if (document.pointerLockElement === canvas) document.exitPointerLock();
+      setCursor(false);
+    }, { capture: true });
   });
 
-  window.addEventListener('vexora:game-start', requestLock);
-  window.addEventListener('vexora:resume', requestLock);
-  window.addEventListener('vexora:menu', () => {
+  addEventListener('blur', () => {
     if (document.pointerLockElement === canvas) document.exitPointerLock();
     setCursor(false);
-  });
-
-  // Keep browser cursor available over every UI surface.
-  document.addEventListener('mouseenter', () => {
-    if (!document.pointerLockElement) setCursor(false);
   });
 })();
