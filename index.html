@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#171126" />
+  <meta name="description" content="VEXORA - Enter your world." />
+  <title>VEXORA — Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="page-shell">
+    <div class="ambient ambient-one"></div>
+    <div class="ambient ambient-two"></div>
+    
+    <section class="login-card" aria-label="VEXORA login">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <span class="gem gem-a"></span>
+          <span class="gem gem-b"></span>
+          <span class="gem gem-c"></span>
+        </div>
+        <div>
+          <div class="brand-name">VEXORA</div>
+          <div class="brand-tagline">BUILD · EXPLORE · CREATE</div>
+        </div>
+      </div>
+
+      <div class="hero">
+        <h1>Welcome back, explorer.</h1>
+        <p>Sign in and jump back into your world.</p>
+      </div>
+
+      <form id="loginForm" class="login-form" novalidate>
+        <label class="field">
+          <span>Email or Username</span>
+          <div class="input-wrap">
+            <span class="input-icon">✦</span>
+            <input id="identity" name="identity" type="text" autocomplete="username" placeholder="Enter your email or username" required />
+          </div>
+        </label>
+
+        <label class="field">
+          <span>Password</span>
+          <div class="input-wrap">
+            <span class="input-icon">◆</span>
+            <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required minlength="6" />
+            <button id="togglePassword" class="icon-button" type="button" aria-label="Show password">Show</button>
+          </div>
+        </label>
+
+        <div class="form-row">
+          <label class="remember">
+            <input id="remember" type="checkbox" />
+            <span>Remember me</span>
+          </label>
+          <a href="#" id="forgotLink">Forgot password?</a>
+        </div>
+
+        <button class="primary-button" type="submit">
+          <span>ENTER VEXORA</span>
+          <span class="arrow">→</span>
+        </button>
+
+        <div id="message" class="message" role="status" aria-live="polite"></div>
+      </form>
+
+      <div class="divider"><span>OR</span></div>
+
+      <button id="guestButton" class="secondary-button" type="button">Continue as Guest</button>
+
+      <p class="signup-copy">New to VEXORA? <a href="#" id="signupLink">Create an account</a></p>
+      <p class="legal">By continuing, you agree to the VEXORA Terms & Privacy Policy.</p>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
