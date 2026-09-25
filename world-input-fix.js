@@ -4,11 +4,64 @@
   const start = $('startOverlay');
   const inventory = $('inventoryPanel');
   const canvasHost = $('gameCanvas');
-  let resumeRequested = false;
-  let pauseRequested = false;
 
-  const controls = () => window.__vexoraPointerControls;
+  const getControls = () => window.__vexoraPointerControls;
   const canvas = () => canvasHost?.querySelector('canvas');
+  const overlayOpen = () => {
+    const visible = (el) => !!el && !el.hidden && getComputedStyle(el).display !== 'none';
+    return visible(pause) || visible(inventory) || visible(start);
+  };
+
+  function showCursor() {
+    document.documentElement.style.cursor = 'default';
+    document.body.style.cursor = 'default';
+    if (canvasHost) canvasHost.style.cursor = 'default';
+    const c = canvas();
+    if (c) c.style.cursor = 'default';
+  }
+
+  function hideCursor() {
+    document.documentElement.style.cursor = 'none';
+    document.body.style.cursor = 'none';
+    if (canvasHost) canvasHost.style.cursor = 'none';
+    const c = canvas();
+    if (c) c.style.cursor = 'none';
+  }
+
+  function hardUnlock() {
+    const c = getControls();
+    try { c?.unlock?.(); } catch (_) {}
+    try {
+      if (document.pointerLockElement) document.exitPointerLock();
+    } catch (_) {}
+    showCursor();
+  }
+
+  // Patch PointerLockControls once. Any later lock request while an overlay is
+  // visible is rejected, so Inventory/Pause can never trap the cursor again.
+  const controls = getControls();
+  if (controls && !controls.__vexoraInputPatched) {
+    const originalLock = controls.lock.bind(controls);
+    const originalUnlock = controls.unlock.bind(controls);
+
+    controls.lock = (...args) => {
+      if (overlayOpen()) {
+        showCursor();
+        return;
+      }
+      return originalLock(...args);
+    };
+
+    controls.unlock = (...args) => {
+      try { originalUnlock(...args); } catch (_) {}
+      try {
+        if (document.pointerLockElement) document.exitPointerLock();
+      } catch (_) {}
+      showCursor();
+    };
+
+    controls.__vexoraInputPatched = true;
+  }
 
   function hidePause() {
     if (!pause) return;
@@ -17,146 +70,102 @@
   }
 
   function showPause() {
-    if (!pause || (inventory && !inventory.hidden) || (start && getComputedStyle(start).display !== 'none')) return;
+    if (!pause || (inventory && !inventory.hidden)) return;
+    if (start && getComputedStyle(start).display !== 'none') return;
     pause.hidden = false;
     pause.style.display = 'grid';
+    hardUnlock();
   }
 
-  function showCursor() {
-    document.documentElement.style.cursor = 'default';
-    document.body.style.cursor = 'default';
-    if (canvasHost) canvasHost.style.cursor = 'default';
-  }
-
-  function hideCursor() {
-    document.documentElement.style.cursor = 'none';
-    document.body.style.cursor = 'none';
-    if (canvasHost) canvasHost.style.cursor = 'none';
-  }
-
-  function unlock() {
-    try { controls()?.unlock?.(); } catch (_) {}
-    try {
-      if (document.pointerLockElement) document.exitPointerLock();
-    } catch (_) {}
-  }
-
-  function lock() {
-    const c = controls();
-    try {
-      if (c?.lock) {
-        c.lock();
-        return;
-      }
-      canvas()?.requestPointerLock?.();
-    } catch (_) {
-      try { canvas()?.requestPointerLock?.(); } catch (_) {}
-    }
-  }
-
-  // The old implementation could show the pause panel while pointer lock was
-  // still active. That makes the browser keep the cursor hidden and the panel
-  // becomes effectively unclickable. Always release the lock before pausing.
-  document.addEventListener('pointerlockchange', () => {
-    const locked = !!document.pointerLockElement;
-    if (locked) {
-      hideCursor();
-      if (resumeRequested) {
-        resumeRequested = false;
-        pauseRequested = false;
-        hidePause();
-        if (start) start.style.display = 'none';
-        if (inventory) inventory.hidden = true;
-      }
-    } else {
-      showCursor();
-      if (pauseRequested) {
-        pauseRequested = false;
-        showPause();
-      } else if (!resumeRequested && start && getComputedStyle(start).display === 'none' && inventory?.hidden) {
-        showPause();
-      }
-    }
-  }, true);
-
-  // ESC = pause. Release pointer lock first, then show the menu after the
-  // browser has processed pointerlockchange.
-  window.addEventListener('keydown', (e) => {
-    if (e.key !== 'Escape') return;
-    if (start && getComputedStyle(start).display !== 'none') return;
-    if (inventory && !inventory.hidden) return;
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    pauseRequested = true;
-    resumeRequested = false;
-    unlock();
-    setTimeout(showPause, 0);
-  }, true);
-
-  // Resume must be handled at capture level so the older click listener cannot
-  // race it and immediately reopen the pause screen.
-  $('resumeButton')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    resumeRequested = true;
-    pauseRequested = false;
-    hidePause();
-    if (inventory) inventory.hidden = true;
-    if (start) start.style.display = 'none';
-    lock();
-    setTimeout(() => {
-      // Some browsers reject a second pointer-lock request. If it was rejected,
-      // leave the game unpaused so WASD/build interactions are not trapped by UI.
-      if (!document.pointerLockElement && resumeRequested) {
-        resumeRequested = false;
-        showCursor();
-      }
-    }, 350);
-  }, true);
-
-  $('pauseInventory')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    resumeRequested = false;
-    pauseRequested = false;
-    unlock();
+  function showInventory() {
+    hardUnlock();
     hidePause();
     if (inventory) {
       inventory.hidden = false;
       inventory.style.display = 'grid';
     }
+    showCursor();
+  }
+
+  function hideInventory() {
+    hardUnlock();
+    if (inventory) {
+      inventory.hidden = true;
+      inventory.style.display = 'none';
+    }
+  }
+
+  document.addEventListener('pointerlockchange', () => {
+    if (document.pointerLockElement) {
+      if (overlayOpen()) {
+        hardUnlock();
+        return;
+      }
+      hideCursor();
+      return;
+    }
+
+    showCursor();
+    // Never create a pause screen while Inventory is open.
+    if (inventory && !inventory.hidden) return;
+    if (start && getComputedStyle(start).display !== 'none') return;
+    if (pause && pause.hidden) showPause();
   }, true);
 
-  $('pauseExit')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    unlock();
-    location.href = './dashboard.html';
+  // ESC always releases pointer lock first. If Inventory is open, close it and
+  // immediately return to the running game instead of trapping the UI.
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      if (inventory && !inventory.hidden) {
+        hideInventory();
+        const c = getControls();
+        if (c && !overlayOpen()) {
+          try { c.lock(); } catch (_) {}
+        }
+        return;
+      }
+      if (start && getComputedStyle(start).display !== 'none') return;
+      hardUnlock();
+      showPause();
+      return;
+    }
+
+    // Release the mouse before the game's own E handler opens Inventory.
+    // The game's listener still runs normally and calls renderInventory().
+    if (e.key.toLowerCase() === 'e' && !e.repeat) {
+      hardUnlock();
+    }
   }, true);
 
-  $('closeInventory')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    if (inventory) inventory.hidden = true;
-    showPause();
+  // Same protection for the top-right Inventory button.
+  $('inventoryButton')?.addEventListener('pointerdown', () => hardUnlock(), true);
+  $('inventoryButton')?.addEventListener('click', () => {
+    setTimeout(() => {
+      if (inventory && !inventory.hidden) {
+        hardUnlock();
+        showCursor();
+      }
+    }, 0);
   }, true);
 
-  // Clicking the actual game canvas should capture the mouse again only when
-  // the game is running. This also fixes the "cursor disappeared / nothing
-  // responds" state after returning from an overlay.
-  canvasHost?.addEventListener('mousedown', (e) => {
-    if (e.target?.closest?.('#pausePanel, #inventoryPanel, .game-actions')) return;
-    if (start && getComputedStyle(start).display !== 'none' && !pause?.hidden) return;
-    if (pause && !pause.hidden) return;
-    if (!document.pointerLockElement) lock();
-  }, true);
+  // Let the original world script handle these buttons. We only release the
+  // mouse before it runs, preventing pointer-lock races without suppressing
+  // renderInventory(), resumeGame(), or navigation handlers.
+  $('resumeButton')?.addEventListener('pointerdown', () => hardUnlock(), true);
+  $('pauseInventory')?.addEventListener('pointerdown', () => hardUnlock(), true);
+  $('pauseExit')?.addEventListener('pointerdown', () => hardUnlock(), true);
+  $('closeInventory')?.addEventListener('pointerdown', () => hardUnlock(), true);
 
-  // Safety net: a visible pause/inventory overlay must never coexist with
-  // pointer lock.
+  // If an overlay is visible, keep the native cursor and force pointer lock
+  // off. This repairs the state after browser tab switches as well.
   setInterval(() => {
-    if ((pause && !pause.hidden) || (inventory && !inventory.hidden) || (start && getComputedStyle(start).display !== 'none')) {
-      if (document.pointerLockElement) unlock();
+    if (overlayOpen()) {
+      if (document.pointerLockElement) hardUnlock();
       showCursor();
     }
-  }, 200);
+  }, 100);
+
+  window.addEventListener('blur', () => hardUnlock(), true);
 })();
