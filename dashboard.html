@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#100b20" /><title>VEXORA — Home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="./styles.css" />
+</head>
+<body class="dashboard-page">
+  <header class="topbar">
+    <div class="top-brand"><div class="mini-mark"><span></span><span></span><span></span></div><strong>VEXORA</strong></div>
+    <nav><a class="active" href="./dashboard.html">Home</a><a href="#worlds">Worlds</a><a href="#profile">Profile</a></nav>
+    <button id="logoutButton" class="logout-button">Log out</button>
+  </header>
+  <main class="dashboard-shell">
+    <section class="welcome-panel">
+      <div><p class="eyebrow">VEXORA UNIVERSE</p><h1>Welcome, <span id="displayName">Explorer</span>.</h1><p class="dashboard-copy">Your account is ready. The next step is building your first world.</p><div class="dashboard-actions"><button id="playButton" class="primary-button small-button">PLAY VEXORA <span>→</span></button><button class="secondary-button small-button" onclick="document.getElementById('worlds').scrollIntoView({behavior:'smooth'})">EXPLORE WORLDS</button></div></div>
+      <div class="world-preview"><div class="moon"></div><div class="island island-1"></div><div class="island island-2"></div><div class="preview-label">WORLD PREVIEW<br><span>COMING NEXT</span></div></div>
+    </section>
+    <section id="worlds" class="dashboard-section"><div><p class="eyebrow">YOUR WORLDS</p><h2>Start creating.</h2></div><div class="empty-world"><div class="plus">+</div><div><strong>Create your first world</strong><p>World creation and multiplayer will be connected next.</p></div><button class="secondary-button create-world" disabled>COMING SOON</button></div></section>
+    <section id="profile" class="dashboard-section"><div><p class="eyebrow">ACCOUNT</p><h2>Your explorer profile.</h2></div><div class="profile-card"><div class="avatar" id="avatar">V</div><div><strong id="profileName">Explorer</strong><p id="profileUsername">@username</p><small id="profileEmail">email</small></div></div></section>
+  </main>
+  <script src="./dashboard.js"></script>
+</body>
+</html>
