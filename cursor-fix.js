@@ -4,6 +4,7 @@
   const start = $('startOverlay');
   const inventory = $('inventoryPanel');
   const shell = $('gameShell');
+  const gameCanvas = $('gameCanvas');
 
   const isVisible = (el) => !!el && !el.hidden && getComputedStyle(el).display !== 'none';
 
@@ -16,6 +17,17 @@
     if (shell) shell.style.cursor = 'default';
   }
 
+  function requestGamePointerLock() {
+    const canvas = gameCanvas?.querySelector('canvas');
+    try {
+      if (canvas && typeof canvas.requestPointerLock === 'function') {
+        canvas.requestPointerLock();
+        return;
+      }
+      if (gameCanvas && typeof gameCanvas.requestPointerLock === 'function') gameCanvas.requestPointerLock();
+    } catch (_) {}
+  }
+
   function pauseSafely() {
     releasePointerLock();
     if (start) start.style.display = 'none';
@@ -26,11 +38,19 @@
   }
 
   function resumeSafely() {
-    if (pause) pause.hidden = true;
-    if (inventory) inventory.hidden = true;
+    if (pause) {
+      pause.hidden = true;
+      pause.style.display = 'none';
+    }
+    if (inventory) {
+      inventory.hidden = true;
+      inventory.style.display = 'none';
+    }
+
+    // Prefer the real PointerLockControls bridge when available.
     const controls = window.__vexoraPointerControls;
     if (controls && typeof controls.lock === 'function') controls.lock();
-    else document.getElementById('gameCanvas')?.requestPointerLock?.();
+    else requestGamePointerLock();
   }
 
   document.addEventListener('pointerlockchange', () => {
@@ -49,16 +69,10 @@
     }
   });
 
-  // Escape is the primary Minecraft-style pause action. Do not rely on the
-  // browser's Pointer Lock timing alone; explicitly release the lock.
   window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      setTimeout(pauseSafely, 0);
-    }
+    if (e.key === 'Escape') setTimeout(pauseSafely, 0);
   }, true);
 
-  // If the pause UI is visible while the browser still owns pointer lock,
-  // force-release it. This fixes the stuck "press Esc" state.
   setInterval(() => {
     if (isVisible(pause) || isVisible(inventory) || isVisible(start)) {
       if (document.pointerLockElement) releasePointerLock();
@@ -82,7 +96,10 @@
     e.preventDefault();
     e.stopPropagation();
     releasePointerLock();
-    if (pause) pause.hidden = true;
+    if (pause) {
+      pause.hidden = true;
+      pause.style.display = 'none';
+    }
     if (inventory) {
       inventory.hidden = false;
       inventory.style.display = 'grid';
@@ -96,22 +113,27 @@
     location.href = './dashboard.html';
   }, true);
 
-  $('closeInventory')?.addEventListener('click', () => {
+  $('closeInventory')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     releasePointerLock();
-    if (inventory) inventory.hidden = true;
+    if (inventory) {
+      inventory.hidden = true;
+      inventory.style.display = 'none';
+    }
     if (pause) {
       pause.hidden = false;
       pause.style.display = 'grid';
     }
   }, true);
 
-  // Expose a tiny bridge for the existing game code without replacing it.
   const canvas = $('gameCanvas');
   if (canvas) {
     const observer = new MutationObserver(() => {
       if (isVisible(pause) || isVisible(inventory) || isVisible(start)) releasePointerLock();
     });
-    observer.observe(pause || canvas, { attributes: true, attributeFilter: ['hidden', 'style'] });
+    if (pause) observer.observe(pause, { attributes: true, attributeFilter: ['hidden', 'style'] });
+    observer.observe(canvas, { attributes: true, attributeFilter: ['style'] });
     if (inventory) observer.observe(inventory, { attributes: true, attributeFilter: ['hidden', 'style'] });
     if (start) observer.observe(start, { attributes: true, attributeFilter: ['hidden', 'style'] });
   }
