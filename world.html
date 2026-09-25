@@ -1,55 +1,10 @@
 <!doctype html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0a0d14" />
-  <title>VEXORA — World</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css" />
-  <link rel="stylesheet" href="./world.css" />
-</head>
-<body class="game-page">
-  <header class="game-topbar">
-    <a class="game-brand" href="./dashboard.html"><span class="game-brand-mark">V</span><strong>VEXORA</strong></a>
-    <div class="world-title-wrap"><span class="world-live-dot"></span><strong id="worldName">Loading world…</strong><span id="worldType" class="world-type-pill">SURVIVAL</span><span id="saveState" class="save-state">SYNCING</span></div>
-    <div class="game-actions"><button id="modeButton" class="game-tool">SURVIVAL</button><button id="inventoryButton" class="game-tool">INVENTORY <kbd>E</kbd></button><button id="saveWorld" class="game-tool">SAVE</button><button id="backHome" class="game-tool">EXIT</button></div>
-  </header>
-
-  <main class="game-shell" id="gameShell">
-    <div id="gameCanvas" class="game-canvas" aria-label="VEXORA 3D sandbox world"></div>
-    <div class="crosshair" aria-hidden="true"><span></span></div>
-
-    <aside class="game-hud">
-      <section class="hud-card player-card"><div class="player-avatar">V</div><div><span class="hud-label">EXPLORER</span><strong id="playerName">Vexora</strong><small id="worldCoords">X 0 · Y 0 · Z 0</small></div></section>
-      <section class="hud-card vitals-card"><div class="vital-row"><span>❤</span><div class="vital-bar"><i id="healthBar"></i></div><b id="healthText">100</b></div><div class="vital-row food"><span>●</span><div class="vital-bar"><i id="hungerBar"></i></div><b id="hungerText">100</b></div></section>
-      <section class="hud-card quest-card"><div class="quest-top"><span class="hud-label">VEXORA JOURNEY</span><b id="dayText">DAY 1</b></div><strong id="questTitle">Explore your new world</strong><small id="questText">Gather wood, build a shelter, and discover something new.</small><div class="quest-progress"><span id="questProgress"></span></div></section>
-      <section class="hud-card controls-card"><span class="hud-label">HOW TO PLAY</span><p><kbd>WASD</kbd> move <kbd>SHIFT</kbd> sprint</p><p><kbd>SPACE</kbd> jump / fly <kbd>E</kbd> inventory</p><p><kbd>LMB</kbd> mine/attack <kbd>RMB</kbd> place/use</p><p><kbd>1–9</kbd> hotbar <kbd>ESC</kbd> unlock mouse</p></section>
-    </aside>
-
-    <div class="world-status"><span class="status-dot"></span><span id="actionStatus">WORLD ONLINE</span></div>
-    <div class="mini-location"><span>YOU ARE HERE</span><strong id="locationName">VEXA MEADOWS</strong></div>
-
-    <div id="hotbar" class="hotbar"></div>
-    <div id="breakMeter" class="break-meter"><span></span></div>
-    <div id="targetHint" class="target-hint">Click the world to play</div>
-    <div id="toast" class="game-toast" aria-live="polite"></div>
-    <div class="game-tip">VEXORA SANDBOX · BUILD · CRAFT · EXPLORE · CREATE</div>
-
-    <div id="startOverlay" class="start-overlay">
-      <div class="start-card"><div class="start-logo">V</div><p class="eyebrow">VEXORA SANDBOX</p><h1 id="startWorldName">Enter your world.</h1><p>Explore, mine, build, craft, and shape this world however you want.</p><button id="playNow" class="primary-button">PLAY WORLD <span>→</span></button><div class="start-hints"><span>WASD</span> move <span>SPACE</span> jump <span>LMB</span> mine <span>RMB</span> build</div></div>
-    </div>
-
-    <div id="inventoryPanel" class="inventory-panel" hidden>
-      <div class="inventory-window"><button id="closeInventory" class="inventory-close">×</button><div class="inventory-heading"><div><p class="eyebrow">VEXORA BACKPACK</p><h2>Inventory & Crafting</h2></div><span id="modeLabel" class="mode-label">SURVIVAL</span></div>
-        <div class="inventory-layout"><div><h3>ITEMS</h3><div id="inventoryGrid" class="inventory-grid"></div></div><div class="crafting-area"><h3>QUICK CRAFT</h3><div id="recipeGrid" class="recipe-grid"></div><p id="craftHint">Collect resources to unlock recipes.</p></div></div>
-      </div>
-    </div>
-
-    <div id="pausePanel" class="pause-panel" hidden><div class="pause-card"><div class="start-logo">V</div><p class="eyebrow">GAME PAUSED</p><h2>VEXORA</h2><button id="resumeButton" class="primary-button">RESUME</button><button id="pauseInventory" class="secondary-button">INVENTORY</button><button id="pauseExit" class="secondary-button">EXIT WORLD</button></div></div>
-  </main>
-  <script type="module" src="./world.js"></script>
-</body>
-</html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><meta name="theme-color" content="#0a0d14"/><title>VEXORA — World</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="./styles.css"/><link rel="stylesheet" href="./world.css"/></head>
+<body class="game-page"><header class="game-topbar"><a class="game-brand" href="./dashboard.html"><span class="game-brand-mark">V</span><strong>VEXORA</strong></a><div class="world-title-wrap"><span class="world-live-dot"></span><strong id="worldName">Loading world…</strong><span id="worldType" class="world-type-pill">SURVIVAL</span><span id="saveState" class="save-state">SYNCING</span></div><div class="game-actions"><button id="modeButton" class="game-tool">SURVIVAL</button><button id="inventoryButton" class="game-tool">INVENTORY <kbd>E</kbd></button><button id="saveWorld" class="game-tool">SAVE</button><button id="backHome" class="game-tool">EXIT</button></div></header>
+<main class="game-shell" id="gameShell"><div id="gameCanvas" class="game-canvas"></div><div class="crosshair"><span></span></div>
+<aside class="game-hud"><section class="hud-card player-card"><div class="player-avatar">V</div><div><span class="hud-label">EXPLORER</span><strong id="playerName">Vexora</strong><small id="worldCoords">X 0 · Y 0 · Z 0</small></div></section><section class="hud-card vitals-card"><div class="vital-row"><span>❤</span><div class="vital-bar"><i id="healthBar"></i></div><b id="healthText">100</b></div><div class="vital-row food"><span>●</span><div class="vital-bar"><i id="hungerBar"></i></div><b id="hungerText">100</b></div></section><section class="hud-card quest-card"><div class="quest-top"><span class="hud-label">VEXORA JOURNEY</span><b id="dayText">DAY 1</b></div><strong>Explore your new world</strong><small>Gather resources, build a shelter, craft new materials and discover the map.</small><div class="quest-progress"><span></span></div></section><section class="hud-card controls-card"><span class="hud-label">HOW TO PLAY</span><p><kbd>WASD</kbd> move <kbd>SHIFT</kbd> sprint</p><p><kbd>SPACE</kbd> jump / fly <kbd>E</kbd> inventory</p><p><kbd>LMB</kbd> mine <kbd>RMB</kbd> place</p><p><kbd>1–9</kbd> hotbar <kbd>ESC</kbd> pause</p></section></aside>
+<div class="world-status"><span class="status-dot"></span><span id="actionStatus">WORLD ONLINE</span></div><div class="mini-location"><span>YOU ARE HERE</span><strong id="locationName">VEXA MEADOWS</strong></div><div id="hotbar" class="hotbar"></div><div id="breakMeter" class="break-meter"><span></span></div><div id="targetHint" class="target-hint">Click PLAY WORLD to start</div><div id="toast" class="game-toast"></div><div class="game-tip">VEXORA SANDBOX · BUILD · CRAFT · EXPLORE · CREATE</div>
+<div id="startOverlay" class="start-overlay"><div class="start-card"><div class="start-logo">V</div><p class="eyebrow">VEXORA SANDBOX</p><h1 id="startWorldName">Enter your world.</h1><p>Explore, mine, build, craft and shape the world however you want.</p><button id="playNow" class="primary-button">PLAY WORLD <span>→</span></button><div class="start-hints"><span>WASD</span> move <span>SPACE</span> jump <span>LMB</span> mine <span>RMB</span> build</div></div></div>
+<div id="inventoryPanel" class="inventory-panel" hidden><div class="inventory-window"><button id="closeInventory" class="inventory-close">×</button><div class="inventory-heading"><div><p class="eyebrow">VEXORA BACKPACK</p><h2>Inventory & Crafting</h2></div><span id="modeLabel" class="mode-label">SURVIVAL</span></div><div class="inventory-layout"><div><h3>ITEMS</h3><div id="inventoryGrid" class="inventory-grid"></div></div><div class="crafting-area"><h3>QUICK CRAFT</h3><div id="recipeGrid" class="recipe-grid"></div><p id="craftHint">Collect resources to unlock recipes.</p></div></div></div></div>
+<div id="pausePanel" class="pause-panel" hidden><div class="pause-card"><div class="start-logo">V</div><p class="eyebrow">GAME PAUSED</p><h2>VEXORA</h2><button id="resumeButton" class="primary-button">RESUME</button><button id="pauseInventory" class="secondary-button">INVENTORY</button><button id="pauseExit" class="secondary-button">EXIT WORLD</button></div></div>
+</main><script type="module" src="./world-v4.js"></script></body></html>
