@@ -1,4 +1,14 @@
 async function loadAccount() {
+  const isGuest = new URLSearchParams(window.location.search).get('guest') === '1' || sessionStorage.getItem('vexora_guest') === '1';
+  if (isGuest) {
+    document.getElementById('displayName').textContent = 'Guest Explorer';
+    document.getElementById('profileName').textContent = 'Guest Explorer';
+    document.getElementById('profileUsername').textContent = '@guest';
+    document.getElementById('profileEmail').textContent = 'Guest mode — no account saved';
+    document.getElementById('avatar').textContent = 'G';
+    document.getElementById('logoutButton').textContent = 'Exit Guest';
+    return;
+  }
   try {
     const response = await fetch('/api/auth/me', { credentials: 'include' });
     const data = await response.json();
@@ -18,6 +28,7 @@ async function loadAccount() {
 }
 
 document.getElementById('logoutButton').addEventListener('click', async () => {
+  sessionStorage.removeItem('vexora_guest');
   await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
   window.location.href = './';
 });
