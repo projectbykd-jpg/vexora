@@ -1,52 +1,44 @@
-const form = document.getElementById("loginForm");
-const identity = document.getElementById("identity");
-const password = document.getElementById("password");
-const message = document.getElementById("message");
-const togglePassword = document.getElementById("togglePassword");
-const guestButton = document.getElementById("guestButton");
+const form = document.getElementById('loginForm');
+const identity = document.getElementById('identity');
+const password = document.getElementById('password');
+const message = document.getElementById('message');
+const togglePassword = document.getElementById('togglePassword');
+const guestButton = document.getElementById('guestButton');
 
-togglePassword.addEventListener("click", () => {
-  const isPassword = password.type === "password";
-  password.type = isPassword ? "text" : "password";
-  togglePassword.textContent = isPassword ? "Hide" : "Show";
-  togglePassword.setAttribute("aria-label", isPassword ? "Hide password" : "Show password");
+togglePassword.addEventListener('click', () => {
+  const show = password.type === 'password';
+  password.type = show ? 'text' : 'password';
+  togglePassword.textContent = show ? 'Hide' : 'Show';
 });
 
-form.addEventListener("submit", (event) => {
+form.addEventListener('submit', async (event) => {
   event.preventDefault();
-  message.className = "message";
-
-  const user = identity.value.trim();
-  const pass = password.value;
-
-  if (!user || !pass) {
-    message.textContent = "Please fill in your login details.";
-    message.classList.add("error");
-    return;
+  message.className = 'message';
+  message.textContent = 'Signing you in…';
+  try {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ identity: identity.value.trim(), password: password.value })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Login failed.');
+    message.textContent = `Welcome back, ${data.user.displayName || data.user.username}!`;
+    setTimeout(() => { window.location.href = './dashboard.html'; }, 350);
+  } catch (error) {
+    message.textContent = error.message;
+    message.classList.add('error');
   }
-
-  if (pass.length < 6) {
-    message.textContent = "Password must be at least 6 characters.";
-    message.classList.add("error");
-    return;
-  }
-
-  message.textContent = "UI ready — authentication will be connected next.";
 });
 
-guestButton.addEventListener("click", () => {
-  message.className = "message";
-  message.textContent = "Guest mode will be connected next.";
+guestButton.addEventListener('click', () => {
+  sessionStorage.setItem('vexora_guest', '1');
+  window.location.href = './dashboard.html?guest=1';
 });
 
-document.getElementById("forgotLink").addEventListener("click", (e) => {
+document.getElementById('forgotLink').addEventListener('click', (e) => {
   e.preventDefault();
-  message.className = "message";
-  message.textContent = "Password recovery will be connected next.";
-});
-
-document.getElementById("signupLink").addEventListener("click", (e) => {
-  e.preventDefault();
-  message.className = "message";
-  message.textContent = "Registration will be connected next.";
+  message.className = 'message';
+  message.textContent = 'Password recovery will be added after the core account system.';
 });
