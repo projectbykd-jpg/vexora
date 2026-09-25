@@ -15,16 +15,28 @@ function getDb() {
 
 async function initDb() {
   const db = getDb();
-  await db.execute(`
-    CREATE TABLE IF NOT EXISTS users (
+  await db.batch([
+    `CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
       username TEXT NOT NULL UNIQUE,
       email TEXT NOT NULL UNIQUE,
       password_hash TEXT NOT NULL,
       display_name TEXT NOT NULL,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
-    )
-  `);
+    )`,
+    `CREATE TABLE IF NOT EXISTS worlds (
+      id TEXT PRIMARY KEY,
+      owner_id TEXT NOT NULL,
+      name TEXT NOT NULL,
+      type TEXT NOT NULL DEFAULT 'normal',
+      privacy TEXT NOT NULL DEFAULT 'private',
+      seed INTEGER NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+      FOREIGN KEY (owner_id) REFERENCES users(id)
+    )`,
+    `CREATE INDEX IF NOT EXISTS idx_worlds_owner ON worlds(owner_id)`,
+  ]);
   return db;
 }
 
