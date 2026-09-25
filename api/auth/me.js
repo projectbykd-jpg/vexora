@@ -8,14 +8,22 @@ module.exports = async function handler(req, res) {
     if (!userId) return res.status(401).json({ authenticated: false });
     const db = await initDb();
     const result = await db.execute({
-      sql: 'SELECT id, username, email, display_name, created_at FROM users WHERE id = ? LIMIT 1',
+      sql: 'SELECT id, username, email, display_name, created_at, avatar_url, total_play_seconds FROM users WHERE id = ? LIMIT 1',
       args: [userId]
     });
     const user = result.rows[0];
     if (!user) return res.status(401).json({ authenticated: false });
     return res.status(200).json({
       authenticated: true,
-      user: { id: user.id, username: user.username, email: user.email, displayName: user.display_name, createdAt: user.created_at }
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        displayName: user.display_name,
+        createdAt: user.created_at,
+        avatarUrl: user.avatar_url || null,
+        totalPlaySeconds: Number(user.total_play_seconds || 0)
+      }
     });
   } catch (error) {
     console.error(error);
