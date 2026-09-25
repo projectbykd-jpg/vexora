@@ -1,5 +1,5 @@
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
-import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/controls/OrbitControls.js';
+import * as THREE from 'https://esm.sh/three@0.180.0';
+import { OrbitControls } from 'https://esm.sh/three@0.180.0/examples/jsm/controls/OrbitControls.js';
 
 const params = new URLSearchParams(location.search);
 const worldId = params.get('id');
@@ -9,9 +9,7 @@ const worldTypeEl = document.getElementById('worldType');
 const selectedBlocks = document.querySelectorAll('.block-choice');
 let selectedBlock = 'grass';
 
-if (!worldId) {
-  location.href = './dashboard.html';
-}
+if (!worldId) location.href = './dashboard.html';
 
 async function loadWorld() {
   const response = await fetch(`/api/worlds?id=${encodeURIComponent(worldId)}`, { credentials: 'include' });
@@ -21,33 +19,25 @@ async function loadWorld() {
   worldTypeEl.textContent = data.world.type.toUpperCase();
 }
 
-try {
-  await loadWorld();
-} catch (error) {
-  worldNameEl.textContent = error.message;
-}
+try { await loadWorld(); } catch (error) { worldNameEl.textContent = error.message; }
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0b0920);
 scene.fog = new THREE.Fog(0x0b0920, 20, 48);
-
 const camera = new THREE.OrthographicCamera(-12, 12, 7, -7, 0.1, 100);
 camera.position.set(14, 13, 14);
-
 const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(canvasHost.clientWidth, canvasHost.clientHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 canvasHost.appendChild(renderer.domElement);
-
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.enablePan = false;
 controls.minZoom = 0.65;
 controls.maxZoom = 2.1;
 controls.target.set(0, 0, 0);
-
 scene.add(new THREE.HemisphereLight(0xcfc8ff, 0x211633, 2.2));
 const sun = new THREE.DirectionalLight(0xffe8c8, 3.2);
 sun.position.set(8, 18, 10);
@@ -65,8 +55,8 @@ const materials = {
 };
 const blockGeometry = new THREE.BoxGeometry(1, 1, 1);
 const blocks = new Map();
+const key = (x, y, z) => `${x},${y},${z}`;
 
-function key(x, y, z) { return `${x},${y},${z}`; }
 function addBlock(x, y, z, type = 'grass') {
   const id = key(x, y, z);
   if (blocks.has(id)) return;
@@ -85,17 +75,13 @@ function removeBlock(mesh) {
   blocks.delete(key(x, y, z));
 }
 
-for (let x = -6; x <= 6; x++) {
-  for (let z = -5; z <= 5; z++) {
-    const edge = Math.max(Math.abs(x), Math.abs(z));
-    if (edge <= 4 || (edge === 5 && (x + z) % 2 === 0)) {
-      addBlock(x, 0, z, 'stone');
-      addBlock(x, 1, z, 'grass');
-    }
+for (let x = -6; x <= 6; x++) for (let z = -5; z <= 5; z++) {
+  const edge = Math.max(Math.abs(x), Math.abs(z));
+  if (edge <= 4 || (edge === 5 && (x + z) % 2 === 0)) {
+    addBlock(x, 0, z, 'stone');
+    addBlock(x, 1, z, 'grass');
   }
 }
-
-// Small VEXORA landmark and trees.
 for (const [x, z] of [[-3,-2], [4,-2], [3,3]]) {
   addBlock(x, 2, z, 'wood');
   addBlock(x, 3, z, 'wood');
@@ -107,14 +93,10 @@ addBlock(0, 2, 0, 'crystal');
 addBlock(0, 3, 0, 'crystal');
 addBlock(1, 2, 0, 'crystal');
 
-const player = new THREE.Mesh(
-  new THREE.BoxGeometry(.72, 1.25, .72),
-  new THREE.MeshStandardMaterial({ color: 0xff91df, roughness: .55 })
-);
+const player = new THREE.Mesh(new THREE.BoxGeometry(.72, 1.25, .72), new THREE.MeshStandardMaterial({ color: 0xff91df, roughness: .55 }));
 player.position.set(0, 2.65, 2.2);
 player.castShadow = true;
 scene.add(player);
-
 const playerGlow = new THREE.PointLight(0xff8ee1, 2.5, 5);
 playerGlow.position.copy(player.position).add(new THREE.Vector3(0, 1, 0));
 scene.add(playerGlow);
@@ -128,32 +110,25 @@ function pick(event) {
   raycaster.setFromCamera(pointer, camera);
   return raycaster.intersectObjects([...blocks.values()], false)[0];
 }
-
 renderer.domElement.addEventListener('pointerdown', (event) => {
   if (event.button !== 0) return;
   const hit = pick(event);
   if (!hit) return;
   const normal = hit.face.normal.clone();
   normal.transformDirection(hit.object.matrixWorld);
-  if (event.shiftKey) {
-    removeBlock(hit.object);
-  } else {
+  if (event.shiftKey) removeBlock(hit.object);
+  else {
     const p = hit.object.position.clone().add(normal.multiplyScalar(0.5));
     addBlock(Math.round(p.x), Math.round(p.y), Math.round(p.z), selectedBlock);
   }
 });
-
 selectedBlocks.forEach((element) => element.addEventListener('click', () => {
   selectedBlocks.forEach((item) => item.classList.remove('active'));
   element.classList.add('active');
   selectedBlock = element.dataset.block;
 }));
-
 document.getElementById('backHome').addEventListener('click', () => { location.href = './dashboard.html#worlds'; });
-document.getElementById('buildMode').addEventListener('click', (event) => {
-  event.currentTarget.classList.toggle('active');
-});
-
+document.getElementById('buildMode').addEventListener('click', (event) => event.currentTarget.classList.toggle('active'));
 function resize() {
   const width = canvasHost.clientWidth;
   const height = canvasHost.clientHeight;
@@ -168,7 +143,6 @@ function resize() {
 }
 window.addEventListener('resize', resize);
 resize();
-
 function animate() {
   requestAnimationFrame(animate);
   player.rotation.y += 0.004;
