@@ -14,12 +14,35 @@
   </header>
   <main class="dashboard-shell">
     <section class="welcome-panel">
-      <div><p class="eyebrow">VEXORA UNIVERSE</p><h1>Welcome, <span id="displayName">Explorer</span>.</h1><p class="dashboard-copy">Your account is ready. The next step is building your first world.</p><div class="dashboard-actions"><button id="playButton" class="primary-button small-button">PLAY VEXORA <span>→</span></button><button class="secondary-button small-button" onclick="document.getElementById('worlds').scrollIntoView({behavior:'smooth'})">EXPLORE WORLDS</button></div></div>
-      <div class="world-preview"><div class="moon"></div><div class="island island-1"></div><div class="island island-2"></div><div class="preview-label">WORLD PREVIEW<br><span>COMING NEXT</span></div></div>
+      <div><p class="eyebrow">VEXORA UNIVERSE</p><h1>Welcome, <span id="displayName">Explorer</span>.</h1><p class="dashboard-copy">Your account is ready. Create a world, shape it, and make it yours.</p><div class="dashboard-actions"><button id="playButton" class="primary-button small-button">PLAY VEXORA <span>→</span></button><button class="secondary-button small-button" onclick="document.getElementById('worlds').scrollIntoView({behavior:'smooth'})">EXPLORE WORLDS</button></div></div>
+      <div class="world-preview"><div class="moon"></div><div class="island island-1"></div><div class="island island-2"></div><div class="preview-label">VEXORA WORLD<br><span>BUILD · EXPLORE · CREATE</span></div></div>
     </section>
-    <section id="worlds" class="dashboard-section"><div><p class="eyebrow">YOUR WORLDS</p><h2>Start creating.</h2></div><div class="empty-world"><div class="plus">+</div><div><strong>Create your first world</strong><p>World creation and multiplayer will be connected next.</p></div><button class="secondary-button create-world" disabled>COMING SOON</button></div></section>
+
+    <section id="worlds" class="dashboard-section">
+      <div class="section-heading"><div><p class="eyebrow">YOUR WORLDS</p><h2>Start creating.</h2></div><button id="openCreateWorld" class="primary-button world-create-button"><span>＋ CREATE WORLD</span></button></div>
+      <div id="worldList" class="world-list"><div class="world-loading">Loading your worlds…</div></div>
+    </section>
+
     <section id="profile" class="dashboard-section"><div><p class="eyebrow">ACCOUNT</p><h2>Your explorer profile.</h2></div><div class="profile-card"><div class="avatar" id="avatar">V</div><div><strong id="profileName">Explorer</strong><p id="profileUsername">@username</p><small id="profileEmail">email</small></div></div></section>
   </main>
+
+  <div id="worldModal" class="modal-backdrop" hidden>
+    <section class="world-modal" role="dialog" aria-modal="true" aria-labelledby="worldModalTitle">
+      <button id="closeWorldModal" class="modal-close" type="button" aria-label="Close">×</button>
+      <p class="eyebrow">NEW VEXORA WORLD</p>
+      <h2 id="worldModalTitle">Create your world.</h2>
+      <p class="modal-copy">Choose a name and a starting style. You can shape the world after entering it.</p>
+      <form id="createWorldForm" class="world-form">
+        <label>World name<input id="worldName" name="name" maxlength="24" placeholder="e.g. Vexoria" required /></label>
+        <div class="form-grid">
+          <label>World type<select id="worldType" name="type"><option value="normal">🌎 Normal</option><option value="creative">✨ Creative</option><option value="adventure">⚔️ Adventure</option></select></label>
+          <label>Privacy<select id="worldPrivacy" name="privacy"><option value="private">🔒 Private</option><option value="public">🌐 Public</option></select></label>
+        </div>
+        <div id="worldMessage" class="message" role="status" aria-live="polite"></div>
+        <button class="primary-button" type="submit"><span>CREATE WORLD</span><span class="arrow">→</span></button>
+      </form>
+    </section>
+  </div>
   <script src="./dashboard.js"></script>
 </body>
 </html>
