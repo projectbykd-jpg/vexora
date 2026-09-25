@@ -35,7 +35,17 @@ async function initDb() {
       updated_at TEXT NOT NULL DEFAULT (datetime('now')),
       FOREIGN KEY (owner_id) REFERENCES users(id)
     )`,
+    `CREATE TABLE IF NOT EXISTS world_blocks (
+      world_id TEXT NOT NULL,
+      x INTEGER NOT NULL,
+      y INTEGER NOT NULL,
+      z INTEGER NOT NULL,
+      type TEXT NOT NULL,
+      PRIMARY KEY (world_id, x, y, z),
+      FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE
+    )`,
     `CREATE INDEX IF NOT EXISTS idx_worlds_owner ON worlds(owner_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_world_blocks_world ON world_blocks(world_id)`,
   ]);
   return db;
 }
