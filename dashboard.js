@@ -11,9 +11,13 @@ function worldTypeLabel(type) {
 }
 
 function worldCard(world) {
+  const isMine = world.ownerId === undefined || world.ownerId === window.__vexoraUserId;
+  const ownerText = world.privacy === 'public' && world.ownerUsername
+    ? ` · by @${escapeHtml(world.ownerUsername)}`
+    : '';
   return `<article class="world-card">
     <div class="world-icon">✦</div>
-    <div class="world-info"><strong>${escapeHtml(world.name)}</strong><p>${worldTypeLabel(world.type)} · ${world.privacy === 'public' ? '🌐 Public' : '🔒 Private'}</p></div>
+    <div class="world-info"><strong>${escapeHtml(world.name)}</strong><p>${worldTypeLabel(world.type)} · ${world.privacy === 'public' ? '🌐 Public' : '🔒 Private'}${ownerText}</p></div>
     <a class="secondary-button world-enter" href="./world.html?id=${encodeURIComponent(world.id)}">ENTER WORLD <span>→</span></a>
   </article>`;
 }
@@ -94,6 +98,7 @@ async function loadAccount() {
       return;
     }
     const user = data.user;
+    window.__vexoraUserId = user.id;
     document.getElementById('displayName').textContent = user.displayName || user.username;
     document.getElementById('profileName').textContent = user.displayName || user.username;
     document.getElementById('profileUsername').textContent = `@${user.username}`;
