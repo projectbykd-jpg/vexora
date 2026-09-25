@@ -4,9 +4,13 @@ const COOKIE_NAME = 'vexora_session';
 const SESSION_DAYS = 7;
 
 function secret() {
-  const value = process.env.AUTH_SECRET;
+  // Prefer a dedicated AUTH_SECRET. For the current VEXORA deployment,
+  // fall back to the server-only Turso token so login still works even if
+  // AUTH_SECRET has not been added to Vercel yet. The token is never sent
+  // to the browser.
+  const value = process.env.AUTH_SECRET || process.env.TURSO_AUTH_TOKEN;
   if (!value || value.length < 32) {
-    throw new Error('AUTH_SECRET is missing or too short. Use a random secret with at least 32 characters.');
+    throw new Error('Authentication secret is missing or too short. Add AUTH_SECRET (32+ characters) or configure Turso correctly.');
   }
   return value;
 }
