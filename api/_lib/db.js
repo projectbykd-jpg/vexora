@@ -44,8 +44,31 @@ async function initDb() {
       PRIMARY KEY (world_id, x, y, z),
       FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE
     )`,
+    `CREATE TABLE IF NOT EXISTS chat_messages (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      world_id TEXT NULL,
+      user_id TEXT NOT NULL,
+      message TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE,
+      FOREIGN KEY (user_id) REFERENCES users(id)
+    )`,
+    `CREATE TABLE IF NOT EXISTS world_presence (
+      world_id TEXT NOT NULL,
+      user_id TEXT NOT NULL,
+      x REAL NOT NULL DEFAULT 0,
+      y REAL NOT NULL DEFAULT 2,
+      z REAL NOT NULL DEFAULT 0,
+      yaw REAL NOT NULL DEFAULT 0,
+      updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+      PRIMARY KEY (world_id, user_id),
+      FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE,
+      FOREIGN KEY (user_id) REFERENCES users(id)
+    )`,
     `CREATE INDEX IF NOT EXISTS idx_worlds_owner ON worlds(owner_id)`,
     `CREATE INDEX IF NOT EXISTS idx_world_blocks_world ON world_blocks(world_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_chat_scope_time ON chat_messages(world_id, created_at)`,
+    `CREATE INDEX IF NOT EXISTS idx_presence_world_time ON world_presence(world_id, updated_at)`,
   ]);
   return db;
 }
