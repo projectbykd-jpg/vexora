@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><meta name="theme-color" content="#0a0d14"/><meta name="description" content="VEXORA — build, craft, explore, create."/><link rel="icon" type="image/png" href="https://i.ibb.co/DDgTvWdb/1c26840c-b04f-43cb-ad6b-936879ce884a.png"/><link rel="apple-touch-icon" href="https://i.ibb.co/DDgTvWdb/1c26840c-b04f-43cb-ad6b-936879ce884a.png"/><title>VEXORA — World</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="./styles.css"/><link rel="stylesheet" href="./world.css"/><style>
-.game-shell{cursor:default}.game-canvas canvas{cursor:crosshair}.start-overlay,.pause-panel,.inventory-panel,.start-overlay button,.pause-panel button,.inventory-panel button,.game-tool,.hot-slot{cursor:pointer}.pause-panel,.inventory-panel{cursor:default}.pause-card,.inventory-window{cursor:default}
+.game-shell{cursor:default}.game-canvas canvas{cursor:crosshair}.start-overlay,.pause-panel,.inventory-panel,.start-overlay button,.pause-panel button,.inventory-panel button,.game-tool,.hot-slot{cursor:pointer}.pause-panel,.inventory-panel{cursor:default}.pause-card,.inventory-window{cursor:default}.start-overlay,.pause-panel,.inventory-panel{pointer-events:auto!important}.start-card,.pause-card,.inventory-window,.start-overlay button,.pause-panel button,.inventory-panel button{pointer-events:auto!important}
 </style></head>
 <body class="game-page"><header class="game-topbar"><a class="game-brand" href="./dashboard.html"><span class="game-brand-mark"><img src="https://i.ibb.co/DDgTvWdb/1c26840c-b04f-43cb-ad6b-936879ce884a.png" alt="VEXORA" style="width:100%;height:100%;object-fit:contain;display:block;border-radius:inherit;"/></span><strong>VEXORA</strong></a><div class="world-title-wrap"><span class="world-live-dot"></span><strong id="worldName">Loading world…</strong><span id="worldType" class="world-type-pill">SURVIVAL</span><span id="saveState" class="save-state">SYNCING</span></div><div class="game-actions"><button id="modeButton" class="game-tool">SURVIVAL</button><button id="inventoryButton" class="game-tool">INVENTORY <kbd>E</kbd></button><button id="saveWorld" class="game-tool">SAVE</button><button id="backHome" class="game-tool">EXIT</button></div></header>
 <main class="game-shell" id="gameShell"><div id="gameCanvas" class="game-canvas"></div><div class="crosshair"><span></span></div>
@@ -9,8 +9,7 @@
 <div id="startOverlay" class="start-overlay"><div class="start-card"><div class="start-logo"><img src="https://i.ibb.co/DDgTvWdb/1c26840c-b04f-43cb-ad6b-936879ce884a.png" alt="VEXORA" style="width:100%;height:100%;object-fit:contain;border-radius:inherit;display:block;"/></div><p class="eyebrow">VEXORA SANDBOX</p><h1 id="startWorldName">Enter your world.</h1><p>Explore, mine, build, craft and shape the world however you want.</p><button id="playNow" class="primary-button">PLAY WORLD <span>→</span></button><div class="start-hints"><span>WASD</span> move <span>SPACE</span> jump <span>LMB</span> mine <span>RMB</span> build</div></div></div>
 <div id="inventoryPanel" class="inventory-panel" hidden><div class="inventory-window"><button id="closeInventory" class="inventory-close">×</button><div class="inventory-heading"><div><p class="eyebrow">VEXORA BACKPACK</p><h2>Inventory & Crafting</h2></div><span id="modeLabel" class="mode-label">SURVIVAL</span></div><div class="inventory-layout"><div><h3>ITEMS</h3><div id="inventoryGrid" class="inventory-grid"></div></div><div class="crafting-area"><h3>QUICK CRAFT</h3><div id="recipeGrid" class="recipe-grid"></div><p id="craftHint">Collect resources to unlock recipes.</p></div></div></div></div>
 <div id="pausePanel" class="pause-panel" hidden><div class="pause-card"><div class="start-logo"><img src="https://i.ibb.co/DDgTvWdb/1c26840c-b04f-43cb-ad6b-936879ce884a.png" alt="VEXORA" style="width:100%;height:100%;object-fit:contain;border-radius:inherit;display:block;"/></div><p class="eyebrow">GAME PAUSED</p><h2>VEXORA</h2><button id="resumeButton" class="primary-button">RESUME</button><button id="pauseInventory" class="secondary-button">INVENTORY</button><button id="pauseExit" class="secondary-button">EXIT WORLD</button></div></div>
-</main><script type="module" src="./world-v4.js"></script><script>
-// Cursor safety layer: Pointer Lock hides the OS cursor while playing, but it must return on pause/menu.
+</main><script type="module" src="./world-v4.js"></script><script src="./cursor-fix.js"></script><script>
 (function(){
   const shell=document.getElementById('gameShell');
   const canvas=document.getElementById('gameCanvas');
@@ -18,10 +17,7 @@
   const start=document.getElementById('startOverlay');
   function showCursor(){ document.documentElement.style.cursor='default'; document.body.style.cursor='default'; if(shell)shell.style.cursor='default'; if(canvas)canvas.style.cursor='default'; }
   function showGameCursor(){ document.documentElement.style.cursor='none'; document.body.style.cursor='none'; if(shell)shell.style.cursor='none'; if(canvas)canvas.style.cursor='none'; }
-  document.addEventListener('pointerlockchange',function(){
-    if(document.pointerLockElement){ showGameCursor(); }
-    else { showCursor(); }
-  });
+  document.addEventListener('pointerlockchange',function(){ if(document.pointerLockElement){ showGameCursor(); } else { showCursor(); } });
   document.addEventListener('keydown',function(e){ if(e.key==='Escape') setTimeout(showCursor,30); });
   [pause,start].forEach(el=>{ if(el) el.addEventListener('pointerenter',showCursor); });
   window.addEventListener('blur',showCursor);
