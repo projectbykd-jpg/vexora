@@ -553,7 +553,7 @@
     });
   }
 
-  function openModal(type){modal=type;paused=true;document.querySelectorAll('.modal').forEach(x=>x.hidden=true);const el=$(type+'Modal');if(el)el.hidden=false;if(type==='inventory')renderInventory();stopMine();}
+  function openModal(type){modal=type;paused=true;document.querySelectorAll('.modal').forEach(x=>x.hidden=true);const el=$(type+'Modal');if(el)el.hidden=false;if(type==='inventory')renderInventory();if(type==='menu'){ $('menuCurrentWorld').textContent=meta.name||'VEXORA WORLD'; $('menuWorldTitle').textContent='WORLD MENU'; }stopMine();}
   function closeModal(){document.querySelectorAll('.modal').forEach(x=>x.hidden=true);modal='';paused=false;}
 
   async function loadPlayerProfile(){
@@ -812,6 +812,11 @@
   $('saveButton').onclick=()=>saveWorld();
   $('lockAreaButton')?.addEventListener('click',createAreaLock);
   $('closeInventory').onclick=closeModal;$('closeHelp').onclick=closeModal;$('closeMenu').onclick=closeModal;
+  $('menuRespawn').onclick=()=>{spawn();closeModal();sfx('jump');toast('Respawned');};
+  $('menuInventory').onclick=()=>openModal('inventory');
+  $('menuStore').onclick=()=>{closeModal();document.getElementById('vxSystems')?.classList.add('open');document.querySelector('#vxTabs [data-tab="market"]')?.click();};
+  $('menuOptions').onclick=()=>openModal('options');
+  $('menuHelp').onclick=()=>openModal('help');
   $('exitWorld').onclick=()=>{location.href='./worlds.html';};
 
   function pollGamepad(){
