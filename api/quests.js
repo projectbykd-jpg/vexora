@@ -33,7 +33,8 @@ module.exports=async function(req,res){
    if(!row.rows[0]||row.rows[0].status!=='complete')return res.status(409).json({error:'Quest is not ready to claim.'});
    const tx=await db.transaction('write');
    try{
-    await tx.execute({sql:'UPDATE quests SET status=\'claimed\',completed_at=datetime(\'now\'),updated_at=datetime(\'now\') WHERE user_id=? AND quest_id=? AND status=\'complete\'',args:[userId,id]});
+    const claimed = await tx.execute({sql:'UPDATE quests SET status=\'claimed\',completed_at=datetime(\'now\'),updated_at=datetime(\'now\') WHERE user_id=? AND quest_id=? AND status=\'complete\'',args:[userId,id]});
+    if (Number(claimed.rowsAffected || 0) !== 1) { await tx.rollback(); return res.status(409).json({ error:'Quest reward was already claimed.' }); }
     await tx.execute({sql:'INSERT OR IGNORE INTO player_wallets(user_id) VALUES(?)',args:[userId]});
     await tx.execute({sql:'UPDATE player_wallets SET world_coins=world_coins+?,updated_at=datetime(\'now\') WHERE user_id=?',args:[q.rewardCoins,userId]});
     await tx.execute({sql:'INSERT OR IGNORE INTO player_progress(user_id) VALUES(?)',args:[userId]});
