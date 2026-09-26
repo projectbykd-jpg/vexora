@@ -1,6 +1,6 @@
-const {randomUUID}=require('crypto'); const {initDb}=require('./_lib/db'); const {getSessionUserId}=require('./_lib/auth'); const {getItem}=require('../data/items');
+const {randomUUID}=require('crypto'); const {initDb}=require('./_lib/db'); const {getSessionUserId}=require('./_lib/auth'); const {getItem,ITEMS}=require('../data/items');
 module.exports=async function(req,res){const uid=getSessionUserId(req);if(!uid)return res.status(401).json({error:'Authentication required.'});try{const db=await initDb();
-if(req.method==='GET'){const rows=await db.execute({sql:`SELECT s.id,s.item_id,s.quantity,s.price,s.currency,s.owner_id,s.world_id,u.username owner_username FROM shop_listings s JOIN users u ON u.id=s.owner_id WHERE s.active=1 ORDER BY s.created_at DESC LIMIT 100`,args:[]});return res.status(200).json({listings:rows.rows});}
+if(req.method==='GET'){const rows=await db.execute({sql:`SELECT s.id,s.item_id,s.quantity,s.price,s.currency,s.owner_id,s.world_id,u.username owner_username FROM shop_listings s JOIN users u ON u.id=s.owner_id WHERE s.active=1 ORDER BY s.created_at DESC LIMIT 100`,args:[]});return res.status(200).json({listings:rows.rows.map(l=>({...l,quantity:Number(l.quantity),price:Number(l.price),definition:ITEMS[l.item_id]||{id:l.item_id,name:l.item_id}}))});}
 if(req.method==='DELETE'){
  const id=String(req.query?.id||req.body?.listingId||'');if(!id)return res.status(400).json({error:'Listing id required.'});
  const removed=await db.execute({sql:'UPDATE shop_listings SET active=0,updated_at=datetime("now") WHERE id=? AND owner_id=? AND active=1',args:[id,uid]});
