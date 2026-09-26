@@ -123,6 +123,8 @@ body.wrench-mode #touchWrench,body.wrench-mode .top-btn.help{border-color:#ffd86
 </style><style id="VX_SOCIAL_MARKET_POLISH">
 .guild-mine{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:9px;border:2px solid #4d3e68;border-radius:6px;background:#211a39}.guild-mine strong{font-size:9px}.guild-mine span{font-size:6px;color:#aaa0b7}
 @media(max-width:620px){.guild-mine{grid-template-columns:1fr;gap:5px}}
+</style><style id="VX_RANK_UI">
+.rank-row{display:grid;grid-template-columns:34px 1fr auto;gap:8px;align-items:center;padding:7px 8px;border:2px solid #43355a;border-radius:6px;background:#1b1530;margin-top:5px}.rank-num{font-size:8px;font-weight:1000;color:#ff91df}.rank-row b{display:block;font-size:8px}.rank-row small{display:block;font-size:6px;color:#9388a8;margin-top:2px}.rank-row strong{font-size:7px;color:#d9f3ff}
 </style></head>
 <body>
 <div id="game">
@@ -196,7 +198,7 @@ body.wrench-mode #touchWrench,body.wrench-mode .top-btn.help{border-color:#ffd86
  <div class="vxsys-card">
   <div class="vxsys-head"><div><small>VEXORA ONLINE WORLD</small><h2>Systems Center</h2></div><button id="vxSysClose" class="close">×</button></div>
   <div id="vxTabs" class="vxsys-tabs">
-   <button class="vxsys-tab active" data-tab="quests">QUESTS</button><button class="vxsys-tab" data-tab="achievements">ACHIEVEMENTS</button><button class="vxsys-tab" data-tab="friends">FRIENDS</button><button class="vxsys-tab" data-tab="guilds">GUILDS</button><button class="vxsys-tab" data-tab="market">MARKET</button><button class="vxsys-tab" data-tab="farm">FARM</button><button class="vxsys-tab" data-tab="trade">TRADE</button><button class="vxsys-tab" data-tab="equipment">EQUIPMENT</button><button class="vxsys-tab" data-tab="world">WORLD</button><button class="vxsys-tab" data-tab="access">ACCESS</button><button class="vxsys-tab" data-tab="locks">LOCKS</button><button class="vxsys-tab" data-tab="objects">OBJECTS</button>
+   <button class="vxsys-tab active" data-tab="quests">QUESTS</button><button class="vxsys-tab" data-tab="achievements">ACHIEVEMENTS</button><button class="vxsys-tab" data-tab="friends">FRIENDS</button><button class="vxsys-tab" data-tab="guilds">GUILDS</button><button class="vxsys-tab" data-tab="market">MARKET</button><button class="vxsys-tab" data-tab="farm">FARM</button><button class="vxsys-tab" data-tab="trade">TRADE</button><button class="vxsys-tab" data-tab="equipment">EQUIPMENT</button><button class="vxsys-tab" data-tab="world">WORLD</button><button class="vxsys-tab" data-tab="access">ACCESS</button><button class="vxsys-tab" data-tab="locks">LOCKS</button><button class="vxsys-tab" data-tab="objects">OBJECTS</button><button class="vxsys-tab" data-tab="leaderboard">RANK</button>
   </div>
   <div id="vxBody" class="vxsys-body"></div>
  </div>
@@ -339,6 +341,12 @@ async function load(t){tab=t;body.innerHTML='<div class="vxmuted">Loading…</di
      <div class="vxgrid" style="margin-top:8px">${(d.objects||[]).map(o=>`<div class="vxcard"><div class="vxrow" style="justify-content:space-between"><b>${esc(o.type.toUpperCase())}</b><span class="vxmuted">${o.x},${o.y}</span></div><p>${esc(o.label||o.type)}${o.linkWorldId?' · LINKED':''}</p>${d.canManage?'<button class="vxbtn" data-objdel="'+o.id+'">DELETE</button>':''}</div>`).join('')||'<div class="vxmuted">No objects yet. Build your first sign, door or portal.</div>'}</div>`;
    if(d.canManage){$('objCreate').onclick=async()=>{try{const type=$('objType').value,label=$('objLabel').value.trim()||type.toUpperCase(),link=$('objLink').value.trim()||null;await api('/api/objects',{method:'POST',body:JSON.stringify({worldId,action:'create',type,label,linkWorldId:link,x:Math.round(player.x),y:Math.max(1,Math.round(player.y))})});await loadObjects();toast(type.toUpperCase()+' placed');load('objects')}catch(e){toast(e.message)}};
      body.querySelectorAll('[data-objdel]').forEach(b=>b.onclick=async()=>{try{await api('/api/objects?worldId='+encodeURIComponent(worldId),{method:'DELETE',body:JSON.stringify({id:b.dataset.objdel})});await loadObjects();toast('Object removed');load('objects')}catch(e){toast(e.message)}});}
+ }
+ else if(t==='leaderboard'){
+   const [xp,gem]=await Promise.all([api('/api/leaderboard?type=xp'),api('/api/leaderboard?type=gems')]);
+   const rows=(xp.players||[]).map(p=>`<div class="rank-row"><span class="rank-num">#${p.rank}</span><div><b>@${esc(p.username)}</b><small>${esc(p.displayName||'Explorer')} · Level ${p.level}</small></div><strong>${p.totalXp.toLocaleString()} XP</strong></div>`).join('');
+   const gems=(gem.players||[]).slice(0,10).map(p=>`<div class="rank-row"><span class="rank-num">#${p.rank}</span><div><b>@${esc(p.username)}</b><small>Level ${p.level}</small></div><strong>💎 ${p.gems.toLocaleString()}</strong></div>`).join('');
+   body.innerHTML=`<div class="vxgrid"><div class="vxcard"><b>EXPLORER XP</b><p>Build, mine, farm and explore to grow your profile.</p>${rows||'<div class="vxmuted">No players yet.</div>'}</div><div class="vxcard"><b>GEM HUNTERS</b><p>Top gem balances across VEXORA.</p>${gems||'<div class="vxmuted">No players yet.</div>'}</div></div>`;
  }
 
 }catch(e){body.innerHTML='<div class="vxcard"><b>System error</b><p>'+esc(e.message)+'</p></div>'}}
