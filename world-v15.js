@@ -64,6 +64,8 @@
   let gamepadPunchLast = false;
   let gamepadBuildLast = false;
   let profileTimer = 0;
+  let chatBubbles = new Map();
+  let playerBubble = {text:'',until:0};
   let equipment = {};
   let drops = new Map();
   let worldSettings = {description:'',max_players:20,min_level:1,spawn_x:0,spawn_y:20,background:'day'};
@@ -253,6 +255,8 @@
       if(equipment.explorer_cap){ctx.fillStyle='#ff7edb';ctx.fillRect(px-11,dy+1,22,5);ctx.fillStyle='#ffe8f8';ctx.fillRect(px-8,dy,10,3);}
 
       if(label){ctx.textAlign='center';ctx.font='800 10px Arial';ctx.fillStyle='rgba(19,15,30,.88)';ctx.fillText(label,px,dy-4);ctx.textAlign='left';}
+      const bubbleText=label==='You'?(performance.now()<playerBubble.until?playerBubble.text:''):(chatBubbles.get(String(label).replace(/^@/,'').toLowerCase())?.until>performance.now()?chatBubbles.get(String(label).replace(/^@/,'').toLowerCase())?.text:'');
+      if(bubbleText){ctx.save();ctx.font='700 8px Arial';const bw=Math.min(170,ctx.measureText(bubbleText).width+14),bx=clamp(px-bw/2,6,innerWidth-bw-6),by=dy-30;ctx.fillStyle='rgba(255,250,244,.96)';ctx.strokeStyle='rgba(42,27,55,.55)';ctx.lineWidth=2;ctx.fillRect(bx,by,bw,18);ctx.strokeRect(bx+.5,by+.5,bw-1,17);ctx.fillStyle='#2a1d35';ctx.fillText(bubbleText,bx+7,by+12);ctx.restore();}
       return;
     }
     const s=Math.max(1,Math.floor(TILE/16)), ox=px-8*s;
@@ -601,7 +605,7 @@
     if(!worldId)return; try{const payload=[...blocks.values()].map(b=>({x:b.x,y:b.y,z:0,type:b.type}));await api(`/api/worlds/state?id=${encodeURIComponent(worldId)}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({blocks:payload})});$('saveState').textContent='SYNCED';$('saveState').dataset.state='ok';}catch(e){$('saveState').textContent='SAVE ERROR';$('saveState').dataset.state='error';toast(e.message,'error');}
   }
 
-  function addChat(user,text){const row=document.createElement('div');row.className='chat-row';row.innerHTML=`<b>@${escapeHtml(user)}</b><span>${escapeHtml(text)}</span>`;$('chatMessages').appendChild(row);$('chatMessages').scrollTop=$('chatMessages').scrollHeight;}
+  function addChat(user,text){const row=document.createElement('div');row.className='chat-row';row.innerHTML=`<b>@${escapeHtml(user)}</b><span>${escapeHtml(text)}</span>`;$('chatMessages').appendChild(row);$('chatMessages').scrollTop=$('chatMessages').scrollHeight;const u=String(user||'').toLowerCase(),msg=String(text||'').slice(0,80);if(u===String(playerProfile.username||'').toLowerCase()||u==='you')playerBubble={text:msg,until:performance.now()+4200};else chatBubbles.set(u,{text:msg,until:performance.now()+4200});}
   async function pollChat(){
     if(!worldId)return;try{const d=await api(`/api/chat?worldId=${encodeURIComponent(worldId)}&after=${lastChatId}`);for(const m of d.messages||[]){lastChatId=Math.max(lastChatId,Number(m.id)||0);addChat(m.username||m.displayName||'Explorer',m.message);}}catch(e){}
   }
@@ -720,7 +724,7 @@
 
   function loop(now){
     const dt=Math.min(.033,(now-last)/1000);last=now; if(!paused){physics(dt);playSeconds+=dt;updateParticles(dt);} if(now-gamepadTimer>80){gamepadTimer=now;pollGamepad();} draw();
-    presenceTimer+=dt;chatTimer+=dt;if(presenceTimer>2){presenceTimer=0;syncPresence();}if(worldId&&now-lastDropSync>2500&&!modal){lastDropSync=now;loadDrops();}if(worldId&&now-profileTimer>12000){profileTimer=now;loadPlayerProfile();}if(chatTimer>1.2){chatTimer=0;pollChat();if(Math.floor(now/5000)!==Math.floor((now-dt*1000)/5000))loadPlants();}
+    presenceTimer+=dt;chatTimer+=dt;if(presenceTimer>2){presenceTimer=0;syncPresence();}if(worldId&&now-lastDropSync>2500&&!modal){lastDropSync=now;loadDrops();}if(worldId&&now-profileTimer>12000){profileTimer=now;loadPlayerProfile();}for(const [u,b] of chatBubbles)if(b.until<now)chatBubbles.delete(u);if(chatTimer>1.2){chatTimer=0;pollChat();if(Math.floor(now/5000)!==Math.floor((now-dt*1000)/5000))loadPlants();}
     requestAnimationFrame(loop);
   }
 
