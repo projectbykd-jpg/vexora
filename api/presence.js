@@ -37,6 +37,14 @@ module.exports = async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
+      const ban=await db.execute({sql:'SELECT 1 FROM world_bans WHERE world_id=? AND user_id=? LIMIT 1',args:[worldId,userId]});
+      if(ban.rows[0])return res.status(403).json({error:'You are banned from this world.'});
+      const settings=await db.execute({sql:'SELECT max_players,min_level FROM world_settings WHERE world_id=? LIMIT 1',args:[worldId]});
+      const maxPlayers=Number(settings.rows[0]?.max_players||20),minLevel=Number(settings.rows[0]?.min_level||1);
+      const prog=await db.execute({sql:'SELECT level FROM player_progress WHERE user_id=? LIMIT 1',args:[userId]});
+      if(Number(prog.rows[0]?.level||1)<minLevel)return res.status(403).json({error:`This world requires level ${minLevel}.`});
+      const active=await db.execute({sql:"SELECT COUNT(*) AS n FROM world_presence WHERE world_id=? AND updated_at>=datetime('now','-15 seconds') AND user_id<>?",args:[worldId,userId]});
+      if(Number(active.rows[0]?.n||0)>=maxPlayers)return res.status(409).json({error:'This world is full.'});
       const x = Number(req.body?.x), y = Number(req.body?.y), z = Number(req.body?.z), yaw = Number(req.body?.yaw || 0);
       const safe = value => Number.isFinite(value) ? Math.max(-64, Math.min(64, value)) : 0;
       await db.execute({
