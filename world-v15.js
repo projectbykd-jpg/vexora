@@ -23,6 +23,9 @@
   const plants = new Map();
   const keys = new Set();
 
+  const atlas = new Image(); atlas.src='./assets/vexora-atlas.svg';
+  let atlasReady = false; atlas.onload=()=>{atlasReady=true;};
+  const ATLAS = {grass:[0,0],dirt:[32,0],stone:[64,0],wood:[96,0],leaf:[128,0],sand:[160,0],brick:[192,0],glass:[224,0],crystal:[256,0],gold:[288,0],foundation:[320,0],grass_seed:[0,32],crystal_seed:[32,32]};
   const canvas = $('worldCanvas');
   const ctx = canvas.getContext('2d');
   ctx.imageSmoothingEnabled = false;
@@ -139,8 +142,15 @@
     return n-Math.floor(n);
   }
   function pixelRect(sx,sy,w,h,color){ctx.fillStyle=color;ctx.fillRect(Math.round(sx),Math.round(sy),Math.round(w),Math.round(h));}
+  function drawAtlas(srcX,srcY,sw,sh,dx,dy,dw,dh,alpha=1){
+    if(!atlasReady)return false;
+    ctx.save();ctx.globalAlpha=alpha;ctx.imageSmoothingEnabled=false;
+    ctx.drawImage(atlas,srcX,srcY,sw,sh,Math.round(dx),Math.round(dy),Math.round(dw),Math.round(dh));ctx.restore();return true;
+  }
   function drawBlock(b){
     const sx=worldX(b.x),sy=worldY(b.y),s=TILE,d=BLOCKS[b.type];
+    const sprite=ATLAS[b.type];
+    if(sprite){if(drawAtlas(sprite[0],sprite[1],32,32,sx,sy,s,s)){ctx.fillStyle='rgba(255,255,255,.06)';ctx.fillRect(sx+1,sy+1,s-2,1);return;}}
     if(sx<-s||sx>innerWidth+s||sy<-s||sy>innerHeight)return;
     const edge=Math.max(2,Math.floor(s*.07));
     // Base + chunky pixel bevel.
@@ -200,6 +210,16 @@
   }
 
   function drawCharacter(px,footY,face=1,state='idle',phase=0,label=''){
+    if(atlasReady){
+      const frame=state==='punch'?(phase%260<130?3:4):(state==='walk'?(Math.floor(phase/150)%2?1:2):0);
+      const sx=frame*32,sy=72,scale=Math.max(2,Math.min(3,Math.floor(TILE/16)*2));
+      const dw=32*scale,dh=48*scale,dx=Math.round(px-dw/2),dy=Math.round(footY-dh+3);
+      ctx.save();ctx.imageSmoothingEnabled=false;
+      ctx.fillStyle='rgba(25,15,37,.22)';ctx.fillRect(px-10,footY+2,20,3);
+      ctx.translate(face<0?dx+dw:dx,dy);ctx.scale(face<0?-1:1,1);ctx.drawImage(atlas,sx,sy,32,48,0,0,dw,dh);ctx.restore();
+      if(label){ctx.textAlign='center';ctx.font='800 10px Arial';ctx.fillStyle='rgba(19,15,30,.88)';ctx.fillText(label,px,dy-4);ctx.textAlign='left';}
+      return;
+    }
     const s=Math.max(1,Math.floor(TILE/16)), ox=px-8*s;
     const bob=state==='idle'?Math.floor(Math.sin(phase*.002)*1):Math.floor(Math.sin(phase*.014)*1);
     const fy=footY-bob;
@@ -232,7 +252,9 @@
     }
     if(label){ctx.textAlign='center';ctx.font='800 10px Arial';ctx.fillStyle='rgba(19,15,30,.88)';ctx.fillText(label,px,headTop-4*s);ctx.textAlign='left';}
     ctx.restore();
+ 
   }
+
   function drawRemote(p){const sx=worldX(p.x),foot=worldY(p.y-1);if(sx<-80||sx>innerWidth+80)return;drawCharacter(sx,foot,Number(p.face)<0?-1:1,'idle',performance.now(), '@'+(p.username||'Explorer'));}
   function drawPlayer(){
     const foot=worldY(player.y-1),state=performance.now()<punch.until?'punch':Math.abs(player.vx)>.6?'walk':'idle';
