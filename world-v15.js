@@ -817,6 +817,9 @@
   $('menuStore').onclick=()=>{closeModal();document.getElementById('vxSystems')?.classList.add('open');document.querySelector('#vxTabs [data-tab="market"]')?.click();};
   $('menuOptions').onclick=()=>openModal('options');
   $('menuHelp').onclick=()=>openModal('help');
+  $('closeOptions').onclick=closeModal;
+  $('optionsDone').onclick=()=>{localStorage.setItem('vexora_music',$('optMusic').value);localStorage.setItem('vexora_sfx',$('optSfx').value);localStorage.setItem('vexora_fx',$('optFx').value);localStorage.setItem('vexora_hints',$('optHints').value);closeModal();toast('Options saved');};
+  ['optMusic','optSfx','optFx','optHints'].forEach(id=>{const el=$(id),v=localStorage.getItem('vexora_'+id.replace(/^opt/,'').toLowerCase());if(el&&v!==null)el.value=v;});
   $('exitWorld').onclick=()=>{location.href='./worlds.html';};
 
   function pollGamepad(){
