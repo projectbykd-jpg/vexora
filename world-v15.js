@@ -52,6 +52,8 @@
   let touchTarget = null;
   let touchDevice = false;
   let gamepadTimer = 0;
+  let gamepadPunchLast = false;
+  let gamepadBuildLast = false;
 
   function key(x,y){ return `${x},${y}`; }
   function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
@@ -549,12 +551,15 @@
 
   function pollGamepad(){
     const gp=navigator.getGamepads?.()[0]; if(!gp)return;
-    const x=gp.axes?.[0]||0;
+    const x=gp.axes?.[0]||0, punchNow=!!gp.buttons?.[2]?.pressed, buildNow=!!gp.buttons?.[1]?.pressed;
     setVirtualKey('a',x<-.25);setVirtualKey('d',x>.25);
     if(gp.buttons?.[0]?.pressed)keys.add(' ');else keys.delete(' ');
-    if(gp.buttons?.[2]?.pressed)beginMine();
-    if(gp.buttons?.[1]?.pressed)placeBlock();
+    if(punchNow&&!gamepadPunchLast)beginMine();
+    if(!punchNow&&gamepadPunchLast)stopMine();
+    if(buildNow&&!gamepadBuildLast)placeBlock();
+    gamepadPunchLast=punchNow;gamepadBuildLast=buildNow;
   }
+
   function loop(now){
     const dt=Math.min(.033,(now-last)/1000);last=now; if(!paused){physics(dt);playSeconds+=dt;updateParticles(dt);} if(now-gamepadTimer>80){gamepadTimer=now;pollGamepad();} draw();
     presenceTimer+=dt;chatTimer+=dt;if(presenceTimer>2){presenceTimer=0;syncPresence();}if(chatTimer>1.2){chatTimer=0;pollChat();if(Math.floor(now/5000)!==Math.floor((now-dt*1000)/5000))loadPlants();}
