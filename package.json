@@ -3,13 +3,17 @@
   "version": "0.3.0",
   "private": true,
   "description": "VEXORA online sandbox MMO web foundation",
-  "engines": { "node": "24.x" },
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "verify": "node scripts/verify.js",
-    "build": "npm run verify"
+    "build": "npm run verify",
+    "start": "node server.js"
   },
   "dependencies": {
     "@libsql/client": "^0.18.0",
-    "bcryptjs": "^3.0.3"
+    "bcryptjs": "^3.0.3",
+    "express": "^5.1.0"
   }
 }
