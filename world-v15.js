@@ -690,7 +690,7 @@
     await loadPlants();
     await loadDrops();
     await loadObjects();
-    $('worldName').textContent=meta.name||'VEXORA WORLD';$('worldMode').textContent=(meta.type||'normal').toUpperCase();
+    $('worldName').textContent=meta.name||'VEXORA WORLD';$('worldMode').textContent=(meta.type||'normal').toUpperCase();if($('vxLoadingWorld'))$('vxLoadingWorld').textContent=(meta.name||'VEXORA WORLD').toUpperCase();
     // Re-apply saved world spawn after settings are known.
     if(worldId&&Number.isFinite(Number(worldSettings.spawn_x))){player.x=Math.max(MIN_X+.5,Math.min(MAX_X-.5,Number(worldSettings.spawn_x)));player.y=Math.max(1,Math.min(MAX_Y-1,Number(worldSettings.spawn_y)));cameraX=player.x;cameraY=player.y;}
     maybeShowTutorial();
@@ -830,7 +830,7 @@
     requestAnimationFrame(loop);
   }
 
-  renderHotbar();renderInventory();loadServer().then(()=>{pollChat();syncPresence();});
+  renderHotbar();renderInventory();loadServer().then(()=>{pollChat();syncPresence();setTimeout(()=>document.body.classList.add('vx-ready'),80);setTimeout(()=>$('vxLoading')?.classList.add('hide'),180);}).catch(()=>{$('vxLoading')?.classList.add('hide');});
   requestAnimationFrame(loop);
   addEventListener('beforeunload',()=>{if(worldId)navigator.sendBeacon?.(`/api/presence?worldId=${encodeURIComponent(worldId)}`,'');});
 })();
