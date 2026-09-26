@@ -663,10 +663,31 @@
       spawnParticles(player.x+.5,player.y,type);toast('Dropped '+ITEM_VISUALS[type].name);
     }catch(e){toast(e.message,'error');}
   }
+  const tutorialSteps=[
+    ['✦','01 / 04','MOVE & PUNCH','Walk with A/D or the arrow keys. Punch a block to collect it.'],
+    ['▦','02 / 04','BUILD YOUR WORLD','Choose a block in the hotbar and right-click a reachable tile to place it.'],
+    ['🌱','03 / 04','GROW & SPLICE','Plant seeds, let them grow, harvest the crop, and splice seeds for hybrids.'],
+    ['♥','04 / 04','PLAY TOGETHER','Chat, meet other explorers, trade items, and build inside shared worlds.']
+  ];
+  let tutorialIndex=0;
+  function refreshTutorial(){
+    const s=tutorialSteps[tutorialIndex];if(!s)return;
+    if($('tutorialIcon'))$('tutorialIcon').textContent=s[0];
+    if($('tutorialStep'))$('tutorialStep').textContent=s[1];
+    if($('tutorialTitle'))$('tutorialTitle').textContent=s[2];
+    if($('tutorialCopy'))$('tutorialCopy').textContent=s[3];
+    document.querySelectorAll('#tutorialDots i').forEach((dot,i)=>dot.classList.toggle('active',i===tutorialIndex));
+    if($('tutorialNext'))$('tutorialNext').textContent=tutorialIndex===tutorialSteps.length-1?'START WORLD →':'NEXT →';
+  }
+  function finishTutorial(){
+    localStorage.setItem('vexora_tutorial_seen','1');
+    if($('tutorialModal'))$('tutorialModal').hidden=true;
+    paused=false;
+  }
   function maybeShowTutorial(){
     if(!worldId||localStorage.getItem('vexora_tutorial_seen')==='1')return;
     const el=$('tutorialModal');if(!el)return;
-    el.hidden=false;paused=true;
+    tutorialIndex=0;refreshTutorial();el.hidden=false;paused=true;
   }
   async function loadInventory(){
     try{
@@ -681,9 +702,28 @@
   }
 
   async function loadServer(){
-    try{const d=await api(`/api/worlds?${worldId?`id=${encodeURIComponent(worldId)}`:''}`);const w=d.world||((d.worlds||[]).find(v=>String(v.id)===String(worldId)));if(w)meta=w;}catch(e){console.warn(e);}
+    if(!worldId) throw new Error('No world selected.');
+    try{
+      const d=await api(`/api/worlds?id=${encodeURIComponent(worldId)}`);
+      const world=d.world||null;
+      if(!world) throw new Error('World not found or you do not have access.');
+      meta=world;
+    }catch(e){
+      console.error('world access failed',e);
+      toast(e.message||'Unable to enter this world','error');
+      setTimeout(()=>location.replace('./worlds.html'),900);
+      throw e;
+    }
     await loadWorldSettings();
-    try{if(worldId){const d=await api(`/api/worlds/state?id=${encodeURIComponent(worldId)}`);if(Array.isArray(d.blocks)&&d.blocks.length)loadBlocks(d.blocks);else generateWorld();}else generateWorld();}catch(e){console.warn(e);generateWorld();}
+    try{
+      const d=await api(`/api/worlds/state?id=${encodeURIComponent(worldId)}`);
+      if(Array.isArray(d.blocks)&&d.blocks.length)loadBlocks(d.blocks);else generateWorld();
+    }catch(e){
+      console.error('world state failed',e);
+      toast('World data could not be loaded. Returning to World Select.','error');
+      setTimeout(()=>location.replace('./worlds.html'),1000);
+      throw e;
+    }
     await loadPlayerProfile();
     await loadInventory();
     await loadEquipment();
@@ -691,9 +731,14 @@
     await loadPlants();
     await loadDrops();
     await loadObjects();
-    $('worldName').textContent=meta.name||'VEXORA WORLD';$('worldMode').textContent=(meta.type||'normal').toUpperCase();if($('vxLoadingWorld'))$('vxLoadingWorld').textContent=(meta.name||'VEXORA WORLD').toUpperCase();
-    // Re-apply saved world spawn after settings are known.
-    if(worldId&&Number.isFinite(Number(worldSettings.spawn_x))){player.x=Math.max(MIN_X+.5,Math.min(MAX_X-.5,Number(worldSettings.spawn_x)));player.y=Math.max(1,Math.min(MAX_Y-1,Number(worldSettings.spawn_y)));cameraX=player.x;cameraY=player.y;}
+    $('worldName').textContent=meta.name||'VEXORA WORLD';
+    $('worldMode').textContent=(meta.type||'adventure').toUpperCase();
+    if($('vxLoadingWorld'))$('vxLoadingWorld').textContent=(meta.name||'VEXORA WORLD').toUpperCase();
+    if(Number.isFinite(Number(worldSettings.spawn_x))){
+      player.x=Math.max(MIN_X+.5,Math.min(MAX_X-.5,Number(worldSettings.spawn_x)));
+      player.y=Math.max(1,Math.min(MAX_Y-1,Number(worldSettings.spawn_y)));
+      cameraX=player.x;cameraY=player.y;
+    }
     maybeShowTutorial();
   }
   function queueSave(){clearTimeout(saveTimer);$('saveState').textContent='SAVING…';$('saveState').dataset.state='saving';saveTimer=setTimeout(saveWorld,1200);}
@@ -782,8 +827,8 @@
   touchDrop?.addEventListener('click',()=>dropSelected(1));
   const touchWrench=$('touchWrench');
   touchWrench?.addEventListener('click',()=>{if(!inventory.wrench){toast('No wrench','error');return;}wrenchMode=!wrenchMode;document.body.classList.toggle('wrench-mode',wrenchMode);toast(wrenchMode?'WRENCH MODE ON':'WRENCH MODE OFF');});
-  $('tutorialPlay')?.addEventListener('click',()=>{localStorage.setItem('vexora_tutorial_seen','1');$('tutorialModal').hidden=true;paused=false;});
-  $('tutorialSkip')?.addEventListener('click',()=>{localStorage.setItem('vexora_tutorial_seen','1');$('tutorialModal').hidden=true;paused=false;});
+  $('tutorialNext')?.addEventListener('click',()=>{if(tutorialIndex<tutorialSteps.length-1){tutorialIndex++;refreshTutorial();}else finishTutorial();});
+  $('tutorialSkip')?.addEventListener('click',finishTutorial);
 
 
 
@@ -839,7 +884,14 @@
     requestAnimationFrame(loop);
   }
 
-  renderHotbar();renderInventory();loadServer().then(()=>{pollChat();syncPresence();setTimeout(()=>document.body.classList.add('vx-ready'),80);setTimeout(()=>$('vxLoading')?.classList.add('hide'),180);}).catch(()=>{$('vxLoading')?.classList.add('hide');});
+  renderHotbar();renderInventory();
+  loadServer().then(()=>{
+    pollChat();syncPresence();
+    setTimeout(()=>document.body.classList.add('vx-ready'),80);
+    setTimeout(()=>$('vxLoading')?.classList.add('hide'),420);
+  }).catch(()=>{
+    $('vxLoading')?.classList.add('hide');
+  });
   requestAnimationFrame(loop);
   addEventListener('beforeunload',()=>{if(worldId)navigator.sendBeacon?.(`/api/presence?worldId=${encodeURIComponent(worldId)}`,'');});
 })();
