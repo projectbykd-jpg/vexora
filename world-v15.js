@@ -146,6 +146,25 @@
     const sx=worldX(player.x)-TILE*.36,sy=worldY(player.y-1)-TILE*1.58;ctx.save();ctx.translate(sx,sy);ctx.fillStyle='#292245';ctx.fillRect(8,24,17,27);ctx.fillStyle='#ef7bd9';ctx.fillRect(6,8,21,18);ctx.fillStyle='#171225';ctx.fillRect(player.face>0?20:8,14,4,4);ctx.fillStyle='#64d8ff';ctx.fillRect(9,50,6,7);ctx.fillRect(19,50,6,7);ctx.fillStyle='rgba(255,255,255,.32)';ctx.fillRect(8,9,18,3);ctx.restore();
     ctx.textAlign='center';ctx.font='800 10px Inter,Arial';ctx.fillStyle='rgba(12,12,20,.86)';ctx.fillText('You',worldX(player.x),sy-7);ctx.textAlign='left';
   }
+  function drawTargetCell(){
+    if(!pointer.inside||paused||modal)return;
+    const p=screenToWorld(pointer.x,pointer.y);
+    const sx=worldX(p.x), sy=worldY(p.y);
+    const occupied=!!getBlock(p.x,p.y);
+    const reachable=inReach(p.x,p.y);
+    ctx.save();
+    ctx.strokeStyle=reachable ? (occupied ? 'rgba(255,126,220,.95)' : 'rgba(107,222,255,.45)') : 'rgba(255,105,130,.38)';
+    ctx.lineWidth=2;
+    ctx.strokeRect(sx+2,sy+2,TILE-4,TILE-4);
+    if(!occupied){
+      ctx.fillStyle=reachable?'rgba(107,222,255,.045)':'rgba(255,105,130,.035)';
+      ctx.fillRect(sx+2,sy+2,TILE-4,TILE-4);
+    }
+    // Tiny center reticle so the exact hit/build cell is obvious.
+    const cx=sx+TILE/2,cy=sy+TILE/2;
+    ctx.beginPath();ctx.moveTo(cx-4,cy);ctx.lineTo(cx+4,cy);ctx.moveTo(cx,cy-4);ctx.lineTo(cx,cy+4);ctx.stroke();
+    ctx.restore();
+  }
   function drawHover(){
     if(!pointer.inside||paused||modal)return; const p=screenToWorld(pointer.x,pointer.y),b=getBlock(p.x,p.y);hover=p;
     if(!b)return; const sx=worldX(p.x),sy=worldY(p.y);ctx.strokeStyle='#ef79d9';ctx.lineWidth=2;ctx.strokeRect(sx+2,sy+2,TILE-4,TILE-4);
@@ -155,6 +174,7 @@
     if(!mining)return;
     const b=getBlock(mining.x,mining.y);
     if(!b){mining=null;return;}
+    if(!inReach(mining.x,mining.y)){mining=null;return;}
     const p=clamp((performance.now()-mining.started)/BLOCKS[b.type].hard,0,1),sx=worldX(b.x),sy=worldY(b.y);
     ctx.strokeStyle='#f18be0';ctx.lineWidth=3;ctx.strokeRect(sx+2,sy+2,TILE-4,TILE-4);
     ctx.fillStyle='rgba(10,13,23,.75)';ctx.fillRect(sx+4,sy+TILE-8,TILE-8,4);
@@ -166,6 +186,12 @@
         if(mining&&mining.x===target.x&&mining.y===target.y)mining=null;
       });
     }
+    // Punch direction marker: visually confirms the exact block being hit.
+    const pc=playerCenter(),bc=blockCenter(b.x,b.y);
+    const px=worldX(pc.x),py=worldY(pc.y),tx=worldX(bc.x),ty=worldY(bc.y);
+    const dx=tx-px,dy=ty-py,len=Math.max(1,Math.hypot(dx,dy));
+    ctx.save();ctx.strokeStyle='rgba(255,244,177,.9)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px+dx/len*10,py+dy/len*10);ctx.stroke();ctx.restore();
   }
   async function loadLocks(){
     if(!worldId)return;
@@ -204,7 +230,7 @@
     drawLocks();
     for(const b of blocks.values())if(b.x>=sx&&b.x<=ex)drawBlock(b);
     for(const p of plants.values())if(p.x>=sx&&p.x<=ex)drawPlant(p);
-    for(const p of remotes.values())drawRemote(p);drawPlayer();drawHover();drawMining();
+    for(const p of remotes.values())drawRemote(p);drawPlayer();drawTargetCell();drawHover();drawMining();
   }
 
   function collides(x,y){
@@ -242,17 +268,25 @@
     }
     removeBlock(x,y); inventory[b.type]=(inventory[b.type]||0)+1; renderHotbar();renderInventory();queueSave();toast('+1 '+BLOCKS[b.type].name);
   }
+  function playerCenter(){ return {x:player.x, y:player.y + player.h*0.5}; }
+  function blockCenter(x,y){ return {x:x+0.5, y:y+0.5}; }
+  function inReach(x,y,reach=6.25){
+    const a=playerCenter(), b=blockCenter(x,y);
+    return Math.hypot(a.x-b.x,a.y-b.y) <= reach;
+  }
   async function beginMine(){
-    if(paused||modal)return;const p=screenToWorld(pointer.x,pointer.y),b=getBlock(p.x,p.y);if(!b)return;
-    if(Math.abs(p.x-player.x)>6||Math.abs(p.y-(player.y+1))>6){toast('Too far away','error');return;}
-    mining={x:p.x,y:p.y,started:performance.now()};
+    if(paused||modal)return;
+    const p=screenToWorld(pointer.x,pointer.y),b=getBlock(p.x,p.y);
+    if(!b)return;
+    if(!inReach(p.x,p.y)){toast('Too far away','error');return;}
+    mining={x:p.x,y:p.y,started:performance.now(),processing:false};
   }
   function stopMine(){mining=null;}
   async function placeBlock(){
     if(paused||modal)return;
     const p=screenToWorld(pointer.x,pointer.y),type=HOTBAR[selected];
     if(SEEDS[type]){await plantSeed(p.x,p.y,type);return;}
-    if(Math.abs(p.x-player.x)>6||Math.abs(p.y-(player.y+1))>6){toast('Move closer to place','error');return;}
+    if(!inReach(p.x,p.y)){toast('Move closer to place','error');return;}
     if(getBlock(p.x,p.y))return;
     if(!inventory[type]){toast(`No ${BLOCKS[type].name}`,'error');return;}
     if(p.x<MIN_X||p.x>MAX_X||p.y<0||p.y>MAX_Y)return;
