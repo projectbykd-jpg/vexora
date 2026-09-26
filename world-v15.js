@@ -266,7 +266,7 @@
       if(equipment.companion_spark){const py=footY-22+Math.sin(performance.now()*.005)*4;ctx.fillStyle='#8ef3ff';ctx.fillRect(px+20,py,7,7);ctx.fillStyle='#fff3a8';ctx.fillRect(px+22,py+2,3,3);}
 
       if(label){ctx.textAlign='center';ctx.font='800 10px Arial';ctx.fillStyle='rgba(19,15,30,.88)';ctx.fillText(label,px,dy-4);ctx.textAlign='left';}
-      const bubbleText=label==='You'?(performance.now()<playerBubble.until?playerBubble.text:''):(chatBubbles.get(String(label).replace(/^@/,'').toLowerCase())?.until>performance.now()?chatBubbles.get(String(label).replace(/^@/,'').toLowerCase())?.text:'');
+      const localLabel=String(playerProfile.displayName||playerProfile.username||'You');const bubbleText=label===localLabel||label==='You'?(performance.now()<playerBubble.until?playerBubble.text:''):(chatBubbles.get(String(label).replace(/^@/,'').toLowerCase())?.until>performance.now()?chatBubbles.get(String(label).replace(/^@/,'').toLowerCase())?.text:'');
       if(bubbleText){ctx.save();ctx.font='700 8px Arial';const bw=Math.min(170,ctx.measureText(bubbleText).width+14),bx=clamp(px-bw/2,6,innerWidth-bw-6),by=dy-30;ctx.fillStyle='rgba(255,250,244,.96)';ctx.strokeStyle='rgba(42,27,55,.55)';ctx.lineWidth=2;ctx.fillRect(bx,by,bw,18);ctx.strokeRect(bx+.5,by+.5,bw-1,17);ctx.fillStyle='#2a1d35';ctx.fillText(bubbleText,bx+7,by+12);ctx.restore();}
       return;
     }
