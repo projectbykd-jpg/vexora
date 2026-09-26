@@ -49,6 +49,9 @@
   let particles = [];
   let punch = {until:0, dir:1, x:0, y:0};
   let walkTime = 0;
+  let touchTarget = null;
+  let touchDevice = false;
+  let gamepadTimer = 0;
 
   function key(x,y){ return `${x},${y}`; }
   function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
@@ -218,13 +221,12 @@
   function drawRemote(p){const sx=worldX(p.x),foot=worldY(p.y-1);if(sx<-80||sx>innerWidth+80)return;drawCharacter(sx,foot,Number(p.face)<0?-1:1,'idle',performance.now(), '@'+(p.username||'Explorer'));}
   function drawPlayer(){
     const foot=worldY(player.y-1),state=performance.now()<punch.until?'punch':Math.abs(player.vx)>.6?'walk':'idle';
-    if(state==='walk')walkTime+=performance.now()%100;
     drawCharacter(worldX(player.x),foot,player.face,state,performance.now(),'You');
   }
 
   function drawTargetCell(){
-    if(!pointer.inside||paused||modal)return;
-    const p=screenToWorld(pointer.x,pointer.y),sx=worldX(p.x),sy=worldY(p.y);
+    if((!pointer.inside&&!touchTarget)||paused||modal)return;
+    const p=(touchDevice&&touchTarget)?touchTarget:screenToWorld(pointer.x,pointer.y),sx=worldX(p.x),sy=worldY(p.y);
     const occupied=!!getBlock(p.x,p.y),reachable=inReach(p.x,p.y);
     ctx.save();
     ctx.strokeStyle=reachable?(occupied?'rgba(255,225,133,.75)':'rgba(255,255,255,.38)'):'rgba(255,110,140,.28)';
@@ -234,7 +236,7 @@
 
   function drawHover(){
     if(!pointer.inside||paused||modal)return;
-    const p=screenToWorld(pointer.x,pointer.y),b=getBlock(p.x,p.y);hover=p;
+    const p=targetForAction(),plant=getPlant(p.x,p.y),b=getBlock(p.x,p.y);hover=p;
     if(!b)return;
     const sx=worldX(p.x),sy=worldY(p.y),name=BLOCKS[b.type].name;
     ctx.font='700 10px Arial';const tw=ctx.measureText(name).width+14;
@@ -321,9 +323,9 @@
   function physics(dt){
     if(paused)return;
     const accel=keys.has('shift')?42:30;
-    if(keys.has('a')){player.vx-=accel*dt;player.face=-1;} if(keys.has('d')){player.vx+=accel*dt;player.face=1;}
-    if(!keys.has('a')&&!keys.has('d'))player.vx*=Math.pow(.001,dt); player.vx=clamp(player.vx,-7,7); player.vy-=23*dt;
-    if(keys.has(' ')&&!player.jumpLatch&&player.grounded){player.vy=9.4;player.grounded=false;} player.jumpLatch=keys.has(' ');
+    if(keys.has('a')||keys.has('arrowleft')){player.vx-=accel*dt;player.face=-1;} if(keys.has('d')||keys.has('arrowright')){player.vx+=accel*dt;player.face=1;}
+    if(!keys.has('a')&&!keys.has('arrowleft')&&!keys.has('d')&&!keys.has('arrowright'))player.vx*=Math.pow(.001,dt); player.vx=clamp(player.vx,-7,7); player.vy-=23*dt;
+    if((keys.has(' ')||keys.has('arrowup'))&&!player.jumpLatch&&player.grounded){player.vy=9.4;player.grounded=false;} player.jumpLatch=keys.has(' ')||keys.has('arrowup');
     let nx=player.x+player.vx*dt;if(!collides(nx,player.y))player.x=nx;else player.vx=0;
     let ny=player.y+player.vy*dt;if(!collides(player.x,ny)){player.y=ny;player.grounded=false;}else{if(player.vy<0){player.y=Math.floor(ny)+1;player.grounded=true;}player.vy=0;}
     if(player.y<-3)spawn(); player.x=clamp(player.x,MIN_X+.5,MAX_X-.5);
@@ -357,6 +359,7 @@
   async function beginMine(){
     if(paused||modal)return;
     const p=screenToWorld(pointer.x,pointer.y),b=getBlock(p.x,p.y);
+    if(plant?.ready){await harvestPlant(p.x,p.y);return;}
     if(!b)return;
     if(!inReach(p.x,p.y)){toast('Too far away','error');return;}
     punch={until:performance.now()+180,dir:Math.sign((p.x+.5)-player.x)||player.face,x:p.x,y:p.y};
@@ -365,7 +368,7 @@
   function stopMine(){mining=null;}
   async function placeBlock(){
     if(paused||modal)return;
-    const p=screenToWorld(pointer.x,pointer.y),type=HOTBAR[selected];
+    const p=targetForAction(),type=HOTBAR[selected];
     if(SEEDS[type]){await plantSeed(p.x,p.y,type);return;}
     if(!inReach(p.x,p.y)){toast('Move closer to place','error');return;}
     if(getBlock(p.x,p.y))return;
@@ -425,7 +428,9 @@
       const next=Object.fromEntries(Object.keys(ITEM_VISUALS).map(k=>[k,0]));
       for(const item of d.items||[])if(Object.prototype.hasOwnProperty.call(next,item.id))next[item.id]=Number(item.quantity)||0;
       inventory={...inventory,...next};
-      renderHotbar();renderInventory();
+      touchDevice='ontouchstart' in window||navigator.maxTouchPoints>0;
+  document.body.classList.toggle('touch-device',touchDevice);
+  renderHotbar();renderInventory();
     }catch(e){console.warn('inventory load failed',e);}
   }
 
@@ -456,17 +461,70 @@
     if(!worldId)return;try{await api(`/api/presence?worldId=${encodeURIComponent(worldId)}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({x:player.x,y:player.y,z:0,yaw:player.face})});const d=await api(`/api/presence?worldId=${encodeURIComponent(worldId)}`);const seen=new Set();for(const p of d.players||[]){if(p.userId===d.meId)continue;seen.add(String(p.userId));remotes.set(String(p.userId),{x:Number(p.x)||0,y:Number(p.y)||0,username:p.username||'Explorer',face:Number(p.yaw)||1});}for(const id of remotes.keys())if(!seen.has(id))remotes.delete(id);$('playerCount').textContent=`${Math.max(1,(d.players||[]).length)} online`;}catch(e){}
   }
 
-  function setPointer(e){const r=canvas.getBoundingClientRect();pointer.x=e.clientX-r.left;pointer.y=e.clientY-r.top;pointer.inside=true;}
+  function targetForAction(){
+    if(touchDevice && touchTarget) return touchTarget;
+    return screenToWorld(pointer.x,pointer.y);
+  }
+  function setTouchTargetFromPointer(){
+    const p=screenToWorld(pointer.x,pointer.y);
+    if(p.x>=MIN_X&&p.x<=MAX_X&&p.y>=0&&p.y<=MAX_Y) touchTarget={x:p.x,y:p.y};
+  }
+  function setVirtualKey(k,on){
+    if(on)keys.add(k); else keys.delete(k);
+  }
+  function bindHoldButton(id,key){
+    const el=$(id); if(!el)return;
+    const down=e=>{e.preventDefault();e.stopPropagation();setVirtualKey(key,true);el.classList.add('pressed');};
+    const up=e=>{e.preventDefault();e.stopPropagation();setVirtualKey(key,false);el.classList.remove('pressed');};
+    ['pointerdown'].forEach(ev=>el.addEventListener(ev,down,{passive:false}));
+    ['pointerup','pointercancel','pointerleave'].forEach(ev=>el.addEventListener(ev,up,{passive:false}));
+  }
+  function bindActionButton(id,fn,hold=false){
+    const el=$(id); if(!el)return;
+    if(!hold){el.addEventListener('pointerdown',async e=>{e.preventDefault();e.stopPropagation();el.classList.add('pressed');try{await fn();}finally{setTimeout(()=>el.classList.remove('pressed'),90);}}, {passive:false});return;}
+    const down=async e=>{e.preventDefault();e.stopPropagation();el.classList.add('pressed');await fn();};
+    const up=e=>{e.preventDefault();e.stopPropagation();el.classList.remove('pressed');stopMine();};
+    el.addEventListener('pointerdown',down,{passive:false});
+    ['pointerup','pointercancel','pointerleave'].forEach(ev=>el.addEventListener(ev,up,{passive:false}));
+  }
+  function setPointer(e){
+    const r=canvas.getBoundingClientRect();
+    pointer.x=e.clientX-r.left;pointer.y=e.clientY-r.top;pointer.inside=true;
+    if(e.pointerType==='touch'){touchDevice=true;setTouchTargetFromPointer();}
+  }
   canvas.addEventListener('pointermove',setPointer);
-  canvas.addEventListener('pointerleave',()=>{pointer.inside=false;hover=null;});
-  canvas.addEventListener('pointerdown',e=>{setPointer(e);if(e.button===0){beginMine();}else if(e.button===2){e.preventDefault();placeBlock();}});
-  canvas.addEventListener('pointerup',e=>{if(e.button===0)stopMine();});
+  canvas.addEventListener('pointerleave',e=>{if(e.pointerType!=='touch'){pointer.inside=false;hover=null;}});
+  canvas.addEventListener('pointerdown',e=>{
+    setPointer(e);
+    if(e.pointerType==='touch'){
+      e.preventDefault();
+      // Touch uses tap-to-select, then explicit PUNCH/BUILD controls.
+      return;
+    }
+    if(e.button===0){beginMine();}else if(e.button===2){e.preventDefault();placeBlock();}
+  });
+  canvas.addEventListener('pointerup',e=>{if(e.pointerType!=='touch'&&e.button===0)stopMine();});
   canvas.addEventListener('contextmenu',e=>e.preventDefault());
   canvas.addEventListener('wheel',e=>{selected=(selected+(e.deltaY>0?1:-1)+HOTBAR.length)%HOTBAR.length;renderHotbar();e.preventDefault();},{passive:false});
 
+  // Mobile / touch controls.
+  bindHoldButton('touchLeft','a');
+  bindHoldButton('touchRight','d');
+  bindActionButton('touchJump',()=>{keys.add(' ');setTimeout(()=>keys.delete(' '),95);});
+  bindActionButton('touchPunch',()=>beginMine(),true);
+  bindActionButton('touchBuild',()=>placeBlock());
+  const touchCycle=$('touchCycle');
+  touchCycle?.addEventListener('click',()=>{selected=(selected+1)%HOTBAR.length;renderHotbar();});
+  const touchBag=$('touchBag');
+  touchBag?.addEventListener('click',()=>{if(modal==='inventory')closeModal();else openModal('inventory');});
+  const touchChat=$('touchChat');
+  touchChat?.addEventListener('click',()=>chatOpen?closeChat():openChat());
+
+
+
   addEventListener('keydown',e=>{
     const k=e.key.toLowerCase();
-    if(['w','a','s','d','shift',' '].includes(k))keys.add(k);
+    if(['w','a','s','d','shift',' ','arrowleft','arrowright','arrowup'].includes(k))keys.add(k);
     if(e.repeat&&['e','t','escape','h'].includes(k))return;
     if(/^\d$/.test(k)){const n=Number(k);if(n>=1&&n<=9){selected=n-1;renderHotbar();}}
     if(k==='e'){if(modal==='inventory')closeModal();else if(!chatOpen)openModal('inventory');}
@@ -489,8 +547,16 @@
   $('closeInventory').onclick=closeModal;$('closeHelp').onclick=closeModal;$('closeMenu').onclick=closeModal;
   $('exitWorld').onclick=()=>{location.href='./worlds.html';};
 
+  function pollGamepad(){
+    const gp=navigator.getGamepads?.()[0]; if(!gp)return;
+    const x=gp.axes?.[0]||0;
+    setVirtualKey('a',x<-.25);setVirtualKey('d',x>.25);
+    if(gp.buttons?.[0]?.pressed)keys.add(' ');else keys.delete(' ');
+    if(gp.buttons?.[2]?.pressed)beginMine();
+    if(gp.buttons?.[1]?.pressed)placeBlock();
+  }
   function loop(now){
-    const dt=Math.min(.033,(now-last)/1000);last=now; if(!paused){physics(dt);playSeconds+=dt;updateParticles(dt);} draw();
+    const dt=Math.min(.033,(now-last)/1000);last=now; if(!paused){physics(dt);playSeconds+=dt;updateParticles(dt);} if(now-gamepadTimer>80){gamepadTimer=now;pollGamepad();} draw();
     presenceTimer+=dt;chatTimer+=dt;if(presenceTimer>2){presenceTimer=0;syncPresence();}if(chatTimer>1.2){chatTimer=0;pollChat();if(Math.floor(now/5000)!==Math.floor((now-dt*1000)/5000))loadPlants();}
     requestAnimationFrame(loop);
   }
