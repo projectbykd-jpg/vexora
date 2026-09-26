@@ -125,6 +125,9 @@ body.wrench-mode #touchWrench,body.wrench-mode .top-btn.help{border-color:#ffd86
 @media(max-width:620px){.guild-mine{grid-template-columns:1fr;gap:5px}}
 </style><style id="VX_RANK_UI">
 .rank-row{display:grid;grid-template-columns:34px 1fr auto;gap:8px;align-items:center;padding:7px 8px;border:2px solid #43355a;border-radius:6px;background:#1b1530;margin-top:5px}.rank-num{font-size:8px;font-weight:1000;color:#ff91df}.rank-row b{display:block;font-size:8px}.rank-row small{display:block;font-size:6px;color:#9388a8;margin-top:2px}.rank-row strong{font-size:7px;color:#d9f3ff}
+</style><style id="VX_DAILY_UI">
+.daily-card{display:grid;grid-template-columns:70px 1fr;gap:14px;padding:16px;border:3px solid #4e3e67;border-radius:8px;background:linear-gradient(135deg,#211a3d,#17112c)}.daily-icon{width:70px;height:70px;display:grid;place-items:center;border:3px solid #67537f;border-radius:10px;background:linear-gradient(180deg,#ff8cdb,#7de1ff);color:#28162f;font-size:30px;box-shadow:4px 4px #0d0915}.daily-kicker{font-size:6px;letter-spacing:.18em;font-weight:1000;color:#ff92e0}.daily-card h3{margin:5px 0;font-size:18px;color:#fff5e5}.daily-card p{font-size:8px;line-height:1.45;color:#b1a6c0}.daily-reward{display:flex;gap:6px;flex-wrap:wrap;margin:9px 0}.daily-reward span{padding:7px 8px;border:2px solid #4e3e67;border-radius:6px;background:#18122e;font-size:7px;font-weight:1000}
+@media(max-width:560px){.daily-card{grid-template-columns:1fr}.daily-icon{width:54px;height:54px;font-size:24px}}
 </style></head>
 <body>
 <div id="game">
@@ -198,7 +201,7 @@ body.wrench-mode #touchWrench,body.wrench-mode .top-btn.help{border-color:#ffd86
  <div class="vxsys-card">
   <div class="vxsys-head"><div><small>VEXORA ONLINE WORLD</small><h2>Systems Center</h2></div><button id="vxSysClose" class="close">×</button></div>
   <div id="vxTabs" class="vxsys-tabs">
-   <button class="vxsys-tab active" data-tab="quests">QUESTS</button><button class="vxsys-tab" data-tab="achievements">ACHIEVEMENTS</button><button class="vxsys-tab" data-tab="friends">FRIENDS</button><button class="vxsys-tab" data-tab="guilds">GUILDS</button><button class="vxsys-tab" data-tab="market">MARKET</button><button class="vxsys-tab" data-tab="farm">FARM</button><button class="vxsys-tab" data-tab="trade">TRADE</button><button class="vxsys-tab" data-tab="equipment">EQUIPMENT</button><button class="vxsys-tab" data-tab="world">WORLD</button><button class="vxsys-tab" data-tab="access">ACCESS</button><button class="vxsys-tab" data-tab="locks">LOCKS</button><button class="vxsys-tab" data-tab="objects">OBJECTS</button><button class="vxsys-tab" data-tab="leaderboard">RANK</button>
+   <button class="vxsys-tab active" data-tab="quests">QUESTS</button><button class="vxsys-tab" data-tab="achievements">ACHIEVEMENTS</button><button class="vxsys-tab" data-tab="friends">FRIENDS</button><button class="vxsys-tab" data-tab="guilds">GUILDS</button><button class="vxsys-tab" data-tab="market">MARKET</button><button class="vxsys-tab" data-tab="farm">FARM</button><button class="vxsys-tab" data-tab="trade">TRADE</button><button class="vxsys-tab" data-tab="equipment">EQUIPMENT</button><button class="vxsys-tab" data-tab="world">WORLD</button><button class="vxsys-tab" data-tab="access">ACCESS</button><button class="vxsys-tab" data-tab="locks">LOCKS</button><button class="vxsys-tab" data-tab="objects">OBJECTS</button><button class="vxsys-tab" data-tab="leaderboard">RANK</button><button class="vxsys-tab" data-tab="daily">DAILY</button>
   </div>
   <div id="vxBody" class="vxsys-body"></div>
  </div>
@@ -347,6 +350,11 @@ async function load(t){tab=t;body.innerHTML='<div class="vxmuted">Loading…</di
    const rows=(xp.players||[]).map(p=>`<div class="rank-row"><span class="rank-num">#${p.rank}</span><div><b>@${esc(p.username)}</b><small>${esc(p.displayName||'Explorer')} · Level ${p.level}</small></div><strong>${p.totalXp.toLocaleString()} XP</strong></div>`).join('');
    const gems=(gem.players||[]).slice(0,10).map(p=>`<div class="rank-row"><span class="rank-num">#${p.rank}</span><div><b>@${esc(p.username)}</b><small>Level ${p.level}</small></div><strong>💎 ${p.gems.toLocaleString()}</strong></div>`).join('');
    body.innerHTML=`<div class="vxgrid"><div class="vxcard"><b>EXPLORER XP</b><p>Build, mine, farm and explore to grow your profile.</p>${rows||'<div class="vxmuted">No players yet.</div>'}</div><div class="vxcard"><b>GEM HUNTERS</b><p>Top gem balances across VEXORA.</p>${gems||'<div class="vxmuted">No players yet.</div>'}</div></div>`;
+ }
+ else if(t==='daily'){
+   const d=await api('/api/daily');
+   body.innerHTML=`<div class="daily-card"><div class="daily-icon">✦</div><div><span class="daily-kicker">VEXORA DAILY</span><h3>Return. Claim. Grow.</h3><p>Your streak: <b>${Number(d.streak||0)} day${Number(d.streak||0)===1?'':'s'}</b>. Today's reward scales with your streak.</p><div class="daily-reward"><span>🪙 ${Number(d.rewardCoins||0)} COINS</span><span>💎 ${Number(d.rewardGems||0)} GEMS</span></div>${d.claimed?'<div class="vxmuted">✓ Claimed today. Come back tomorrow.</div>':'<button id="dailyClaim" class="vxbtn primary">CLAIM DAILY REWARD</button>'}</div></div>`;
+   $('dailyClaim')?.addEventListener('click',async()=>{try{const x=await api('/api/daily',{method:'POST'});toast('Day '+x.streak+' claimed · +'+x.coins+' coins'+(x.gems?' · +'+x.gems+' gems':''));load('daily')}catch(err){toast(err.message)}});
  }
 
 }catch(e){body.innerHTML='<div class="vxcard"><b>System error</b><p>'+esc(e.message)+'</p></div>'}}
