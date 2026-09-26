@@ -96,7 +96,14 @@
   addEventListener('resize',resize); resize();
   function worldX(x){ return innerWidth/2+(x-cameraX)*TILE; }
   function worldY(y){ return innerHeight*0.58-(y-cameraY)*TILE; }
-  function screenToWorld(sx,sy){ return {x:Math.floor((sx-innerWidth/2)/TILE+cameraX),y:Math.floor(cameraY+(innerHeight*0.58-sy)/TILE)}; }
+  function screenToWorld(sx,sy){
+    const wx=(sx-innerWidth/2)/TILE+cameraX;
+    const wy=cameraY+(innerHeight*0.58-sy)/TILE;
+    // Blocks render from their y coordinate downward, while world physics
+    // treats y as the block's lower world coordinate. Ceil keeps the pointer
+    // inside the exact visible tile instead of selecting the tile below it.
+    return {x:Math.floor(wx),y:Math.ceil(wy-0.000001)};
+  }
 
   function drawBackground(){
     const g=ctx.createLinearGradient(0,54,0,innerHeight); g.addColorStop(0,'#8bd8f4');g.addColorStop(.55,'#c8efff');g.addColorStop(1,'#f4fbff');ctx.fillStyle=g;ctx.fillRect(0,54,innerWidth,innerHeight);
