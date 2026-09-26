@@ -59,6 +59,7 @@
   let walkTime = 0;
   let touchTarget = null;
   let touchDevice = false;
+  let lastInput = 'mouse';
   let gamepadTimer = 0;
   let gamepadPunchLast = false;
   let gamepadBuildLast = false;
@@ -297,7 +298,7 @@
 
   function drawTargetCell(){
     if((!pointer.inside&&!touchTarget)||paused||modal)return;
-    const p=(touchDevice&&touchTarget)?touchTarget:screenToWorld(pointer.x,pointer.y),sx=worldX(p.x),sy=worldY(p.y);
+    const p=(lastInput==='touch'&&touchTarget)?touchTarget:screenToWorld(pointer.x,pointer.y),sx=worldX(p.x),sy=worldY(p.y);
     const occupied=!!getBlock(p.x,p.y),reachable=inReach(p.x,p.y);
     ctx.save();
     ctx.strokeStyle=reachable?(occupied?'rgba(255,225,133,.75)':'rgba(255,255,255,.38)'):'rgba(255,110,140,.28)';
@@ -307,7 +308,7 @@
 
   function drawHover(){
     if((!pointer.inside&&!touchTarget)||paused||modal)return;
-    const p=(touchDevice&&touchTarget)?touchTarget:screenToWorld(pointer.x,pointer.y),b=getBlock(p.x,p.y),plant=getPlant(p.x,p.y);hover=p;
+    const p=(lastInput==='touch'&&touchTarget)?touchTarget:screenToWorld(pointer.x,pointer.y),b=getBlock(p.x,p.y),plant=getPlant(p.x,p.y);hover=p;
     if(!b&&!plant)return;
     const sx=worldX(p.x),sy=worldY(p.y),name=plant?.ready?'READY TO HARVEST':(b?BLOCKS[b.type].name:'Growing');
     ctx.font='800 10px Arial';const tw=ctx.measureText(name).width+14;
@@ -615,7 +616,7 @@
   }
 
   function targetForAction(){
-    if(touchDevice && touchTarget) return touchTarget;
+    if(lastInput==='touch' && touchTarget) return touchTarget;
     return screenToWorld(pointer.x,pointer.y);
   }
   function setTouchTargetFromPointer(){
@@ -643,6 +644,7 @@
   function setPointer(e){
     const r=canvas.getBoundingClientRect();
     pointer.x=e.clientX-r.left;pointer.y=e.clientY-r.top;pointer.inside=true;
+    lastInput=e.pointerType==='touch'?'touch':'mouse';
     if(e.pointerType==='touch'){touchDevice=true;setTouchTargetFromPointer();}
   }
   canvas.addEventListener('pointermove',setPointer);
