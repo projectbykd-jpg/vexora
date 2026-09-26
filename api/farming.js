@@ -28,8 +28,8 @@ const SPLICE_RECIPES={
 async function worldFor(db, worldId, userId) {
   const result = await db.execute({
     sql:`SELECT id, owner_id, privacy FROM worlds
-         WHERE id = ? AND (owner_id = ? OR privacy = 'public') LIMIT 1`,
-    args:[worldId,userId]
+         WHERE id = ? AND (owner_id = ? OR privacy = 'public' OR EXISTS (SELECT 1 FROM world_permissions p WHERE p.world_id=worlds.id AND p.user_id=?)) LIMIT 1`,
+    args:[worldId,userId,userId]
   });
   return result.rows[0] || null;
 }
