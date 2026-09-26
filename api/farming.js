@@ -65,6 +65,16 @@ function coordsOk(x,y) {
     x >= -MAX_X && x <= MAX_X && y > 0 && y <= MAX_Y;
 }
 
+async function grantXp(tx,userId,amount){
+  if(!amount)return 1;
+  await tx.execute({sql:'INSERT OR IGNORE INTO player_progress(user_id) VALUES(?)',args:[userId]});
+  await tx.execute({sql:'UPDATE player_progress SET xp=xp+?,total_xp=total_xp+?,updated_at=datetime(\'now\') WHERE user_id=?',args:[amount,amount,userId]});
+  const row=await tx.execute({sql:'SELECT total_xp FROM player_progress WHERE user_id=? LIMIT 1',args:[userId]});
+  const level=1+Math.floor(Number(row.rows[0]?.total_xp||0)/1000);
+  await tx.execute({sql:'UPDATE player_progress SET level=? WHERE user_id=?',args:[level,userId]});
+  return level;
+}
+
 function stageOf(plant, nowMs) {
   const cfg = SEEDS[plant.seed_item_id];
   if (!cfg) return 0;
@@ -126,8 +136,9 @@ module.exports = async function handler(req, res) {
         await tx.execute({sql:`INSERT INTO player_inventory(user_id,item_id,quantity) VALUES(?,?,1)
           ON CONFLICT(user_id,item_id) DO UPDATE SET quantity=quantity+1,updated_at=datetime('now')`,args:[userId,resultSeed]});
         await tx.execute({sql:'INSERT INTO audit_logs(user_id,world_id,action,payload_json) VALUES(?,?,?,?)',args:[userId,worldId,'farm.splice',JSON.stringify({seedA:a,seedB:b,resultSeed})]});
+        const level=await grantXp(tx,userId,10);
         await tx.commit();
-        return res.status(200).json({spliced:true,resultSeed});
+        return res.status(200).json({spliced:true,resultSeed,level});
       }catch(error){try{await tx.rollback();}catch{}throw error;}
     }
 
@@ -229,11 +240,13 @@ module.exports = async function handler(req, res) {
         sql:`INSERT INTO audit_logs (user_id,world_id,action,payload_json) VALUES (?,?,?,?)`,
         args:[userId,worldId,'farm.harvest',JSON.stringify({x,y,seedItemId:p.seed_item_id,harvestItem:cfg.harvestItem,harvestAmount:cfg.harvestAmount,returnedSeeds})]
       });
+      const gemDrop=Math.random()<0.18?1:0; if(gemDrop){await tx.execute({sql:'INSERT OR IGNORE INTO player_wallets(user_id) VALUES(?)',args:[userId]});await tx.execute({sql:'UPDATE player_wallets SET gems=gems+1,updated_at=datetime(\'now\') WHERE user_id=?',args:[userId]});}
+      const level=await grantXp(tx,userId,8);
       await tx.commit();
       return res.status(200).json({
         harvested:true, x,y,
         itemId:cfg.harvestItem, quantity:cfg.harvestAmount,
-        returnedSeeds
+        returnedSeeds,gemDrop,level
       });
     } catch (error) {
       try { await tx.rollback(); } catch {}
