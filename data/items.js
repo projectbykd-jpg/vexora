@@ -23,6 +23,8 @@ const ITEMS = {
   glass: { id:'glass', name:'Glass Block', type:ITEM_TYPES.BLOCK, stack:200, placeable:true, breakable:true, tradeable:true },
   grass_seed: { id:'grass_seed', name:'Meadow Seed', type:ITEM_TYPES.SEED, stack:200, seedable:true, tradeable:true },
   crystal_seed: { id:'crystal_seed', name:'Vexa Crystal Seed', type:ITEM_TYPES.SEED, stack:200, seedable:true, tradeable:true },
+  meadow_fiber: { id:'meadow_fiber', name:'Meadow Fiber', type:ITEM_TYPES.MATERIAL, stack:500, tradeable:true },
+  crystal_shard: { id:'crystal_shard', name:'Crystal Shard', type:ITEM_TYPES.MATERIAL, stack:500, tradeable:true },
   coin: { id:'coin', name:'Vexa Coin', type:ITEM_TYPES.CURRENCY, stack:999999, tradeable:true },
   gem: { id:'gem', name:'Vexa Gem', type:ITEM_TYPES.CURRENCY, stack:999999, tradeable:true },
   event_token: { id:'event_token', name:'Event Token', type:ITEM_TYPES.EVENT, stack:999999, tradeable:false },
