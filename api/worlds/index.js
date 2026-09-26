@@ -53,7 +53,8 @@ module.exports = async function handler(req, res) {
         sql: `SELECT w.id, w.name, w.type, w.privacy, w.seed, w.owner_id,
                      w.created_at, w.updated_at,
                      u.username AS owner_username,
-                     u.display_name AS owner_display_name
+                     u.display_name AS owner_display_name,
+                     (SELECT COUNT(*) FROM world_presence p WHERE p.world_id=w.id AND p.updated_at >= datetime('now','-15 seconds')) AS online_count
               FROM worlds w
               JOIN users u ON u.id = w.owner_id
               WHERE (w.owner_id = ? OR w.privacy = 'public' OR EXISTS (SELECT 1 FROM world_permissions p WHERE p.world_id=w.id AND p.user_id=?))
@@ -76,10 +77,10 @@ module.exports = async function handler(req, res) {
       }
 
       const duplicate = await db.execute({
-        sql: 'SELECT id FROM worlds WHERE owner_id = ? AND lower(name) = lower(?) LIMIT 1',
-        args: [userId, name],
+        sql: 'SELECT id FROM worlds WHERE lower(name) = lower(?) LIMIT 1',
+        args: [name],
       });
-      if (duplicate.rows[0]) return res.status(409).json({ error: 'You already have a world with that name.' });
+      if (duplicate.rows[0]) return res.status(409).json({ error: 'That world name is already taken. Choose another name.' });
 
       const world = {
         id: randomUUID(),
