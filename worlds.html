@@ -44,7 +44,7 @@ body{overflow-x:hidden}
 <div id="modal" class="modal" hidden><section class="modal-card"><button id="close" style="position:absolute;right:16px;top:12px;width:30px;height:30px;border:2px solid #5b4978;border-radius:5px;background:#21183b;color:#fff">×</button><div class="eyebrow">NEW WORLD</div><h2>Create your world</h2><p class="modal-copy">Choose a name, gameplay mode and privacy. You can change world settings later from inside the world.</p><form id="form" class="form"><label class="field"><span>WORLD NAME</span><input id="name" maxlength="24" placeholder="Vexoria" required></label><div class="twocol"><label class="field"><span>MODE</span><select id="type"><option value="normal">🌎 Normal</option><option value="creative">✨ Creative</option><option value="adventure">⚔️ Adventure</option></select></label><label class="field"><span>PRIVACY</span><select id="privacy"><option value="public">🌐 Public</option><option value="private">🔒 Private</option></select></label></div><div id="msg" style="min-height:14px;text-align:center;font-size:7px;font-weight:900;color:#8ee9aa"></div><div class="modal-actions"><button type="button" id="cancel">CANCEL</button><button class="primary">CREATE WORLD →</button></div></form></section></div>
 <script>
 const $=id=>document.getElementById(id), esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let worlds=[];
+let worlds=[],meUsername='';
 function label(t){return ({normal:'NORMAL',creative:'CREATIVE',adventure:'ADVENTURE'}[t]||String(t||'WORLD')).toUpperCase()}
 function card(w){
  return '<article class="world-card"><div class="wc-top"><div class="world-icon"></div><span class="world-badge">'+label(w.type)+'</span></div><h3>'+esc(w.name)+'</h3><p>'+((w.privacy==='public')?'🌐 Public world':'🔒 Private world')+' · @'+esc(w.ownerUsername||'unknown')+'</p><div class="wc-bottom"><span class="owner">'+(w.ownerDisplayName?esc(w.ownerDisplayName):'Explorer')+'</span><a class="enter" href="./world.html?id='+encodeURIComponent(w.id)+'">ENTER WORLD →</a></div></article>';
@@ -52,15 +52,15 @@ function card(w){
 function render(){
  const q=$('search').value.trim().toLowerCase(),f=$('filter').value;
  const a=worlds.filter(w=>(f==='all'||w.type===f)&&(!q||String(w.name).toLowerCase().includes(q)||String(w.ownerUsername||'').toLowerCase().includes(q)));
- $('worldCount').textContent=worlds.length;$('myWorldCount').textContent=worlds.filter(w=>w.ownerUsername).length;$('subtitle').textContent=a.length+' world'+(a.length===1?'':'s')+' shown';
+ $('worldCount').textContent=worlds.length;$('myWorldCount').textContent=meUsername?worlds.filter(w=>String(w.ownerUsername||'').toLowerCase()===meUsername.toLowerCase()).length:0;$('subtitle').textContent=a.length+' world'+(a.length===1?'':'s')+' shown';
  if(!a.length){$('list').innerHTML='<div class="empty" style="grid-column:1/-1"><strong>No worlds found</strong>Try another search or create your own world.</div>';return}
  $('list').innerHTML=a.map(card).join('');
  const fworld=a.find(w=>w.privacy==='public')||a[0];if(fworld){$('featuredName').textContent=fworld.name.toUpperCase();$('featuredTag').textContent=label(fworld.type)+' · ONLINE WORLD';}
 }
 async function load(){
  try{
-   const r=await fetch('/api/worlds',{credentials:'include'}),d=await r.json();
-   if(!r.ok)throw Error(d.error||'Unable to load worlds.');
+   const [wr,pr]=await Promise.all([fetch('/api/worlds',{credentials:'include'}),fetch('/api/player',{credentials:'include'})]);
+   const d=await wr.json();if(!wr.ok)throw Error(d.error||'Unable to load worlds.');const pd=await pr.json().catch(()=>({}));meUsername=pd.player?.username||'';
    worlds=d.worlds||[];render();
  }catch(e){
    const guest=new URLSearchParams(location.search).get('guest')==='1';
