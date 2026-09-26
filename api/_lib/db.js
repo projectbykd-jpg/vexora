@@ -283,6 +283,16 @@ async function initDb() {
     `CREATE INDEX IF NOT EXISTS idx_shops_world ON shop_listings(world_id, active)`
   ], 'write');
 
+  // Safe migrations for trade confirmations added after the initial schema.
+  const tradeColumns = await db.execute({ sql: `PRAGMA table_info(trades)` });
+  const tradeNames = new Set(tradeColumns.rows.map(row => row.name));
+  if (!tradeNames.has('initiator_confirmed')) {
+    await db.execute({ sql: `ALTER TABLE trades ADD COLUMN initiator_confirmed INTEGER NOT NULL DEFAULT 0` });
+  }
+  if (!tradeNames.has('recipient_confirmed')) {
+    await db.execute({ sql: `ALTER TABLE trades ADD COLUMN recipient_confirmed INTEGER NOT NULL DEFAULT 0` });
+  }
+
   // Safe migrations for users created before profile features existed.
   const columns = await db.execute({ sql: `PRAGMA table_info(users)` });
   const names = new Set(columns.rows.map(row => row.name));
