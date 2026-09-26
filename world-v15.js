@@ -108,7 +108,7 @@
     spawn();
   }
   function surfaceAt(x){ const ix=Math.round(x); for(let y=MAX_Y;y>=0;y--)if(solid(ix,y))return y; return 0; }
-  function spawn(){ const top=surfaceAt(0); player.x=0; player.y=Math.min(top+1,MAX_Y-1); cameraX=player.x; cameraY=player.y; player.vx=0; player.vy=0; player.grounded=false; player.face=1; }
+  function spawn(){ const top=surfaceAt(0); player.x=worldId?Number(worldSettings.spawn_x||0):0; player.y=worldId?Math.max(1,Math.min(MAX_Y-1,Number(worldSettings.spawn_y||top+1))):Math.min(top+1,MAX_Y-1); cameraX=player.x; cameraY=player.y; player.vx=0; player.vy=0; player.grounded=false; player.face=1; }
   function loadBlocks(list){
     if(Array.isArray(list)&&list.length){
       blocks.clear();
@@ -539,11 +539,17 @@
     const type=HOTBAR[selected];
     if(!worldId||!inventory[type]){toast('Nothing to drop','error');return;}
     try{
-      const out=await api('/api/drops',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'drop',worldId,itemId:type,quantity:Math.max(1,Math.min(quantity,inventory[type])),x:player.x+player.face*.7,y:Math.max(1,player.y)})});
-      inventory[type]-=Math.max(1,Math.min(quantity,inventory[type]));renderHotbar();renderInventory();
-      drops.set(String(out.id),{id:String(out.id),x:player.x+player.face*.7,y:Math.max(1,player.y),z:0,item_id:type,quantity:Math.max(1,Math.min(quantity,inventory[type]+0))});
+      const dropQty=Math.max(1,Math.min(quantity,inventory[type]));
+      const out=await api('/api/drops',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'drop',worldId,itemId:type,quantity:dropQty,x:player.x+player.face*.7,y:Math.max(1,player.y)})});
+      inventory[type]-=dropQty;renderHotbar();renderInventory();
+      drops.set(String(out.id),{id:String(out.id),x:player.x+player.face*.7,y:Math.max(1,player.y),z:0,item_id:type,quantity:dropQty});
       spawnParticles(player.x+.5,player.y,type);toast('Dropped '+ITEM_VISUALS[type].name);
     }catch(e){toast(e.message,'error');}
+  }
+  function maybeShowTutorial(){
+    if(!worldId||localStorage.getItem('vexora_tutorial_seen')==='1')return;
+    const el=$('tutorialModal');if(!el)return;
+    el.hidden=false;paused=true;
   }
   async function loadInventory(){
     try{
@@ -559,14 +565,17 @@
 
   async function loadServer(){
     try{const d=await api(`/api/worlds?${worldId?`id=${encodeURIComponent(worldId)}`:''}`);const w=d.world||((d.worlds||[]).find(v=>String(v.id)===String(worldId)));if(w)meta=w;}catch(e){console.warn(e);}
+    await loadWorldSettings();
     try{if(worldId){const d=await api(`/api/worlds/state?id=${encodeURIComponent(worldId)}`);if(Array.isArray(d.blocks)&&d.blocks.length)loadBlocks(d.blocks);else generateWorld();}else generateWorld();}catch(e){console.warn(e);generateWorld();}
     await loadInventory();
     await loadEquipment();
-    await loadWorldSettings();
     await loadLocks();
     await loadPlants();
     await loadDrops();
     $('worldName').textContent=meta.name||'VEXORA WORLD';$('worldMode').textContent=(meta.type||'normal').toUpperCase();
+    // Re-apply saved world spawn after settings are known.
+    if(worldId&&Number.isFinite(Number(worldSettings.spawn_x))){player.x=Math.max(MIN_X+.5,Math.min(MAX_X-.5,Number(worldSettings.spawn_x)));player.y=Math.max(1,Math.min(MAX_Y-1,Number(worldSettings.spawn_y)));cameraX=player.x;cameraY=player.y;}
+    maybeShowTutorial();
   }
   function queueSave(){clearTimeout(saveTimer);$('saveState').textContent='SAVING…';$('saveState').dataset.state='saving';saveTimer=setTimeout(saveWorld,1200);}
   async function saveWorld(){
