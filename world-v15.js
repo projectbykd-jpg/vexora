@@ -212,7 +212,7 @@
   function drawCharacter(px,footY,face=1,state='idle',phase=0,label=''){
     if(atlasReady){
       const frame=state==='punch'?(phase%260<130?3:4):(state==='walk'?(Math.floor(phase/150)%2?1:2):0);
-      const sx=frame*32,sy=72,scale=Math.max(2,Math.min(3,Math.floor(TILE/16)*2));
+      const sx=frame*32,sy=72,scale=Math.max(.85,Math.min(1.5,TILE/32));
       const dw=32*scale,dh=48*scale,dx=Math.round(px-dw/2),dy=Math.round(footY-dh+3);
       ctx.save();ctx.imageSmoothingEnabled=false;
       ctx.fillStyle='rgba(25,15,37,.22)';ctx.fillRect(px-10,footY+2,20,3);
