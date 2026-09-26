@@ -16,7 +16,7 @@
     crystal:{name:'Vexa Crystal',color:'#55d9ef',hard:650}, gold:{name:'Vexa Ore',color:'#e5bb42',hard:820},
     brick:{name:'Brick',color:'#ad574f',hard:500}
   };
-  const inventory = Object.fromEntries(Object.keys(BLOCKS).map(k => [k, k === 'grass' ? 120 : 0]));
+  let inventory = Object.fromEntries(Object.keys(BLOCKS).map(k => [k, k === 'grass' ? 120 : 0]));
   const blocks = new Map();
   const keys = new Set();
 
@@ -134,9 +134,20 @@
     const name=BLOCKS[b.type].name;ctx.font='700 10px Inter,Arial';const tw=ctx.measureText(name).width+16;let tx=sx+TILE/2-tw/2,ty=sy-28;tx=clamp(tx,8,innerWidth-tw-8);if(ty<62)ty=sy+TILE+7;ctx.fillStyle='rgba(10,13,23,.9)';ctx.fillRect(tx,ty,tw,22);ctx.fillStyle='#fff';ctx.fillText(name,tx+8,ty+15);
   }
   function drawMining(){
-    if(!mining)return; const b=getBlock(mining.x,mining.y);if(!b){mining=null;return;} const p=clamp((performance.now()-mining.started)/BLOCKS[b.type].hard,0,1),sx=worldX(b.x),sy=worldY(b.y);
-    ctx.strokeStyle='#f18be0';ctx.lineWidth=3;ctx.strokeRect(sx+2,sy+2,TILE-4,TILE-4);ctx.fillStyle='rgba(10,13,23,.75)';ctx.fillRect(sx+4,sy+TILE-8,TILE-8,4);ctx.fillStyle='#65d8ff';ctx.fillRect(sx+4,sy+TILE-8,(TILE-8)*p,4);
-    if(p>=1){breakBlock(b.x,b.y);mining=null;}
+    if(!mining)return;
+    const b=getBlock(mining.x,mining.y);
+    if(!b){mining=null;return;}
+    const p=clamp((performance.now()-mining.started)/BLOCKS[b.type].hard,0,1),sx=worldX(b.x),sy=worldY(b.y);
+    ctx.strokeStyle='#f18be0';ctx.lineWidth=3;ctx.strokeRect(sx+2,sy+2,TILE-4,TILE-4);
+    ctx.fillStyle='rgba(10,13,23,.75)';ctx.fillRect(sx+4,sy+TILE-8,TILE-8,4);
+    ctx.fillStyle='#65d8ff';ctx.fillRect(sx+4,sy+TILE-8,(TILE-8)*p,4);
+    if(p>=1&&!mining.processing){
+      mining.processing=true;
+      const target={x:b.x,y:b.y,z:0};
+      breakBlock(target.x,target.y,target.z).finally(()=>{
+        if(mining&&mining.x===target.x&&mining.y===target.y)mining=null;
+      });
+    }
   }
   function draw(){
     ctx.clearRect(0,0,innerWidth,innerHeight);drawBackground();drawGrid();
@@ -170,13 +181,25 @@
     mining={x:p.x,y:p.y,started:performance.now()};
   }
   function stopMine(){mining=null;}
-  function placeBlock(){
-    if(paused||modal)return;const p=screenToWorld(pointer.x,pointer.y),type=HOTBAR[selected];
+  async function placeBlock(){
+    if(paused||modal)return;
+    const p=screenToWorld(pointer.x,pointer.y),type=HOTBAR[selected];
     if(Math.abs(p.x-player.x)>6||Math.abs(p.y-(player.y+1))>6){toast('Move closer to place','error');return;}
-    if(getBlock(p.x,p.y))return; if(!inventory[type]){toast(`No ${BLOCKS[type].name}`,'error');return;}
+    if(getBlock(p.x,p.y))return;
+    if(!inventory[type]){toast(`No ${BLOCKS[type].name}`,'error');return;}
     if(p.x<MIN_X||p.x>MAX_X||p.y<0||p.y>MAX_Y)return;
-    const adjacent=getBlock(p.x+1,p.y)||getBlock(p.x-1,p.y)||getBlock(p.x,p.y+1)||getBlock(p.x,p.y-1);if(!adjacent){toast('Place next to a block','error');return;}
-    if(collides(p.x+.5,p.y+0.01))return; addBlock(p.x,p.y,type);inventory[type]--;renderHotbar();renderInventory();queueSave();
+    const adjacent=getBlock(p.x+1,p.y)||getBlock(p.x-1,p.y)||getBlock(p.x,p.y+1)||getBlock(p.x,p.y-1);
+    if(!adjacent){toast('Place next to a block','error');return;}
+    if(collides(p.x+.5,p.y+0.01))return;
+    if(worldId){
+      try{
+        await api('/api/game/action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+          worldId,action:'place',x:p.x,y:p.y,z:0,itemId:type,playerX:player.x,playerY:player.y
+        })});
+      }catch(e){toast(e.message,'error');return;}
+    }
+    addBlock(p.x,p.y,type);inventory[type]--;renderHotbar();renderInventory();
+    if(!worldId)queueSave();
   }
   function renderHotbar(){
     const root=$('hotbar');root.innerHTML='';HOTBAR.forEach((t,i)=>{const b=document.createElement('button');b.className='slot '+(i===selected?'selected':'');b.innerHTML=`<span class="num">${i+1}</span><i style="background:${BLOCKS[t].color}"></i><b>${inventory[t]||0}</b>`;b.title=`${i+1} · ${BLOCKS[t].name}`;b.onclick=(e)=>{e.stopPropagation();selected=i;renderHotbar();};root.appendChild(b);});
@@ -188,9 +211,20 @@
   function openModal(type){modal=type;paused=true;document.querySelectorAll('.modal').forEach(x=>x.hidden=true);const el=$(type+'Modal');if(el)el.hidden=false;if(type==='inventory')renderInventory();stopMine();}
   function closeModal(){document.querySelectorAll('.modal').forEach(x=>x.hidden=true);modal='';paused=false;}
 
+  async function loadInventory(){
+    try{
+      const d=await api('/api/inventory');
+      const next=Object.fromEntries(Object.keys(BLOCKS).map(k=>[k,0]));
+      for(const item of d.items||[])if(Object.prototype.hasOwnProperty.call(next,item.id))next[item.id]=Number(item.quantity)||0;
+      inventory={...inventory,...next};
+      renderHotbar();renderInventory();
+    }catch(e){console.warn('inventory load failed',e);}
+  }
+
   async function loadServer(){
     try{const d=await api(`/api/worlds?${worldId?`id=${encodeURIComponent(worldId)}`:''}`);const w=d.world||((d.worlds||[]).find(v=>String(v.id)===String(worldId)));if(w)meta=w;}catch(e){console.warn(e);}
     try{if(worldId){const d=await api(`/api/worlds/state?id=${encodeURIComponent(worldId)}`);if(Array.isArray(d.blocks)&&d.blocks.length)loadBlocks(d.blocks);else generateWorld();}else generateWorld();}catch(e){console.warn(e);generateWorld();}
+    await loadInventory();
     $('worldName').textContent=meta.name||'VEXORA WORLD';$('worldMode').textContent=(meta.type||'normal').toUpperCase();
   }
   function queueSave(){clearTimeout(saveTimer);$('saveState').textContent='SAVING…';$('saveState').dataset.state='saving';saveTimer=setTimeout(saveWorld,1200);}

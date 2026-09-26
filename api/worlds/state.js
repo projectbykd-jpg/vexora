@@ -29,6 +29,11 @@ module.exports = async function handler(req, res) {
     }
 
     if (req.method === 'PUT') {
+      // Full world snapshots are owner-only. Public players mutate through
+      // /api/game/action so locks, inventory and audit checks cannot be bypassed.
+      if (access.rows[0].owner_id !== userId) {
+        return res.status(403).json({ error: 'Only the world owner can save a full world snapshot.' });
+      }
       const incoming = Array.isArray(req.body?.blocks) ? req.body.blocks : [];
       if (incoming.length > 12000) {
         return res.status(413).json({ error: 'World is too large to save. Keep the prototype world within 12,000 blocks.' });
