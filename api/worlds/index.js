@@ -34,7 +34,8 @@ module.exports = async function handler(req, res) {
           sql: `SELECT w.id, w.name, w.type, w.privacy, w.seed, w.owner_id,
                        w.created_at, w.updated_at,
                        u.username AS owner_username,
-                       u.display_name AS owner_display_name
+                       u.display_name AS owner_display_name,
+                       (SELECT COUNT(*) FROM world_presence p WHERE p.world_id=w.id AND p.updated_at >= datetime('now','-15 seconds')) AS online_count
                 FROM worlds w
                 JOIN users u ON u.id = w.owner_id
                 WHERE w.id = ? AND (w.owner_id = ? OR w.privacy = 'public' OR EXISTS (SELECT 1 FROM world_permissions p WHERE p.world_id=w.id AND p.user_id=?)) AND NOT EXISTS (SELECT 1 FROM world_bans b WHERE b.world_id=w.id AND b.user_id=?)
@@ -53,10 +54,11 @@ module.exports = async function handler(req, res) {
                      u.display_name AS owner_display_name
               FROM worlds w
               JOIN users u ON u.id = w.owner_id
-              WHERE w.owner_id = ? OR w.privacy = 'public' OR EXISTS (SELECT 1 FROM world_permissions p WHERE p.world_id=w.id AND p.user_id=?)
+              WHERE (w.owner_id = ? OR w.privacy = 'public' OR EXISTS (SELECT 1 FROM world_permissions p WHERE p.world_id=w.id AND p.user_id=?))
+                AND NOT EXISTS (SELECT 1 FROM world_bans b WHERE b.world_id=w.id AND b.user_id=?)
               ORDER BY CASE WHEN w.owner_id = ? THEN 0 ELSE 1 END,
                        w.updated_at DESC, w.created_at DESC`,
-        args: [userId, userId, userId],
+        args: [userId, userId, userId, userId],
       });
       return res.status(200).json({ worlds: result.rows.map(cleanWorld) });
     }
