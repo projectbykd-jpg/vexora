@@ -1,6 +1,7 @@
 const { createClient } = require('@libsql/client');
 
 let client;
+let initPromise = null;
 
 function getDb() {
   if (client) return client;
@@ -14,6 +15,8 @@ function getDb() {
 }
 
 async function initDb() {
+  if (initPromise) return initPromise;
+  initPromise = (async () => {
   const db = getDb();
 
   await db.batch([
@@ -287,6 +290,13 @@ async function initDb() {
   if (!names.has('total_play_seconds')) await db.execute({ sql: `ALTER TABLE users ADD COLUMN total_play_seconds INTEGER NOT NULL DEFAULT 0` });
 
   return db;
+  })();
+  try {
+    return await initPromise;
+  } catch (error) {
+    initPromise = null;
+    throw error;
+  }
 }
 
 module.exports = { getDb, initDb };
