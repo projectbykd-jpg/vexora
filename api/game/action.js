@@ -11,6 +11,16 @@ function withinRange(ax, ay, bx, by) {
   return Math.hypot(ax - bx, ay - by) <= MAX_RANGE;
 }
 
+async function grantXp(tx,userId,amount){
+  if(!amount)return;
+  await tx.execute({sql:'INSERT OR IGNORE INTO player_progress(user_id) VALUES(?)',args:[userId]});
+  await tx.execute({sql:'UPDATE player_progress SET xp=xp+?,total_xp=total_xp+?,updated_at=datetime(\'now\') WHERE user_id=?',args:[amount,amount,userId]});
+  const row=await tx.execute({sql:'SELECT total_xp FROM player_progress WHERE user_id=? LIMIT 1',args:[userId]});
+  const level=1+Math.floor(Number(row.rows[0]?.total_xp||0)/1000);
+  await tx.execute({sql:'UPDATE player_progress SET level=?,updated_at=datetime(\'now\') WHERE user_id=?',args:[level,userId]});
+  return level;
+}
+
 async function getWorld(db, worldId, userId) {
   const result = await db.execute({
     sql:`SELECT id, owner_id, privacy
@@ -121,6 +131,13 @@ module.exports = async function handler(req, res) {
           args:[userId,itemId]
         });
         await tx.execute({
+          sql:`INSERT OR IGNORE INTO player_wallets(user_id) VALUES(?)`,
+          args:[userId]
+        });
+        const gemDrop = Math.random() < 0.24 ? 1 + Math.floor(Math.random()*3) : 0;
+        if(gemDrop) await tx.execute({sql:'UPDATE player_wallets SET gems=gems+?,updated_at=datetime(\'now\') WHERE user_id=?',args:[gemDrop,userId]});
+        const level = await grantXp(tx,userId,2);
+        await tx.execute({
           sql:`INSERT INTO audit_logs (user_id, world_id, action, payload_json)
                VALUES (?, ?, ?, ?)`,
           args:[userId,worldId,'block.break',JSON.stringify({x,y,z,itemId})]
@@ -130,7 +147,7 @@ module.exports = async function handler(req, res) {
           args:[worldId]
         });
         await tx.commit();
-        return res.status(200).json({ action, x,y,z, itemId, quantity:1 });
+        return res.status(200).json({ action, x,y,z, itemId, quantity:1, gemDrop, level:level||1 });
       } catch(error) {
         try { await tx.rollback(); } catch {}
         throw error;
@@ -193,12 +210,13 @@ module.exports = async function handler(req, res) {
              VALUES (?, ?, ?, ?)`,
         args:[userId,worldId,'block.place',JSON.stringify({x,y,z,itemId})]
       });
+      const level = await grantXp(tx,userId,1);
       await tx.execute({
         sql:"UPDATE worlds SET updated_at = datetime('now') WHERE id = ?",
         args:[worldId]
       });
       await tx.commit();
-      return res.status(200).json({ action, x,y,z,itemId, quantity:-1 });
+      return res.status(200).json({ action, x,y,z,itemId, quantity:-1, level:level||1 });
     } catch(error) {
       try { await tx.rollback(); } catch {}
       throw error;
