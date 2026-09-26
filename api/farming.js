@@ -13,14 +13,16 @@ const SEEDS = {
     seedReturnMin: 0,
     seedReturnMax: 2
   },
-  crystal_seed: {
-    growSeconds: 120,
-    stageCount: 4,
-    harvestItem: 'crystal_shard',
-    harvestAmount: 1,
-    seedReturnMin: 0,
-    seedReturnMax: 1
-  }
+  crystal_seed: {growSeconds:120,stageCount:4,harvestItem:'crystal_shard',harvestAmount:1,seedReturnMin:0,seedReturnMax:1},
+  wood_seed: {growSeconds:60,stageCount:3,harvestItem:'plank',harvestAmount:2,seedReturnMin:0,seedReturnMax:2},
+  flower_seed: {growSeconds:40,stageCount:3,harvestItem:'bloom_petal',harvestAmount:2,seedReturnMin:0,seedReturnMax:2},
+  vine_seed: {growSeconds:90,stageCount:4,harvestItem:'vine_fiber',harvestAmount:2,seedReturnMin:0,seedReturnMax:1},
+  crystal_bloom_seed: {growSeconds:150,stageCount:4,harvestItem:'crystal_shard',harvestAmount:2,seedReturnMin:0,seedReturnMax:1}
+};
+const SPLICE_RECIPES={
+  'crystal_seed|grass_seed':'crystal_bloom_seed',
+  'flower_seed|grass_seed':'vine_seed',
+  'crystal_seed|wood_seed':'crystal_bloom_seed'
 };
 
 async function worldFor(db, worldId, userId) {
@@ -102,10 +104,32 @@ module.exports = async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error:'Method not allowed.' });
 
     const body = req.body || {};
-    const action = body.action === 'plant' || body.action === 'harvest' ? body.action : '';
+    const action = body.action === 'plant' || body.action === 'harvest' || body.action === 'splice' ? body.action : '';
     const x = Math.trunc(Number(body.x));
     const y = Math.trunc(Number(body.y));
     if (!action || !coordsOk(x,y)) return res.status(400).json({ error:'Invalid farming action.' });
+
+    if (action === 'splice') {
+      const a=String(body.seedA||''), b=String(body.seedB||'');
+      if(!a||!b||a===b)return res.status(400).json({error:'Choose two different seeds.'});
+      const key=[a,b].sort().join('|'), resultSeed=SPLICE_RECIPES[key];
+      if(!resultSeed||!SEEDS[a]||!SEEDS[b])return res.status(400).json({error:'Those seeds cannot be spliced yet.'});
+      const have=await db.execute({sql:'SELECT item_id,quantity FROM player_inventory WHERE user_id=? AND item_id IN (?,?)',args:[userId,a,b]});
+      const qty=Object.fromEntries(have.rows.map(x=>[x.item_id,Number(x.quantity)]));
+      if((qty[a]||0)<1||(qty[b]||0)<1)return res.status(400).json({error:'You need one of each seed.'});
+      const tx=await db.transaction('write');
+      try{
+        for(const seed of [a,b]){
+          const removed=await tx.execute({sql:'UPDATE player_inventory SET quantity=quantity-1,updated_at=datetime(\'now\') WHERE user_id=? AND item_id=? AND quantity>=1',args:[userId,seed]});
+          if(Number(removed.rowsAffected||0)!==1){await tx.rollback();return res.status(409).json({error:'Seed stock changed.'});}
+        }
+        await tx.execute({sql:`INSERT INTO player_inventory(user_id,item_id,quantity) VALUES(?,?,1)
+          ON CONFLICT(user_id,item_id) DO UPDATE SET quantity=quantity+1,updated_at=datetime('now')`,args:[userId,resultSeed]});
+        await tx.execute({sql:'INSERT INTO audit_logs(user_id,world_id,action,payload_json) VALUES(?,?,?,?)',args:[userId,worldId,'farm.splice',JSON.stringify({seedA:a,seedB:b,resultSeed})]});
+        await tx.commit();
+        return res.status(200).json({spliced:true,resultSeed});
+      }catch(error){try{await tx.rollback();}catch{}throw error;}
+    }
 
     if (action === 'plant') {
       const seedItemId = String(body.seedItemId || '');
