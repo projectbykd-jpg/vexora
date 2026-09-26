@@ -101,6 +101,12 @@
   .tc-hint{display:none}.tc-mini{height:30px;padding:0 7px}
 }
 @media(min-width:900px){.touch-device #touchControls{max-width:760px;left:50%;right:auto;transform:translateX(-50%);width:760px}}
+</style><style id="VX_TUTORIAL_UI">
+.tutorial-card{width:min(520px,calc(100vw - 24px));padding:24px;border:4px solid #51406d;border-radius:12px;background:linear-gradient(180deg,#20183b,#120d23);box-shadow:9px 10px 0 #0e0918,0 24px 60px rgba(20,8,35,.32)}
+.tutorial-top{display:flex;justify-content:space-between;align-items:center}.tutorial-top .eyebrow{font-size:6px;color:#ff8fe0;font-weight:1000;letter-spacing:.18em}.tutorial-step{font-size:7px;font-weight:1000;color:#9387a9}
+.tutorial-card h2{font-size:24px;line-height:.98;margin:12px 0 8px;color:#fff7e5;text-shadow:3px 3px 0 #46316c}.tutorial-card p{font-size:10px;line-height:1.55;color:#bfb3d1;margin:0;max-width:400px}
+.tutorial-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}.tutorial-skip,.tutorial-play{height:38px;border:3px solid #53426f;border-radius:6px;font-size:7px;font-weight:1000;padding:0 12px}.tutorial-skip{background:#231c3c;color:#a9a0ba}.tutorial-play{background:linear-gradient(180deg,#ff88dc,#b877ed 60%,#67dfff);color:#24142f}
+@media(max-width:520px){.tutorial-card{padding:18px}.tutorial-card h2{font-size:20px}.tutorial-actions{flex-direction:column}.tutorial-skip,.tutorial-play{width:100%}}
 </style></head>
 <body>
 <div id="game">
@@ -149,6 +155,17 @@
 <section id="helpModal" class="modal" hidden><div class="modal-card"><div class="modal-head"><div><span class="eyebrow">HOW TO PLAY</span><h2>VEXORA World</h2></div><button id="closeHelp" class="close">×</button></div><div class="help-list">
   <div class="help-row"><span>Keyboard Move</span><b><kbd>A</kbd> <kbd>D</kbd> / <kbd>←</kbd> <kbd>→</kbd></b></div><div class="help-row"><span>Keyboard Jump</span><b><kbd>SPACE</kbd> / <kbd>↑</kbd></b></div><div class="help-row"><span>Mouse Punch / break</span><b><kbd>LEFT CLICK</kbd> (hold)</b></div><div class="help-row"><span>Mouse Build / plant</span><b><kbd>RIGHT CLICK</kbd></b></div><div class="help-row"><span>Touch</span><b>TAP target → PUNCH / BUILD</b></div><div class="help-row"><span>Select block</span><b><kbd>1–9</kbd> / wheel / NEXT</b></div><div class="help-row"><span>Inventory</span><b><kbd>E</kbd> / BAG</b></div><div class="help-row"><span>Chat</span><b><kbd>T</kbd> / Enter</b></div><div class="help-row"><span>Menu</span><b><kbd>ESC</kbd> / MENU</b></div>
 </div></div></section>
+<section id="tutorialModal" class="modal" hidden>
+  <div class="tutorial-card">
+    <div class="tutorial-top"><span class="eyebrow">WELCOME TO VEXORA</span><span class="tutorial-step">01 / 04</span></div>
+    <h2>YOUR WORLD. YOUR RULES.</h2>
+    <p>Build a world, punch blocks, grow crops, trade items, and meet other explorers.</p>
+    <div class="tutorial-actions">
+      <button class="tutorial-skip" id="tutorialSkip">SKIP TUTORIAL</button>
+      <button class="tutorial-play" id="tutorialPlay">START PLAYING →</button>
+    </div>
+  </div>
+</section>
 <section id="menuModal" class="modal" hidden><div class="modal-card" style="max-width:380px"><div class="modal-head"><div><span class="eyebrow">VEXORA WORLD</span><h2>Game Menu</h2></div><button id="closeMenu" class="close">×</button></div><div class="menu-actions"><button id="saveButton2" class="menu-action primary">SAVE WORLD</button><button id="lockAreaButton" class="menu-action">LOCK 7×7 AREA</button><button id="exitWorld" class="menu-action">EXIT TO WORLDS</button></div></div></section>
 </div>
 <script type="module" src="./world-v15.js"></script>
