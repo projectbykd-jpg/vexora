@@ -37,9 +37,9 @@ module.exports = async function handler(req, res) {
                        u.display_name AS owner_display_name
                 FROM worlds w
                 JOIN users u ON u.id = w.owner_id
-                WHERE w.id = ? AND (w.owner_id = ? OR w.privacy = 'public')
+                WHERE w.id = ? AND (w.owner_id = ? OR w.privacy = 'public' OR EXISTS (SELECT 1 FROM world_permissions p WHERE p.world_id=w.id AND p.user_id=?))
                 LIMIT 1`,
-          args: [id, userId],
+          args: [id, userId, userId],
         });
         if (!result.rows[0]) return res.status(404).json({ error: 'World not found or it is private.' });
         return res.status(200).json({ world: cleanWorld(result.rows[0]) });
@@ -53,10 +53,10 @@ module.exports = async function handler(req, res) {
                      u.display_name AS owner_display_name
               FROM worlds w
               JOIN users u ON u.id = w.owner_id
-              WHERE w.owner_id = ? OR w.privacy = 'public'
+              WHERE w.owner_id = ? OR w.privacy = 'public' OR EXISTS (SELECT 1 FROM world_permissions p WHERE p.world_id=w.id AND p.user_id=?)
               ORDER BY CASE WHEN w.owner_id = ? THEN 0 ELSE 1 END,
                        w.updated_at DESC, w.created_at DESC`,
-        args: [userId, userId],
+        args: [userId, userId, userId],
       });
       return res.status(200).json({ worlds: result.rows.map(cleanWorld) });
     }
