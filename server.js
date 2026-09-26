@@ -57,11 +57,6 @@ app.use(express.static(ROOT, {
   dotfiles: 'deny'
 }));
 
-app.get('*', (req, res, next) => {
-  if (req.method !== 'GET' || req.path.startsWith('/api/')) return next();
-  res.sendFile(path.join(ROOT, 'index.html'));
-});
-
 app.use((error, req, res, next) => {
   console.error(error);
   if (res.headersSent) return next(error);
