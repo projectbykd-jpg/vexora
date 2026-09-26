@@ -73,7 +73,7 @@
   let wrenchMode = false;
   let lastObjectSync = 0;
   let worldSettings = {description:'',max_players:20,min_level:1,spawn_x:0,spawn_y:20,background:'day'};
-  let playerProfile={username:'Explorer',displayName:'Explorer',level:1,gems:0,worldCoins:0};
+  let playerProfile={id:'',username:'Explorer',displayName:'Explorer',level:1,gems:0,worldCoins:0};
   let lastDropSync = 0;
   let audioCtx = null;
   let lastSfx = 0;
@@ -620,7 +620,7 @@
     }
     if(wrenchMode){
       if(!worldId)return;
-      if(playerProfile.username && !meta.ownerId){toast('Only the world owner can wrench objects','error');return;}
+      if(String(meta.ownerId||'')!==String(playerProfile.id||'')){toast('Only the world owner can wrench objects','error');return;}
       const label=prompt('Object label',o.label||'')||o.label||'';
       const link=o.type==='portal'||o.type==='door'?(prompt('Linked world ID (optional)',o.linkWorldId||'')||o.linkWorldId||''):o.linkWorldId;
       try{await api('/api/objects?worldId='+encodeURIComponent(worldId),{method:'PATCH',body:JSON.stringify({id:o.id,label,linkWorldId:link})});await loadObjects();toast('Object updated');}catch(e){toast(e.message,'error')}return;
