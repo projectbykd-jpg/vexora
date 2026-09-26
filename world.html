@@ -128,6 +128,10 @@ body.wrench-mode #touchWrench,body.wrench-mode .top-btn.help{border-color:#ffd86
 </style><style id="VX_DAILY_UI">
 .daily-card{display:grid;grid-template-columns:70px 1fr;gap:14px;padding:16px;border:3px solid #4e3e67;border-radius:8px;background:linear-gradient(135deg,#211a3d,#17112c)}.daily-icon{width:70px;height:70px;display:grid;place-items:center;border:3px solid #67537f;border-radius:10px;background:linear-gradient(180deg,#ff8cdb,#7de1ff);color:#28162f;font-size:30px;box-shadow:4px 4px #0d0915}.daily-kicker{font-size:6px;letter-spacing:.18em;font-weight:1000;color:#ff92e0}.daily-card h3{margin:5px 0;font-size:18px;color:#fff5e5}.daily-card p{font-size:8px;line-height:1.45;color:#b1a6c0}.daily-reward{display:flex;gap:6px;flex-wrap:wrap;margin:9px 0}.daily-reward span{padding:7px 8px;border:2px solid #4e3e67;border-radius:6px;background:#18122e;font-size:7px;font-weight:1000}
 @media(max-width:560px){.daily-card{grid-template-columns:1fr}.daily-icon{width:54px;height:54px;font-size:24px}}
+</style><style id="VX_TUTORIAL_V2">
+.tutorial-card{position:relative;width:min(540px,calc(100vw - 24px));padding:24px;border:4px solid #51406d;border-radius:12px;background:linear-gradient(180deg,#20183b,#120d23);box-shadow:9px 10px 0 #0e0918,0 24px 60px rgba(20,8,35,.32)}
+.tutorial-top{display:flex;justify-content:space-between;align-items:center}.tutorial-top .eyebrow{font-size:6px;color:#ff8fe0;font-weight:1000;letter-spacing:.18em}.tutorial-step{font-size:7px;font-weight:1000;color:#9387a9}.tutorial-icon{width:58px;height:58px;margin:18px auto 10px;display:grid;place-items:center;border:3px solid #5a4978;border-radius:10px;background:linear-gradient(180deg,#ff8bdc,#72ddff);color:#25162f;font-size:25px;box-shadow:4px 5px 0 #0d0916}.tutorial-card h2{text-align:center;font-size:24px;line-height:.98;margin:7px 0 9px;color:#fff7e5;text-shadow:3px 3px 0 #46316c}.tutorial-card p{text-align:center;font-size:10px;line-height:1.55;color:#bfb3d1;margin:0 auto;max-width:410px;min-height:48px}.tutorial-dots{display:flex;justify-content:center;gap:6px;margin-top:14px}.tutorial-dots i{width:6px;height:6px;border-radius:50%;background:#51436c}.tutorial-dots i.active{background:#ff88df;box-shadow:0 0 0 2px #ff88df33}.tutorial-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}.tutorial-skip,.tutorial-next{height:38px;border:3px solid #53426f;border-radius:6px;font-size:7px;font-weight:1000;padding:0 12px}.tutorial-skip{background:#231c3c;color:#a9a0ba}.tutorial-next{background:linear-gradient(180deg,#ff88dc,#b877ed 60%,#67dfff);color:#24152e}
+@media(max-width:520px){.tutorial-card{padding:18px}.tutorial-card h2{font-size:20px}.tutorial-actions{flex-direction:column}.tutorial-skip,.tutorial-next{width:100%}}
 </style></head>
 <body>
 <div id="game">
@@ -179,12 +183,14 @@ body.wrench-mode #touchWrench,body.wrench-mode .top-btn.help{border-color:#ffd86
 </div></div></section>
 <section id="tutorialModal" class="modal" hidden>
   <div class="tutorial-card">
-    <div class="tutorial-top"><span class="eyebrow">WELCOME TO VEXORA</span><span class="tutorial-step">01 / 04</span></div>
-    <h2>YOUR WORLD. YOUR RULES.</h2>
-    <p>Build a world, punch blocks, grow crops, trade items, and meet other explorers.</p>
+    <div class="tutorial-top"><span class="eyebrow">WELCOME TO VEXORA</span><span class="tutorial-step" id="tutorialStep">01 / 04</span></div>
+    <div class="tutorial-icon" id="tutorialIcon">✦</div>
+    <h2 id="tutorialTitle">MOVE & PUNCH</h2>
+    <p id="tutorialCopy">Walk with A/D or the arrow keys. Tap the world on mobile. Punch a block to collect it.</p>
+    <div class="tutorial-dots" id="tutorialDots"><i class="active"></i><i></i><i></i><i></i></div>
     <div class="tutorial-actions">
-      <button class="tutorial-skip" id="tutorialSkip">SKIP TUTORIAL</button>
-      <button class="tutorial-play" id="tutorialPlay">START PLAYING →</button>
+      <button class="tutorial-skip" id="tutorialSkip">SKIP</button>
+      <button class="tutorial-next" id="tutorialNext">NEXT →</button>
     </div>
   </div>
 </section>
