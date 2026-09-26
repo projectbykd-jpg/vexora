@@ -15,9 +15,9 @@ module.exports = async function handler(req, res) {
     // Private worlds remain owner-only.
     const access = await db.execute({
       sql: `SELECT id, owner_id, privacy FROM worlds
-            WHERE id = ? AND (owner_id = ? OR privacy = 'public' OR EXISTS (SELECT 1 FROM world_permissions p WHERE p.world_id=worlds.id AND p.user_id=?))
+            WHERE id = ? AND (owner_id = ? OR privacy = 'public' OR EXISTS (SELECT 1 FROM world_permissions p WHERE p.world_id=worlds.id AND p.user_id=?)) AND NOT EXISTS (SELECT 1 FROM world_bans b WHERE b.world_id=worlds.id AND b.user_id=?)
             LIMIT 1`,
-      args: [worldId, userId, userId],
+      args: [worldId, userId, userId, userId],
     });
     if (!access.rows[0]) return res.status(404).json({ error: 'World not found or it is private.' });
 
