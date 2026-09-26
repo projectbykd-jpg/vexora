@@ -138,6 +138,8 @@ body.wrench-mode #touchWrench,body.wrench-mode .top-btn.help{border-color:#ffd86
 .hud-xp{height:5px;margin:4px 0 2px;border-radius:4px;background:#0e0a1b;overflow:hidden;border:1px solid #4b3c60}.hud-xp i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff82dc,#77dcff);transition:width .25s ease}.wallet-card .hud-sub{font-size:5.5px!important}
 </style><style id="VX_GT_MENU">
 .gt-menu{width:min(420px,calc(100vw - 22px));padding:0;border:4px solid #4b385e;border-radius:7px;background:#fff8eb;box-shadow:8px 9px #25182f70;color:#30203f;overflow:hidden}.gt-menu-head{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;background:linear-gradient(180deg,#fbe7ef,#f6d6e7);border-bottom:4px solid #4b385e}.gt-menu-head h2{margin:4px 0 0;font-size:18px}.gt-menu-head .eyebrow{color:#9c4b82}.gt-close{width:31px;height:31px;border:3px solid #4b385e;border-radius:5px;background:#fff4e5;color:#32223f;font-size:18px}.gt-menu-list{padding:9px;display:grid;gap:6px}.gt-menu-item{min-height:48px;text-align:left;border:3px solid #624971;border-radius:5px;background:#f8f0ea;padding:7px 9px;color:#32233f}.gt-menu-item:hover{background:#e9fbff;border-color:#42718a}.gt-menu-item b{display:block;font-size:8px}.gt-menu-item span{display:block;margin-top:4px;color:#786b80;font-size:6px}.gt-menu-item.danger{background:#fde9eb;border-color:#9e5266}.gt-menu-foot{padding:8px 11px;background:#eadde6;border-top:3px solid #584167;font-size:5.5px;color:#71637d;letter-spacing:.08em}.gt-menu-foot strong{color:#382847}
+</style><style id="VX_GT_OPTIONS">
+.gt-options{padding:13px;display:grid;gap:12px;background:#fff8eb}.gt-options label{display:grid;grid-template-columns:150px 1fr;align-items:center;gap:10px;font-size:7px;font-weight:1000;color:#5b4b67}.gt-options input[type=range]{width:100%;accent-color:#d96bc5}.gt-options select{height:32px;border:3px solid #584268;border-radius:5px;background:#fff;color:#30203f;font-size:7px;font-weight:900}
 </style></head>
 <body>
 <div id="game"><div id="vxLoading" class="vx-loading"><div class="vx-loading-mark">V</div><div class="vx-loading-title">ENTERING VEXORA</div><div id="vxLoadingWorld" class="vx-loading-world">WORLD</div><div class="vx-loading-bar"><i></i></div><div class="vx-loading-tip">Loading world, inventory & online players…</div></div>
@@ -200,7 +202,16 @@ body.wrench-mode #touchWrench,body.wrench-mode .top-btn.help{border-color:#ffd86
     </div>
   </div>
 </section>
-<section id="menuModal" class="modal" hidden><div class="gt-menu">
+<section id="menuModal" class="modal" hidden><section id="optionsModal" class="modal" hidden><div class="gt-menu">
+  <div class="gt-menu-head"><div><span class="eyebrow">VEXORA</span><h2>OPTIONS</h2></div><button id="closeOptions" class="gt-close">×</button></div>
+  <div class="gt-options">
+    <label><span>MUSIC</span><input id="optMusic" type="range" min="0" max="100" value="65"></label>
+    <label><span>SFX</span><input id="optSfx" type="range" min="0" max="100" value="80"></label>
+    <label><span>PARTICLES</span><select id="optFx"><option value="high">HIGH</option><option value="low">LOW</option></select></label>
+    <label><span>SHOW HELP HINTS</span><select id="optHints"><option value="on">ON</option><option value="off">OFF</option></select></label>
+  </div>
+  <div class="gt-menu-list" style="padding-top:0"><button class="gt-menu-item" id="optionsDone"><b>DONE</b><span>Save local settings and return</span></button></div>
+</div></section><div class="gt-menu">
   <div class="gt-menu-head"><div><span class="eyebrow">VEXORA</span><h2 id="menuWorldTitle">WORLD MENU</h2></div><button id="closeMenu" class="gt-close">×</button></div>
   <div class="gt-menu-list">
     <button class="gt-menu-item" id="menuRespawn"><b>↻ RESPAWN</b><span>Return to the main door / spawn point</span></button>
