@@ -20,6 +20,7 @@ const routes = {
   '/api/world/access': './api/world/access.js',
   '/api/world/settings': './api/world/settings.js',
   '/api/drops': './api/drops.js',
+  '/api/objects': './api/objects.js',
   '/api/farming': './api/farming.js',
   '/api/trades': './api/trades.js',
   '/api/quests': './api/quests.js',
