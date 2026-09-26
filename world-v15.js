@@ -239,7 +239,7 @@
     }
     removeBlock(x,y); inventory[b.type]=(inventory[b.type]||0)+1; renderHotbar();renderInventory();queueSave();toast('+1 '+BLOCKS[b.type].name);
   }
-  function beginMine(){
+  async function beginMine(){
     if(paused||modal)return;const p=screenToWorld(pointer.x,pointer.y),b=getBlock(p.x,p.y);if(!b)return;
     if(Math.abs(p.x-player.x)>6||Math.abs(p.y-(player.y+1))>6){toast('Too far away','error');return;}
     mining={x:p.x,y:p.y,started:performance.now()};
