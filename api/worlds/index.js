@@ -37,9 +37,9 @@ module.exports = async function handler(req, res) {
                        u.display_name AS owner_display_name
                 FROM worlds w
                 JOIN users u ON u.id = w.owner_id
-                WHERE w.id = ? AND (w.owner_id = ? OR w.privacy = 'public' OR EXISTS (SELECT 1 FROM world_permissions p WHERE p.world_id=w.id AND p.user_id=?))
+                WHERE w.id = ? AND (w.owner_id = ? OR w.privacy = 'public' OR EXISTS (SELECT 1 FROM world_permissions p WHERE p.world_id=w.id AND p.user_id=?)) AND NOT EXISTS (SELECT 1 FROM world_bans b WHERE b.world_id=w.id AND b.user_id=?)
                 LIMIT 1`,
-          args: [id, userId, userId],
+          args: [id, userId, userId, userId],
         });
         if (!result.rows[0]) return res.status(404).json({ error: 'World not found or it is private.' });
         return res.status(200).json({ world: cleanWorld(result.rows[0]) });
