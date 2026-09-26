@@ -55,6 +55,7 @@ module.exports = async function handler(req, res) {
         args: [worldId, userId, message],
       });
       const row = result.rows[0];
+      await db.execute({ sql: 'INSERT INTO audit_logs (user_id, world_id, action, payload_json) VALUES (?, ?, ?, ?)', args: [userId, worldId, 'chat.send', JSON.stringify({ messageLength: message.length })] });
       const user = await db.execute({ sql: 'SELECT username, display_name FROM users WHERE id = ? LIMIT 1', args: [userId] });
       return res.status(201).json({ message: clean({ ...row, username: user.rows[0]?.username || 'Explorer', display_name: user.rows[0]?.display_name || 'Explorer' }) });
     }
