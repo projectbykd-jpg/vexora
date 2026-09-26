@@ -8,16 +8,19 @@
   const worldId = qs.get('id') || '';
   const TILE = 32;
   const MIN_X = -64, MAX_X = 64, MIN_Y = 0, MAX_Y = 40;
-  const HOTBAR = ['grass','dirt','stone','wood','leaf','sand','crystal','gold','brick'];
+  const HOTBAR = ['grass','dirt','stone','wood','sand','brick','glass','grass_seed','crystal_seed'];
   const BLOCKS = {
     grass:{name:'Grass',color:'#55cf78',hard:180}, dirt:{name:'Dirt',color:'#98613f',hard:240},
     stone:{name:'Stone',color:'#7f8996',hard:520}, wood:{name:'Wood',color:'#9b6942',hard:350},
     leaf:{name:'Leaf',color:'#349452',hard:140}, sand:{name:'Sand',color:'#dfc17a',hard:170},
     crystal:{name:'Vexa Crystal',color:'#55d9ef',hard:650}, gold:{name:'Vexa Ore',color:'#e5bb42',hard:820},
-    brick:{name:'Brick',color:'#ad574f',hard:500}
+    brick:{name:'Brick',color:'#ad574f',hard:500}, glass:{name:'Glass',color:'#bfefff',hard:220}
   };
+  const SEEDS = {grass_seed:{name:'Meadow Seed',color:'#86d96b'},crystal_seed:{name:'Vexa Crystal Seed',color:'#83eaff'}};
+  const ITEM_VISUALS = {...BLOCKS,...SEEDS};
   let inventory = Object.fromEntries(Object.keys(BLOCKS).map(k => [k, k === 'grass' ? 120 : 0]));
   const blocks = new Map();
+  const plants = new Map();
   const keys = new Set();
 
   const canvas = $('worldCanvas');
@@ -54,6 +57,7 @@
   function addBlock(x,y,type){ if(!BLOCKS[type]||x<MIN_X||x>MAX_X||y<MIN_Y||y>MAX_Y)return; blocks.set(key(x,y),{x,y,type}); }
   function removeBlock(x,y){ blocks.delete(key(x,y)); }
   function getBlock(x,y){ return blocks.get(key(Math.floor(x),Math.floor(y))); }
+  function getPlant(x,y){ return plants.get(key(Math.floor(x),Math.floor(y))); }
   function solid(x,y){ return !!getBlock(x,y); }
 
   function generateWorld(){
@@ -119,6 +123,19 @@
     if(b.type==='crystal'){ctx.fillStyle='rgba(255,255,255,.44)';ctx.beginPath();ctx.moveTo(sx+16,sy+4);ctx.lineTo(sx+26,sy+16);ctx.lineTo(sx+16,sy+28);ctx.lineTo(sx+7,sy+16);ctx.closePath();ctx.fill();}
     if(b.type==='gold'){ctx.fillStyle='rgba(255,248,150,.72)';ctx.fillRect(sx+7,sy+8,5,5);ctx.fillRect(sx+20,sy+19,4,4);}
     if(b.type==='brick'){ctx.strokeStyle='rgba(74,32,30,.25)';ctx.beginPath();ctx.moveTo(sx+1,sy+16);ctx.lineTo(sx+31,sy+16);ctx.moveTo(sx+15,sy+1);ctx.lineTo(sx+15,sy+16);ctx.moveTo(sx+25,sy+16);ctx.lineTo(sx+25,sy+31);ctx.stroke();}
+  }
+  function drawPlant(p){
+    const sx=worldX(p.x),base=worldY(p.y)+TILE-2;
+    const cfg=SEEDS[p.seedItemId]||SEEDS.grass_seed;
+    const stage=Math.max(0,Math.min(4,Number(p.stage)||0));
+    if(stage<=0)return;
+    const h=8+stage*5;
+    ctx.save();ctx.strokeStyle=cfg.color;ctx.lineWidth=4;ctx.lineCap='round';
+    ctx.beginPath();ctx.moveTo(sx+TILE/2,base);ctx.lineTo(sx+TILE/2,base-h);ctx.stroke();
+    if(stage>=1){ctx.fillStyle=cfg.color;ctx.beginPath();ctx.arc(sx+TILE/2-5,base-h+7,4,0,Math.PI*2);ctx.arc(sx+TILE/2+5,base-h+4,4,0,Math.PI*2);ctx.fill();}
+    if(stage>=3){ctx.fillStyle='#f4e58a';ctx.fillRect(sx+13,base-h-4,6,6);}
+    if(p.ready){ctx.strokeStyle='#fff3a1';ctx.lineWidth=1.5;ctx.strokeRect(sx+3,worldY(p.y)+3,TILE-6,TILE-6);}
+    ctx.restore();
   }
   function drawRemote(p){
     const sx=worldX(p.x),sy=worldY(p.y)-TILE*1.58; if(sx<-60||sx>innerWidth+60)return;
@@ -186,6 +203,7 @@
     const sx=Math.floor(cameraX-innerWidth/TILE/2)-2,ex=Math.ceil(cameraX+innerWidth/TILE/2)+2;
     drawLocks();
     for(const b of blocks.values())if(b.x>=sx&&b.x<=ex)drawBlock(b);
+    for(const p of plants.values())if(p.x>=sx&&p.x<=ex)drawPlant(p);
     for(const p of remotes.values())drawRemote(p);drawPlayer();drawHover();drawMining();
   }
 
@@ -207,7 +225,20 @@
     $('coords').textContent=`${Math.round(player.x)} / ${Math.round(player.y)}`;
   }
 
-  function breakBlock(x,y){ const b=getBlock(x,y);if(!b||y===0)return;removeBlock(x,y);inventory[b.type]=(inventory[b.type]||0)+1;renderHotbar();renderInventory();queueSave();toast(`+1 ${BLOCKS[b.type].name}`); }
+  async function breakBlock(x,y,z=0){
+    const b=getBlock(x,y); if(!b||y===0)return;
+    if(worldId){
+      try{
+        const d=await api('/api/game/action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+          worldId,action:'break',x,y,z,playerX:player.x,playerY:player.y
+        })});
+        removeBlock(x,y); inventory[b.type]=(inventory[b.type]||0)+1; renderHotbar();renderInventory();
+        toast('+1 '+(BLOCKS[b.type]?.name||d.itemId));
+      }catch(e){toast(e.message,'error');}
+      return;
+    }
+    removeBlock(x,y); inventory[b.type]=(inventory[b.type]||0)+1; renderHotbar();renderInventory();queueSave();toast('+1 '+BLOCKS[b.type].name);
+  }
   function beginMine(){
     if(paused||modal)return;const p=screenToWorld(pointer.x,pointer.y),b=getBlock(p.x,p.y);if(!b)return;
     if(Math.abs(p.x-player.x)>6||Math.abs(p.y-(player.y+1))>6){toast('Too far away','error');return;}
@@ -217,6 +248,7 @@
   async function placeBlock(){
     if(paused||modal)return;
     const p=screenToWorld(pointer.x,pointer.y),type=HOTBAR[selected];
+    if(SEEDS[type]){await plantSeed(p.x,p.y,type);return;}
     if(Math.abs(p.x-player.x)>6||Math.abs(p.y-(player.y+1))>6){toast('Move closer to place','error');return;}
     if(getBlock(p.x,p.y))return;
     if(!inventory[type]){toast(`No ${BLOCKS[type].name}`,'error');return;}
@@ -234,12 +266,37 @@
     addBlock(p.x,p.y,type);inventory[type]--;renderHotbar();renderInventory();
     if(!worldId)queueSave();
   }
+  async function loadPlants(){
+    if(!worldId)return;
+    try{
+      const d=await api('/api/farming?worldId='+encodeURIComponent(worldId));
+      plants.clear();
+      for(const p of d.plants||[])plants.set(key(Number(p.x),Number(p.y)),{...p,x:Number(p.x),y:Number(p.y),stage:Number(p.stage)||0,ready:!!p.ready});
+    }catch(e){}
+  }
+  async function plantSeed(x,y,seedItemId){
+    if(!worldId){toast('Farming is available inside a saved world','error');return;}
+    if(x<MIN_X||x>MAX_X||y<=0||y>MAX_Y)return;
+    if(getBlock(x,y)||getPlant(x,y)){toast('That tile is occupied','error');return;}
+    if(!inventory[seedItemId]){toast('No '+(SEEDS[seedItemId]?.name||'seed'),'error');return;}
+    try{
+      await api('/api/farming?worldId='+encodeURIComponent(worldId),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'plant',x,y,seedItemId})});
+      inventory[seedItemId]--; renderHotbar();renderInventory(); await loadPlants(); toast('Seed planted');
+    }catch(e){toast(e.message,'error');}
+  }
+  async function harvestPlant(x,y){
+    if(!worldId)return;
+    try{
+      const d=await api('/api/farming?worldId='+encodeURIComponent(worldId),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'harvest',x,y})});
+      plants.delete(key(x,y)); await loadInventory(); toast('Harvested '+(d.itemId||'crop'));
+    }catch(e){toast(e.message,'error');}
+  }
   function renderHotbar(){
-    const root=$('hotbar');root.innerHTML='';HOTBAR.forEach((t,i)=>{const b=document.createElement('button');b.className='slot '+(i===selected?'selected':'');b.innerHTML=`<span class="num">${i+1}</span><i style="background:${BLOCKS[t].color}"></i><b>${inventory[t]||0}</b>`;b.title=`${i+1} · ${BLOCKS[t].name}`;b.onclick=(e)=>{e.stopPropagation();selected=i;renderHotbar();};root.appendChild(b);});
-    $('selectedName').textContent=BLOCKS[HOTBAR[selected]].name;
+    const root=$('hotbar');root.innerHTML='';HOTBAR.forEach((t,i)=>{const d=ITEM_VISUALS[t];const b=document.createElement('button');b.className='slot '+(i===selected?'selected':'');b.innerHTML=`<span class="num">${i+1}</span><i style="background:${d.color}"></i><b>${inventory[t]||0}</b>`;b.title=`${i+1} · ${d.name}`;b.onclick=(e)=>{e.stopPropagation();selected=i;renderHotbar();};root.appendChild(b);});
+    $('selectedName').textContent=ITEM_VISUALS[HOTBAR[selected]].name;
   }
   function renderInventory(){
-    const root=$('inventoryGrid');root.innerHTML='';Object.entries(BLOCKS).forEach(([t,d])=>{const b=document.createElement('button');b.className='inv-item';b.innerHTML=`<i style="background:${d.color}"></i><span><strong>${d.name}</strong><small>${inventory[t]||0} owned</small></span>`;b.onclick=()=>{const i=HOTBAR.indexOf(t);if(i>=0){selected=i;renderHotbar();closeModal();}};root.appendChild(b);});
+    const root=$('inventoryGrid');root.innerHTML='';Object.entries(ITEM_VISUALS).forEach(([t,d])=>{const b=document.createElement('button');b.className='inv-item';b.innerHTML=`<i style="background:${d.color}"></i><span><strong>${d.name}</strong><small>${inventory[t]||0} owned</small></span>`;b.onclick=()=>{const i=HOTBAR.indexOf(t);if(i>=0){selected=i;renderHotbar();closeModal();}};root.appendChild(b);});
   }
   function openModal(type){modal=type;paused=true;document.querySelectorAll('.modal').forEach(x=>x.hidden=true);const el=$(type+'Modal');if(el)el.hidden=false;if(type==='inventory')renderInventory();stopMine();}
   function closeModal(){document.querySelectorAll('.modal').forEach(x=>x.hidden=true);modal='';paused=false;}
@@ -259,6 +316,7 @@
     try{if(worldId){const d=await api(`/api/worlds/state?id=${encodeURIComponent(worldId)}`);if(Array.isArray(d.blocks)&&d.blocks.length)loadBlocks(d.blocks);else generateWorld();}else generateWorld();}catch(e){console.warn(e);generateWorld();}
     await loadInventory();
     await loadLocks();
+    await loadPlants();
     $('worldName').textContent=meta.name||'VEXORA WORLD';$('worldMode').textContent=(meta.type||'normal').toUpperCase();
   }
   function queueSave(){clearTimeout(saveTimer);$('saveState').textContent='SAVING…';$('saveState').dataset.state='saving';saveTimer=setTimeout(saveWorld,1200);}
@@ -315,7 +373,7 @@
 
   function loop(now){
     const dt=Math.min(.033,(now-last)/1000);last=now; if(!paused){physics(dt);playSeconds+=dt;} draw();
-    presenceTimer+=dt;chatTimer+=dt;if(presenceTimer>2){presenceTimer=0;syncPresence();}if(chatTimer>1.2){chatTimer=0;pollChat();}
+    presenceTimer+=dt;chatTimer+=dt;if(presenceTimer>2){presenceTimer=0;syncPresence();}if(chatTimer>1.2){chatTimer=0;pollChat();if(Math.floor(now/5000)!==Math.floor((now-dt*1000)/5000))loadPlants();}
     requestAnimationFrame(loop);
   }
 
