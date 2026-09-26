@@ -57,9 +57,11 @@
   let gamepadTimer = 0;
   let gamepadPunchLast = false;
   let gamepadBuildLast = false;
+  let profileTimer = 0;
   let equipment = {};
   let drops = new Map();
   let worldSettings = {description:'',max_players:20,min_level:1,spawn_x:0,spawn_y:20,background:'day'};
+  let playerProfile={username:'Explorer',displayName:'Explorer',level:1,gems:0,worldCoins:0};
   let lastDropSync = 0;
   let audioCtx = null;
   let lastSfx = 0;
@@ -503,6 +505,16 @@
   function openModal(type){modal=type;paused=true;document.querySelectorAll('.modal').forEach(x=>x.hidden=true);const el=$(type+'Modal');if(el)el.hidden=false;if(type==='inventory')renderInventory();stopMine();}
   function closeModal(){document.querySelectorAll('.modal').forEach(x=>x.hidden=true);modal='';paused=false;}
 
+  async function loadPlayerProfile(){
+    try{
+      const d=await api('/api/player');playerProfile=d.player||playerProfile;
+      $('playerDisplay').textContent=playerProfile.displayName||playerProfile.username||'Explorer';
+      $('playerUser').textContent='@'+(playerProfile.username||'Explorer');
+      $('playerLevel').textContent=playerProfile.level||1;
+      $('gems').textContent=playerProfile.gems||0;
+      $('coins').textContent=playerProfile.worldCoins||0;
+    }catch(e){}
+  }
   async function loadEquipment(){
     try{
       const d=await api('/api/equipment'); equipment=Object.fromEntries((d.equipment||[]).map(e=>[e.slot,e.item_id||null]));
@@ -567,6 +579,7 @@
     try{const d=await api(`/api/worlds?${worldId?`id=${encodeURIComponent(worldId)}`:''}`);const w=d.world||((d.worlds||[]).find(v=>String(v.id)===String(worldId)));if(w)meta=w;}catch(e){console.warn(e);}
     await loadWorldSettings();
     try{if(worldId){const d=await api(`/api/worlds/state?id=${encodeURIComponent(worldId)}`);if(Array.isArray(d.blocks)&&d.blocks.length)loadBlocks(d.blocks);else generateWorld();}else generateWorld();}catch(e){console.warn(e);generateWorld();}
+    await loadPlayerProfile();
     await loadInventory();
     await loadEquipment();
     await loadLocks();
@@ -700,7 +713,7 @@
 
   function loop(now){
     const dt=Math.min(.033,(now-last)/1000);last=now; if(!paused){physics(dt);playSeconds+=dt;updateParticles(dt);} if(now-gamepadTimer>80){gamepadTimer=now;pollGamepad();} draw();
-    presenceTimer+=dt;chatTimer+=dt;if(presenceTimer>2){presenceTimer=0;syncPresence();}if(worldId&&now-lastDropSync>2500&&!modal){lastDropSync=now;loadDrops();}if(chatTimer>1.2){chatTimer=0;pollChat();if(Math.floor(now/5000)!==Math.floor((now-dt*1000)/5000))loadPlants();}
+    presenceTimer+=dt;chatTimer+=dt;if(presenceTimer>2){presenceTimer=0;syncPresence();}if(worldId&&now-lastDropSync>2500&&!modal){lastDropSync=now;loadDrops();}if(worldId&&now-profileTimer>12000){profileTimer=now;loadPlayerProfile();}if(chatTimer>1.2){chatTimer=0;pollChat();if(Math.floor(now/5000)!==Math.floor((now-dt*1000)/5000))loadPlants();}
     requestAnimationFrame(loop);
   }
 
