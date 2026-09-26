@@ -697,7 +697,11 @@
   }
   function queueSave(){clearTimeout(saveTimer);$('saveState').textContent='SAVING…';$('saveState').dataset.state='saving';saveTimer=setTimeout(saveWorld,1200);}
   async function saveWorld(){
-    if(!worldId)return; try{const payload=[...blocks.values()].map(b=>({x:b.x,y:b.y,z:0,type:b.type}));await api(`/api/worlds/state?id=${encodeURIComponent(worldId)}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({blocks:payload})});$('saveState').textContent='SYNCED';$('saveState').dataset.state='ok';}catch(e){$('saveState').textContent='SAVE ERROR';$('saveState').dataset.state='error';toast(e.message,'error');}
+    if(!worldId){toast('Demo world is local to this device');return;}
+    try{
+      await Promise.all([loadInventory(),loadDrops(),loadObjects(),loadLocks(),loadPlants()]);
+      $('saveState').textContent='AUTO-SAVED';$('saveState').dataset.state='ok';toast('World is already auto-saved');
+    }catch(e){$('saveState').textContent='SYNC ERROR';$('saveState').dataset.state='error';toast(e.message,'error');}
   }
 
   function addChat(user,text){const row=document.createElement('div');row.className='chat-row';row.innerHTML=`<b>@${escapeHtml(user)}</b><span>${escapeHtml(text)}</span>`;$('chatMessages').appendChild(row);$('chatMessages').scrollTop=$('chatMessages').scrollHeight;const u=String(user||'').toLowerCase(),msg=String(text||'').slice(0,80);if(u===String(playerProfile.username||'').toLowerCase()||u==='you')playerBubble={text:msg,until:performance.now()+4200};else chatBubbles.set(u,{text:msg,until:performance.now()+4200});}
