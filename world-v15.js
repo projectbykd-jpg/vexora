@@ -18,7 +18,7 @@
   };
   const SEEDS = {grass_seed:{name:'Meadow Seed',color:'#86d96b'},crystal_seed:{name:'Vexa Crystal Seed',color:'#83eaff'}};
   const ITEM_VISUALS = {...BLOCKS,...SEEDS};
-  let inventory = Object.fromEntries(Object.keys(BLOCKS).map(k => [k, k === 'grass' ? 120 : 0]));
+  let inventory = Object.fromEntries(Object.keys(ITEM_VISUALS).map(k => [k, k === 'grass' ? 120 : 0]));
   const blocks = new Map();
   const plants = new Map();
   const keys = new Set();
@@ -304,7 +304,7 @@
   async function loadInventory(){
     try{
       const d=await api('/api/inventory');
-      const next=Object.fromEntries(Object.keys(BLOCKS).map(k=>[k,0]));
+      const next=Object.fromEntries(Object.keys(ITEM_VISUALS).map(k=>[k,0]));
       for(const item of d.items||[])if(Object.prototype.hasOwnProperty.call(next,item.id))next[item.id]=Number(item.quantity)||0;
       inventory={...inventory,...next};
       renderHotbar();renderInventory();
