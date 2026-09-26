@@ -69,6 +69,9 @@
   let screenShake=0;
   let equipment = {};
   let drops = new Map();
+  let objects = new Map();
+  let wrenchMode = false;
+  let lastObjectSync = 0;
   let worldSettings = {description:'',max_players:20,min_level:1,spawn_x:0,spawn_y:20,background:'day'};
   let playerProfile={username:'Explorer',displayName:'Explorer',level:1,gems:0,worldCoins:0};
   let lastDropSync = 0;
@@ -98,6 +101,7 @@
   function removeBlock(x,y){ blocks.delete(key(x,y)); }
   function getBlock(x,y){ return blocks.get(key(Math.floor(x),Math.floor(y))); }
   function getPlant(x,y){ return plants.get(key(Math.floor(x),Math.floor(y))); }
+  function getObject(x,y){return objects.get(key(Math.floor(x),Math.floor(y)))||null;}
   function solid(x,y){ return !!getBlock(x,y); }
 
   function generateWorld(){
@@ -411,7 +415,7 @@
     const shake=screenShake*(Math.random()*2-1);screenShake*=0.78;
     ctx.save();ctx.translate(shake,shake*.55);
     const sx=Math.floor(cameraX-innerWidth/TILE/2)-2,ex=Math.ceil(cameraX+innerWidth/TILE/2)+2;
-    drawGrid();drawLocks();drawDrops();
+    drawGrid();drawLocks();drawDrops();drawObjects();
     for(const b of blocks.values())if(b.x>=sx&&b.x<=ex)drawBlock(b);
     for(const p of plants.values())if(p.x>=sx&&p.x<=ex)drawPlant(p);
     for(const p of remotes.values())drawRemote(p);drawPlayer();drawParticles();drawTargetCell();drawHover();drawMining();
@@ -461,7 +465,8 @@
   }
   async function beginMine(){
     if(paused||modal)return;
-    const p=targetForAction(),plant=getPlant(p.x,p.y),b=getBlock(p.x,p.y);
+    const p=targetForAction(),plant=getPlant(p.x,p.y),obj=getObject(p.x,p.y),b=getBlock(p.x,p.y);
+    if(obj){await interactObject(obj);return;}
     if(plant?.ready){sfx('harvest');await harvestPlant(p.x,p.y);return;}
     const drop=nearestDropAt(p.x+.5,p.y+.5);if(drop){await pickupDrop(drop.id);return;}
     if(!b)return;
@@ -548,6 +553,59 @@
       worldSettings=d.settings||worldSettings;
     }catch(e){}
   }
+  async function loadObjects(){
+    if(!worldId)return;
+    try{
+      const d=await api('/api/objects?worldId='+encodeURIComponent(worldId));
+      objects.clear();for(const o of d.objects||[])objects.set(key(Number(o.x),Number(o.y)),{...o,x:Number(o.x),y:Number(o.y)});
+    }catch(e){objects.clear();}
+  }
+  function drawObjects(){
+    for(const o of objects.values()){
+      const sx=worldX(o.x),sy=worldY(o.y),s=TILE;
+      if(sx<-80||sx>innerWidth+80||sy<-100||sy>innerHeight+80)continue;
+      ctx.save();
+      if(o.type==='sign'){
+        // chunky wooden sign
+        ctx.fillStyle='#71442f';ctx.fillRect(sx+5,sy+8,s-10,Math.floor(s*.48));
+        ctx.fillStyle='#b87949';ctx.fillRect(sx+7,sy+10,s-14,Math.floor(s*.36));
+        ctx.fillStyle='#8b5738';ctx.fillRect(sx+14,sy+22,4,12);
+        ctx.fillStyle='#fff5c9';ctx.font='800 6px Arial';ctx.textAlign='center';
+        const label=String(o.label||'SIGN').slice(0,18);ctx.fillText(label,sx+s/2,sy+20);
+      }else if(o.type==='door'){
+        ctx.fillStyle='#3c2852';ctx.fillRect(sx+5,sy+2,s-10,s+2);
+        ctx.fillStyle='#b86ad8';ctx.fillRect(sx+8,sy+5,s-16,s-3);
+        ctx.fillStyle='#ffd86b';ctx.fillRect(sx+s-12,sy+s/2,3,4);
+        ctx.fillStyle='rgba(255,255,255,.18)';ctx.fillRect(sx+10,sy+7,3,s-10);
+        ctx.fillStyle='#fff';ctx.font='900 5px Arial';ctx.textAlign='center';ctx.fillText('DOOR',sx+s/2,sy-3);
+      }else if(o.type==='portal'){
+        const pulse=0.65+Math.sin(performance.now()*.004)*.12;
+        ctx.globalAlpha=pulse;ctx.fillStyle='#8d72ff';ctx.fillRect(sx+6,sy+2,s-12,s+4);
+        ctx.fillStyle='#64e8ff';ctx.fillRect(sx+10,sy+5,s-20,s-8);
+        ctx.fillStyle='rgba(255,255,255,.52)';ctx.fillRect(sx+13,sy+8,3,10);
+        ctx.fillStyle='#fff';ctx.font='900 5px Arial';ctx.textAlign='center';ctx.fillText('PORTAL',sx+s/2,sy-3);
+      }
+      ctx.textAlign='left';ctx.restore();
+    }
+  }
+  async function interactObject(o){
+    if(!o)return;
+    if(wrenchMode||!inventory.wrench){ // normal use if wrench not active
+      if(o.type==='sign'){toast(o.label||'Sign');return;}
+    }
+    if(wrenchMode){
+      if(!worldId)return;
+      if(playerProfile.username && !meta.ownerId){toast('Only the world owner can wrench objects','error');return;}
+      const label=prompt('Object label',o.label||'')||o.label||'';
+      const link=o.type==='portal'||o.type==='door'?(prompt('Linked world ID (optional)',o.linkWorldId||'')||o.linkWorldId||''):o.linkWorldId;
+      try{await api('/api/objects?worldId='+encodeURIComponent(worldId),{method:'PATCH',body:JSON.stringify({id:o.id,label,linkWorldId:link})});await loadObjects();toast('Object updated');}catch(e){toast(e.message,'error')}return;
+    }
+    if((o.type==='door'||o.type==='portal')&&o.linkWorldId){
+      location.href='./world.html?id='+encodeURIComponent(o.linkWorldId);return;
+    }
+    toast(o.label||o.type.toUpperCase());
+  }
+
   async function loadDrops(){
     if(!worldId)return;
     try{
@@ -606,6 +664,7 @@
     await loadLocks();
     await loadPlants();
     await loadDrops();
+    await loadObjects();
     $('worldName').textContent=meta.name||'VEXORA WORLD';$('worldMode').textContent=(meta.type||'normal').toUpperCase();
     // Re-apply saved world spawn after settings are known.
     if(worldId&&Number.isFinite(Number(worldSettings.spawn_x))){player.x=Math.max(MIN_X+.5,Math.min(MAX_X-.5,Number(worldSettings.spawn_x)));player.y=Math.max(1,Math.min(MAX_Y-1,Number(worldSettings.spawn_y)));cameraX=player.x;cameraY=player.y;}
@@ -691,6 +750,8 @@
   touchChat?.addEventListener('click',()=>chatOpen?closeChat():openChat());
   const touchDrop=$('touchDrop');
   touchDrop?.addEventListener('click',()=>dropSelected(1));
+  const touchWrench=$('touchWrench');
+  touchWrench?.addEventListener('click',()=>{if(!inventory.wrench){toast('No wrench','error');return;}wrenchMode=!wrenchMode;document.body.classList.toggle('wrench-mode',wrenchMode);toast(wrenchMode?'WRENCH MODE ON':'WRENCH MODE OFF');});
   $('tutorialPlay')?.addEventListener('click',()=>{localStorage.setItem('vexora_tutorial_seen','1');$('tutorialModal').hidden=true;paused=false;});
   $('tutorialSkip')?.addEventListener('click',()=>{localStorage.setItem('vexora_tutorial_seen','1');$('tutorialModal').hidden=true;paused=false;});
 
@@ -699,12 +760,13 @@
   addEventListener('keydown',e=>{
     const k=e.key.toLowerCase();
     if(['w','a','s','d','shift',' ','arrowleft','arrowright','arrowup'].includes(k))keys.add(k);
-    if(e.repeat&&['e','t','escape','h','q'].includes(k))return;
+    if(e.repeat&&['e','t','escape','h','q','w'].includes(k))return;
     if(/^\d$/.test(k)){const n=Number(k);if(n>=1&&n<=9){selected=n-1;renderHotbar();}}
     if(k==='e'){if(modal==='inventory')closeModal();else if(!chatOpen)openModal('inventory');}
     if(k==='t'){if(chatOpen)closeChat();else openChat();}
     if(k==='h'){if(modal==='help')closeModal();else if(!chatOpen)openModal('help');}
     if(k==='q'){dropSelected(1);}
+    if(k==='w'&&inventory.wrench){wrenchMode=!wrenchMode;toast(wrenchMode?'WRENCH MODE ON':'WRENCH MODE OFF');document.body.classList.toggle('wrench-mode',wrenchMode);}
     if(k==='escape'){if(chatOpen)closeChat();else if(modal)closeModal();else openModal('menu');}
     if(k==='enter'&&chatOpen){e.preventDefault();$('chatForm').requestSubmit();}
     if(chatOpen||modal)e.preventDefault();
@@ -735,7 +797,7 @@
 
   function loop(now){
     const dt=Math.min(.033,(now-last)/1000);last=now; if(!paused){physics(dt);playSeconds+=dt;updateParticles(dt);} if(now-gamepadTimer>80){gamepadTimer=now;pollGamepad();} draw();
-    presenceTimer+=dt;chatTimer+=dt;if(presenceTimer>2){presenceTimer=0;syncPresence();}if(worldId&&now-lastDropSync>2500&&!modal){lastDropSync=now;loadDrops();}if(worldId&&now-profileTimer>12000){profileTimer=now;loadPlayerProfile();}for(const [u,b] of chatBubbles)if(b.until<now)chatBubbles.delete(u);if(chatTimer>1.2){chatTimer=0;pollChat();if(Math.floor(now/5000)!==Math.floor((now-dt*1000)/5000))loadPlants();}
+    presenceTimer+=dt;chatTimer+=dt;if(presenceTimer>2){presenceTimer=0;syncPresence();}if(worldId&&now-lastDropSync>2500&&!modal){lastDropSync=now;loadDrops();}if(worldId&&now-lastObjectSync>5000&&!modal){lastObjectSync=now;loadObjects();}if(worldId&&now-profileTimer>12000){profileTimer=now;loadPlayerProfile();}for(const [u,b] of chatBubbles)if(b.until<now)chatBubbles.delete(u);if(chatTimer>1.2){chatTimer=0;pollChat();if(Math.floor(now/5000)!==Math.floor((now-dt*1000)/5000))loadPlants();}
     requestAnimationFrame(loop);
   }
 
