@@ -274,6 +274,13 @@ async function initDb() {
       UNIQUE(world_id,x,y)
     )`,
     `CREATE INDEX IF NOT EXISTS idx_world_objects_world ON world_objects(world_id,x,y)`,
+    `CREATE TABLE IF NOT EXISTS daily_rewards (
+      user_id TEXT PRIMARY KEY,
+      streak INTEGER NOT NULL DEFAULT 0,
+      last_claim_date TEXT,
+      updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )`,
     `CREATE TABLE IF NOT EXISTS audit_logs (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id TEXT,
