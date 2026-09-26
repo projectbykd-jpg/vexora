@@ -15,8 +15,8 @@ function clean(row) {
 async function canEnter(db, worldId, userId) {
   if (!worldId) return true;
   const result = await db.execute({
-    sql: `SELECT id FROM worlds WHERE id = ? AND (owner_id = ? OR privacy = 'public') LIMIT 1`,
-    args: [worldId, userId],
+    sql: `SELECT id FROM worlds WHERE id = ? AND (owner_id = ? OR privacy = 'public' OR EXISTS (SELECT 1 FROM world_permissions p WHERE p.world_id=worlds.id AND p.user_id=?)) LIMIT 1`,
+    args: [worldId, userId, userId],
   });
   return !!result.rows[0];
 }
@@ -47,6 +47,8 @@ module.exports = async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
+      const banned=await db.execute({sql:'SELECT 1 FROM world_bans WHERE world_id=? AND user_id=? LIMIT 1',args:[worldId,userId]});
+      if(banned.rows[0])return res.status(403).json({error:'You are banned from this world.'});
       const message = String(req.body?.message || '').replace(/\s+/g, ' ').trim();
       if (!message) return res.status(400).json({ error: 'Message cannot be empty.' });
       if (message.length > 240) return res.status(400).json({ error: 'Message is too long (max 240 characters).' });
