@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#120b22">
+<link rel="icon" href="https://i.ibb.co/DDgTvWdb/1c26840c-b04f-43cb-ad6b-936879ce884a.png">
+<title>VEXORA — Character</title>
+<style>
+:root{--pink:#ed79d8;--cyan:#62ddff;--ink:#0d0a18;--panel:#11101de8}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#8edfff;font-family:Inter,system-ui,sans-serif;color:#fff}button{font:inherit;color:inherit;cursor:pointer}
+#game{position:fixed;inset:0}canvas{position:absolute;inset:0;width:100%;height:100%;display:block;image-rendering:auto}
+.top{position:absolute;top:10px;left:12px;right:12px;display:flex;align-items:center;justify-content:space-between;pointer-events:none}.brand,.quick{pointer-events:auto}
+.brand{display:flex;align-items:center;gap:7px;padding:5px 9px;border-radius:12px;background:#090816a8;border:1px solid #ffffff1c;backdrop-filter:blur(8px)}.brand img{width:25px;height:25px;border-radius:8px}.brand b{font-size:11px;letter-spacing:.12em}.quick{display:flex;gap:5px}.quick button{width:34px;height:34px;border:1px solid #ffffff20;border-radius:10px;background:#090816bd;backdrop-filter:blur(8px);font-size:15px}.quick button:hover{background:#1b1730}
+.profile{position:absolute;left:12px;bottom:14px;display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:12px;background:#090816c9;border:1px solid #ffffff1b;backdrop-filter:blur(8px)}.avatar{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--pink),var(--cyan));display:grid;place-items:center;font-weight:950}.profile b{font-size:10px}.profile span{display:block;color:#b9b4c9;font-size:7px;margin-top:2px}
+.hint{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);padding:6px 10px;border-radius:9px;background:#090816b8;border:1px solid #ffffff17;color:#e9e6f0;font-size:7px;letter-spacing:.05em;pointer-events:none}
+.modal{position:absolute;inset:0;display:none;place-items:center;background:#06050cb0;backdrop-filter:blur(7px);z-index:10}.modal.open{display:grid}.card{width:min(430px,calc(100vw - 28px));padding:16px;border-radius:16px;background:linear-gradient(160deg,#1b1730,#0c0a15);border:1px solid #ffffff1d;box-shadow:0 25px 90px #0009}.head{display:flex;justify-content:space-between;align-items:center}.head small{color:#e986db;font-size:7px;letter-spacing:.16em;font-weight:900}.head h2{margin:4px 0 0;font-size:18px}.close{width:30px;height:30px;border:1px solid #ffffff16;border-radius:8px;background:#18152a}.grid{display:grid;gap:8px;margin-top:14px}.action{height:42px;border:1px solid #ffffff14;border-radius:10px;background:#151226;font-size:10px;font-weight:900;text-align:left;padding:0 13px}.action:hover{background:#211b39}.action.primary{background:linear-gradient(100deg,var(--pink),var(--cyan));color:#100c18;border:0}.worlds{display:grid;gap:7px;margin-top:12px;max-height:52vh;overflow:auto}.world{display:flex;align-items:center;justify-content:space-between;padding:10px;border:1px solid #ffffff12;border-radius:10px;background:#121022}.world strong{font-size:10px}.world small{display:block;color:#9993aa;font-size:7px;margin-top:3px}.world button{height:30px;padding:0 10px;border:0;border-radius:7px;background:#25203a;font-size:8px;font-weight:900}.msg{font-size:8px;color:#a9a4b6;margin-top:8px}
+#chat{position:absolute;right:12px;bottom:62px;width:min(320px,calc(100vw - 24px));display:none;z-index:8;background:#0a0914ef;border:1px solid #ffffff1c;border-radius:13px;overflow:hidden;box-shadow:0 20px 70px #0008}.chat-head{padding:9px 11px;border-bottom:1px solid #ffffff10;font-size:8px;font-weight:900}.msgs{height:190px;overflow:auto;padding:8px}.row{font-size:8px;padding:5px 7px}.row b{color:#e989dc}.compose{display:flex;gap:5px;padding:7px;border-top:1px solid #ffffff10}.compose input{min-width:0;flex:1;height:32px;border:1px solid #ffffff16;border-radius:7px;background:#100e1b;color:#fff;padding:0 8px;font-size:8px}.compose button{height:32px;border:0;border-radius:7px;background:linear-gradient(90deg,var(--pink),var(--cyan));color:#100c18;font-size:8px;font-weight:900}
+</style>
+</head>
+<body>
+<div id="game">
+<canvas id="canvas"></canvas>
+<div class="top"><div class="brand"><img src="https://i.ibb.co/DDgTvWdb/1c26840c-b04f-43cb-ad6b-936879ce884a.png"><b>VEXORA</b></div><div class="quick"><button id="worldsBtn" title="Worlds">🌎</button><button id="profileBtn" title="Profile">👤</button><button id="chatBtn" title="Chat">💬</button><button id="menuBtn" title="Menu">☰</button></div></div>
+<div class="profile"><div id="avatar" class="avatar">V</div><div><b id="display">Explorer</b><span id="handle">@explorer</span></div></div>
+<div class="hint">A / D MOVE · SPACE JUMP · CLICK BLOCKS · E INVENTORY · T CHAT</div>
+<div id="chat"><div class="chat-head">WORLD CHAT</div><div id="msgs" class="msgs"></div><form id="chatForm" class="compose"><input id="chatInput" placeholder="Say something…" maxlength="240"><button>SEND</button></form></div>
+<div id="modal" class="modal"><div class="card"><div class="head"><div><small id="eyebrow">VEXORA</small><h2 id="title">Menu</h2></div><button class="close" id="close">×</button></div><div id="content" class="grid"></div></div></div>
+</div>
+<script src="./character.js"></script>
+</body></html>
