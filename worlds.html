@@ -27,7 +27,27 @@ body{background:#8cddff}
 @media(max-width:800px){.selector{grid-template-columns:1fr}.left{max-height:170px}.cats{max-height:55px}.main{height:calc(100% - 54px)}.worldlist{min-height:280px}.bottom{align-items:stretch}.createbar{width:100%}.worldInput{flex:1;width:auto}.bottom{flex-direction:column}.bottom-hint{display:none}}
 @media(max-width:520px){.wrap{padding:9px 7px 10px}.topbtn{font-size:5.5px;padding:0 7px}.topbtn:first-child{display:none}.titlebar h1{font-size:22px}.account{font-size:5.5px}.world-row{grid-template-columns:38px 1fr auto;padding:7px}.world-icon{width:38px;height:38px}.world-name{font-size:8px}.world-meta{font-size:5.5px}.enter{font-size:5px;padding:0 6px}.left{max-height:154px}.quicklinks{grid-template-columns:repeat(4,1fr)}.q{font-size:5px;padding:0 2px}.category-title{padding-top:7px}.cats{padding-bottom:7px}}
 </style>
-</head>
+<style id="VX_CALM_WORLD_SELECT">
+html,body{background:#9fd7e5;color:#31283b}
+.scene{background:linear-gradient(#9fd7e5 0%,#dbeee9 61%,#dbe7d8 62%,#9bc88d 62%,#7dbb73 100%)}
+.sun{background:#f5e7b1;box-shadow:none}.cloud{opacity:.72;border-color:#877b8d18}.hill{border-color:#675d7028}.ground{border-top:4px solid #638c65}
+.wrap{padding:10px 10px 14px}.top{height:38px}.brand{text-shadow:2px 2px #6c5b7833}.topbtn{border:2px solid #62556d;background:#4b4053;color:#fff;border-radius:5px;box-shadow:2px 2px #2e263533}
+.titlebar h1{font-size:23px;text-shadow:1px 1px #ffffff80}.titlebar p{color:#5e5466}.account{border:2px solid #62556d;background:#f2ece3d8}
+.panel{border:3px solid #62556d;border-radius:6px;background:#f4eee3f4;box-shadow:4px 5px #44364a18}
+.searchbox{padding:8px;border-bottom:3px solid #6b5d72;background:#e9e0dd}.searchline{height:34px;border:2px solid #66586e;border-radius:5px}.searchline input{font-size:8px}
+.q{height:27px;border:2px solid #6a5d72;border-radius:4px;background:#f8f2e9}.q.active{background:#d9e9e8;border-color:#66898c}
+.category-title{padding:8px 9px 4px;color:#766b77}.cat{padding:5px 6px;border:2px solid #716476;border-radius:4px;background:#faf5eb}.cat.on{background:#d7e9e9;border-color:#66898c}
+.list-head{padding:8px 10px;background:#f8f1e7;border-bottom:3px solid #62556d}.list-head b{font-size:8px}
+.world-row{padding:7px;margin-bottom:5px;border:2px solid #756778;border-radius:4px;background:#f7f2ea;box-shadow:2px 2px #4b3b5414}.world-row:hover{background:#e8f3f1;border-color:#66898c}
+.world-icon{width:40px;height:40px;border:2px solid #62556d;border-radius:4px;box-shadow:none}.world-name{font-size:8px}.world-meta{font-size:5.5px}.enter{height:24px;border:2px solid #65586d;border-radius:4px;background:#e2d8de;color:#382c40;font-size:5.5px}
+.bottom-hint{color:#655c69}.worldInput{height:36px;border:2px solid #62556d;border-radius:5px;background:#fbf6ee}.createbtn{height:36px;border:2px solid #62556d;border-radius:5px;background:#d9c6e9;color:#34283f}
+.modal{background:#30264055;backdrop-filter:none}.modalbox{border:3px solid #62556d;border-radius:6px;background:#f4eee3;box-shadow:5px 6px #2f25333d}
+#entryOverlay{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:#30264055;opacity:0;visibility:hidden;transition:opacity .12s ease,visibility .12s ease}
+#entryOverlay.show{opacity:1;visibility:visible}
+.entryBox{min-width:220px;padding:14px 18px;text-align:center;border:3px solid #62556d;border-radius:6px;background:#f4eee3;color:#34283f;box-shadow:5px 6px #2f25333d}
+.entryBox b{display:block;font-size:10px}.entryBox span{display:block;margin-top:4px;font-size:7px;color:#766a78}.entryBox i{display:block;width:120px;height:5px;margin:10px auto 0;background:#d0c4cf;overflow:hidden}.entryBox i:after{content:"";display:block;width:45%;height:100%;background:#8b6e9d;animation:entrybar 1s linear infinite}@keyframes entrybar{to{transform:translateX(250%)}}
+@media(max-width:800px){.selector{gap:7px}.panel{border-width:2px}.titlebar h1{font-size:20px}}
+</style></head>
 <body>
 <div class="scene"><div class="sun"></div><div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div><div class="hill h1"></div><div class="hill h2"></div><div class="decor-tree"><div class="leaf l1"></div><div class="leaf l2"></div><div class="leaf l3"></div><div class="trunk"></div></div><div class="ground"></div></div>
 <div class="wrap">
@@ -36,7 +56,7 @@ body{background:#8cddff}
   <div class="titlebar"><div><h1>WORLD SELECT</h1><p>EXPLORE WORLDS · BUILD · GROW · SOCIALIZE</p></div><div class="account" id="account">@EXPLORER</div></div>
   <section class="selector">
     <aside class="panel left">
-      <div class="searchbox"><div class="searchline"><span>⌕</span><input id="search" placeholder="Enter world name…" autocomplete="off"></div><div class="quicklinks"><button class="q active" data-view="my">MY WORLDS</button><button class="q" data-view="wotd">WORLD OF DAY</button><button class="q" data-view="fav">FAVORITES</button><button class="q" data-view="all">ALL WORLDS</button></div></div>
+      <div class="searchbox"><div class="searchline"><span>⌕</span><input id="search" placeholder="Enter world name…" autocomplete="off"></div><div class="quicklinks"><button class="q" data-view="my">MY WORLDS</button><button class="q" data-view="wotd">WORLD OF DAY</button><button class="q" data-view="fav">FAVORITES</button><button class="q active" data-view="all">ALL WORLDS</button></div></div>
       <div class="category-title">WORLD CATEGORIES</div>
       <div class="cats" id="cats"></div>
     </aside>
@@ -49,7 +69,7 @@ body{background:#8cddff}
 <script>
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const CATS=['adventure','art','farm','parkour','puzzle','roleplay','shop','social','storage','story','trade','info','music'];
-let worlds=[],me=null,view='my',cat='all',favorites=JSON.parse(localStorage.getItem('vexora_favorites')||'[]');
+let worlds=[],me=null,view='all',cat='all',favorites=JSON.parse(localStorage.getItem('vexora_favorites')||'[]');
 const catLabel=x=>x.toUpperCase();
 function buildCats(){ $('cats').innerHTML='<button class="cat on" data-cat="all">ALL</button>'+CATS.map(x=>'<button class="cat" data-cat="'+x+'">'+catLabel(x)+'</button>').join('');$('cats').querySelectorAll('.cat').forEach(b=>b.onclick=()=>{cat=b.dataset.cat;$('cats').querySelectorAll('.cat').forEach(x=>x.classList.toggle('on',x===b));render();});}
 function isMine(w){return me&&String(w.ownerId||'')===String(me.id||'');}
@@ -84,6 +104,9 @@ async function load(){
   $('rows').innerHTML='<div class="empty"><div><b>CONNECTING…</b>'+esc(e.message)+'</div></div>';buildCats();
  }
 }
+const entryOverlay=document.createElement('div');entryOverlay.id='entryOverlay';entryOverlay.innerHTML='<div class="entryBox"><b>ENTERING WORLD</b><span id="entryWorldName">Loading…</span><i></i></div>';document.body.appendChild(entryOverlay);let entering=false;
+function enterWorld(id){if(entering||!id)return;entering=true;const world=worlds.find(x=>String(x.id)===String(id));document.querySelectorAll('[data-enter]').forEach(b=>b.disabled=true);$('entryWorldName').textContent=(world?.name||'WORLD').toUpperCase();entryOverlay.classList.add('show');window.location.assign('./world.html?id='+encodeURIComponent(String(id)));}
+
 function choose(v){view=v;document.querySelectorAll('.q').forEach(b=>b.classList.toggle('active',b.dataset.view===v));render();}
 document.querySelectorAll('.q').forEach(b=>b.onclick=()=>choose(b.dataset.view));
 $('search').oninput=render;$('homeBtn').onclick=()=>{const w=worlds.find(isMine);if(w)location.href='./world.html?id='+encodeURIComponent(w.id);else $('worldInput').focus();};
