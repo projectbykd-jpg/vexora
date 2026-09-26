@@ -30,7 +30,7 @@
 
   const atlas = new Image(); atlas.src='./assets/vexora-atlas.svg';
   let atlasReady = false; atlas.onload=()=>{atlasReady=true;};
-  const ATLAS = {grass:[0,0],dirt:[32,0],stone:[64,0],wood:[96,0],leaf:[128,0],sand:[160,0],brick:[192,0],glass:[224,0],crystal:[256,0],gold:[288,0],foundation:[320,0],grass_seed:[0,32],crystal_seed:[32,32],wood_seed:[64,32],flower_seed:[96,32],vine_seed:[128,32],crystal_bloom_seed:[160,32]};
+  const ATLAS = {grass:[0,0],dirt:[32,0],stone:[64,0],wood:[96,0],leaf:[128,0],sand:[160,0],brick:[192,0],glass:[224,0],crystal:[256,0],gold:[288,0],foundation:[320,0],grass_seed:[0,32],crystal_seed:[32,32],wood_seed:[64,32],flower_seed:[96,32],vine_seed:[128,32],crystal_bloom_seed:[160,32],wrench:[192,32]};
   const canvas = $('worldCanvas');
   const ctx = canvas.getContext('2d');
   ctx.imageSmoothingEnabled = false;
