@@ -115,6 +115,8 @@
 @media(max-width:760px){.coords-card{display:none!important}.wallet-card{min-width:120px!important}}
 </style><style id="VX_WRENCH_UI">
 body.wrench-mode #touchWrench,body.wrench-mode .top-btn.help{border-color:#ffd86b!important;color:#fff4ad!important;box-shadow:0 0 0 2px #ffd86b33,0 3px 0 #171025!important}
+</style><style id="VX_OBJECT_UI">
+.obj-info{display:flex;gap:8px;align-items:center}.vxcard .vxmuted{line-height:1.4}
 </style></head>
 <body>
 <div id="game">
@@ -125,7 +127,7 @@ body.wrench-mode #touchWrench,body.wrench-mode .top-btn.help{border-color:#ffd86
   <div class="actions">
     <button id="chatButton" class="top-btn">CHAT <span>T</span></button>
     <button id="inventoryButton" class="top-btn">BAG <span>E</span></button>
-    <button id="helpButton" class="top-btn help">HELP <span>H</span></button>
+    <button id="helpButton" class="top-btn help">HELP <span>H</span></button><button id="wrenchButton" class="top-btn">WRENCH <span>W</span></button>
     <button id="saveButton" class="top-btn">SAVE</button>
     <button id="systemsButton" class="top-btn accent">SYSTEMS</button><button id="menuButton" class="top-btn">MENU <span>ESC</span></button>
   </div>
@@ -188,7 +190,7 @@ body.wrench-mode #touchWrench,body.wrench-mode .top-btn.help{border-color:#ffd86
  <div class="vxsys-card">
   <div class="vxsys-head"><div><small>VEXORA ONLINE WORLD</small><h2>Systems Center</h2></div><button id="vxSysClose" class="close">×</button></div>
   <div id="vxTabs" class="vxsys-tabs">
-   <button class="vxsys-tab active" data-tab="quests">QUESTS</button><button class="vxsys-tab" data-tab="achievements">ACHIEVEMENTS</button><button class="vxsys-tab" data-tab="friends">FRIENDS</button><button class="vxsys-tab" data-tab="guilds">GUILDS</button><button class="vxsys-tab" data-tab="market">MARKET</button><button class="vxsys-tab" data-tab="farm">FARM</button><button class="vxsys-tab" data-tab="trade">TRADE</button><button class="vxsys-tab" data-tab="equipment">EQUIPMENT</button><button class="vxsys-tab" data-tab="world">WORLD</button><button class="vxsys-tab" data-tab="access">ACCESS</button><button class="vxsys-tab" data-tab="locks">LOCKS</button><button class="vxsys-tab" data-tab="OBJECTS">OBJECTS</button>
+   <button class="vxsys-tab active" data-tab="quests">QUESTS</button><button class="vxsys-tab" data-tab="achievements">ACHIEVEMENTS</button><button class="vxsys-tab" data-tab="friends">FRIENDS</button><button class="vxsys-tab" data-tab="guilds">GUILDS</button><button class="vxsys-tab" data-tab="market">MARKET</button><button class="vxsys-tab" data-tab="farm">FARM</button><button class="vxsys-tab" data-tab="trade">TRADE</button><button class="vxsys-tab" data-tab="equipment">EQUIPMENT</button><button class="vxsys-tab" data-tab="world">WORLD</button><button class="vxsys-tab" data-tab="access">ACCESS</button><button class="vxsys-tab" data-tab="locks">LOCKS</button><button class="vxsys-tab" data-tab="objects">OBJECTS</button>
   </div>
   <div id="vxBody" class="vxsys-body"></div>
  </div>
@@ -287,6 +289,16 @@ async function load(t){tab=t;body.innerHTML='<div class="vxmuted">Loading…</di
    const d=await api('/api/locks?worldId='+encodeURIComponent(worldId));
    body.innerHTML='<div class="vxcard"><b>WORLD LOCKS</b><p>Lock areas prevent unauthorized building and breaking.</p>'+((d.locks||[]).map(l=>'<div class="vxrow"><span>Area '+l.x1+','+l.y1+' → '+l.x2+','+l.y2+'</span>'+(d.canManage?'<button class="vxbtn" data-lock="'+l.id+'">REMOVE</button>':'')+'</div>').join('')||'<p class="vxmuted">No locks yet.</p>')+'</div>';
    body.querySelectorAll('[data-lock]').forEach(b=>b.onclick=async()=>{try{await api('/api/locks?worldId='+encodeURIComponent(worldId)+'&id='+encodeURIComponent(b.dataset.lock),{method:'DELETE'});toast('Lock removed');load('locks')}catch(e){toast(e.message)}});
+ }
+ else if(t==='objects'){
+   const d=await api('/api/objects?worldId='+encodeURIComponent(worldId));
+   body.innerHTML=`
+     <div class="vxcard"><b>WORLD OBJECTS</b><p>Signs, doors and portals give your world a personality. Owner can place them at the current player position and manage them with WRENCH.</p>
+       ${d.canManage?`<div class="vxrow"><select id="objType"><option value="sign">SIGN</option><option value="door">DOOR</option><option value="portal">PORTAL</option></select><input id="objLabel" maxlength="48" placeholder="Label / destination name"><input id="objLink" placeholder="Linked world ID (door/portal)"><button id="objCreate" class="vxbtn primary">PLACE HERE</button></div>`:'<div class="vxmuted">Only the world owner can create or edit objects.</div>'}
+     </div>
+     <div class="vxgrid" style="margin-top:8px">${(d.objects||[]).map(o=>`<div class="vxcard"><div class="vxrow" style="justify-content:space-between"><b>${esc(o.type.toUpperCase())}</b><span class="vxmuted">${o.x},${o.y}</span></div><p>${esc(o.label||o.type)}${o.linkWorldId?' · LINKED':''}</p>${d.canManage?'<button class="vxbtn" data-objdel="'+o.id+'">DELETE</button>':''}</div>`).join('')||'<div class="vxmuted">No objects yet. Build your first sign, door or portal.</div>'}</div>`;
+   if(d.canManage){$('objCreate').onclick=async()=>{try{const type=$('objType').value,label=$('objLabel').value.trim()||type.toUpperCase(),link=$('objLink').value.trim()||null;await api('/api/objects',{method:'POST',body:JSON.stringify({worldId,action:'create',type,label,linkWorldId:link,x:Math.round(player.x),y:Math.max(1,Math.round(player.y))})});await loadObjects();toast(type.toUpperCase()+' placed');load('objects')}catch(e){toast(e.message)}};
+     body.querySelectorAll('[data-objdel]').forEach(b=>b.onclick=async()=>{try{await api('/api/objects?worldId='+encodeURIComponent(worldId),{method:'DELETE',body:JSON.stringify({id:b.dataset.objdel})});await loadObjects();toast('Object removed');load('objects')}catch(e){toast(e.message)}});}
  }
 
 }catch(e){body.innerHTML='<div class="vxcard"><b>System error</b><p>'+esc(e.message)+'</p></div>'}}
