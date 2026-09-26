@@ -654,6 +654,10 @@
   touchBag?.addEventListener('click',()=>{if(modal==='inventory')closeModal();else openModal('inventory');});
   const touchChat=$('touchChat');
   touchChat?.addEventListener('click',()=>chatOpen?closeChat():openChat());
+  const touchDrop=$('touchDrop');
+  touchDrop?.addEventListener('click',()=>dropSelected(1));
+  $('tutorialPlay')?.addEventListener('click',()=>{localStorage.setItem('vexora_tutorial_seen','1');$('tutorialModal').hidden=true;paused=false;});
+  $('tutorialSkip')?.addEventListener('click',()=>{localStorage.setItem('vexora_tutorial_seen','1');$('tutorialModal').hidden=true;paused=false;});
 
 
 
