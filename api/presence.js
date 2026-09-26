@@ -27,10 +27,13 @@ module.exports = async function handler(req, res) {
               ORDER BY p.updated_at DESC`,
         args: [worldId],
       });
-      return res.status(200).json({ players: result.rows.map(row => ({
-        userId: row.user_id, username: row.username, displayName: row.display_name,
-        x: Number(row.x), y: Number(row.y), z: Number(row.z), yaw: Number(row.yaw), updatedAt: row.updated_at,
-      })) });
+      return res.status(200).json({
+        meId: userId,
+        players: result.rows.map(row => ({
+          userId: row.user_id, username: row.username, displayName: row.display_name,
+          x: Number(row.x), y: Number(row.y), z: Number(row.z), yaw: Number(row.yaw), updatedAt: row.updated_at,
+        }))
+      });
     }
 
     if (req.method === 'POST') {
