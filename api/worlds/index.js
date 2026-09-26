@@ -105,6 +105,10 @@ module.exports = async function handler(req, res) {
           sql: `INSERT OR IGNORE INTO world_settings (world_id, spawn_y)
                 VALUES (?, ?)`,
           args: [world.id, 20]
+        },
+        {
+          sql: 'INSERT INTO world_locks (id, world_id, owner_id, x1, y1, x2, y2) VALUES (?, ?, ?, ?, ?, ?, ?)',
+          args: [randomUUID(), world.id, userId, -64, 0, 64, 64]
         }
       ], 'write');
 
