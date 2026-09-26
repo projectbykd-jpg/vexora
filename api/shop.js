@@ -1,6 +1,12 @@
 const {randomUUID}=require('crypto'); const {initDb}=require('./_lib/db'); const {getSessionUserId}=require('./_lib/auth'); const {getItem}=require('../data/items');
 module.exports=async function(req,res){const uid=getSessionUserId(req);if(!uid)return res.status(401).json({error:'Authentication required.'});try{const db=await initDb();
 if(req.method==='GET'){const rows=await db.execute({sql:`SELECT s.id,s.item_id,s.quantity,s.price,s.currency,s.owner_id,s.world_id,u.username owner_username FROM shop_listings s JOIN users u ON u.id=s.owner_id WHERE s.active=1 ORDER BY s.created_at DESC LIMIT 100`,args:[]});return res.status(200).json({listings:rows.rows});}
+if(req.method==='DELETE'){
+ const id=String(req.query?.id||req.body?.listingId||'');if(!id)return res.status(400).json({error:'Listing id required.'});
+ const removed=await db.execute({sql:'UPDATE shop_listings SET active=0,updated_at=datetime("now") WHERE id=? AND owner_id=? AND active=1',args:[id,uid]});
+ if(Number(removed.rowsAffected||0)!==1)return res.status(404).json({error:'Listing not found or not owned by you.'});
+ return res.status(200).json({cancelled:true});
+}
 if(req.method==='POST'){const action=String(req.body?.action||'');if(action==='list'){const itemId=String(req.body?.itemId||'');const qty=Math.floor(Number(req.body?.quantity));const price=Math.floor(Number(req.body?.price));const currency=['gems','world_coins'].includes(req.body?.currency)?req.body.currency:'gems';if(!getItem(itemId)||!Number.isInteger(qty)||qty<1||qty>10000||!Number.isInteger(price)||price<0)return res.status(400).json({error:'Invalid listing.'});const have=await db.execute({sql:'SELECT quantity FROM player_inventory WHERE user_id=? AND item_id=? LIMIT 1',args:[uid,itemId]});if(!have.rows[0]||Number(have.rows[0].quantity)<qty)return res.status(400).json({error:'Not enough items.'});const id=randomUUID();
 const tx=await db.transaction('write');
 try {
