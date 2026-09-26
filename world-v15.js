@@ -66,6 +66,7 @@
   let profileTimer = 0;
   let chatBubbles = new Map();
   let playerBubble = {text:'',until:0};
+  let screenShake=0;
   let equipment = {};
   let drops = new Map();
   let worldSettings = {description:'',max_players:20,min_level:1,spawn_x:0,spawn_y:20,background:'day'};
@@ -305,8 +306,16 @@
     const p=(lastInput==='touch'&&touchTarget)?touchTarget:screenToWorld(pointer.x,pointer.y),sx=worldX(p.x),sy=worldY(p.y);
     const occupied=!!getBlock(p.x,p.y),reachable=inReach(p.x,p.y);
     ctx.save();
-    ctx.strokeStyle=reachable?(occupied?'rgba(255,225,133,.75)':'rgba(255,255,255,.38)'):'rgba(255,110,140,.28)';
+    if(!occupied&&reachable){
+      const type=HOTBAR[selected],sp=ATLAS[type];
+      ctx.globalAlpha=.28;
+      if(sp)drawAtlas(sp[0],sp[1],32,32,sx,sy,TILE,TILE,.28);
+      else {ctx.fillStyle=(ITEM_VISUALS[type]?.color||'#fff');ctx.fillRect(sx+3,sy+3,TILE-6,TILE-6);}
+      ctx.globalAlpha=1;
+    }
+    ctx.strokeStyle=reachable?(occupied?'rgba(255,225,133,.82)':'rgba(255,255,255,.48)'):'rgba(255,110,140,.30)';
     ctx.lineWidth=1.5;ctx.setLineDash([5,4]);ctx.strokeRect(sx+1.5,sy+1.5,TILE-3,TILE-3);ctx.setLineDash([]);
+    if(!occupied&&SEEDS[HOTBAR[selected]]){ctx.fillStyle='rgba(132,236,128,.9)';ctx.font='900 7px Arial';ctx.fillText('PLANT',sx+4,sy+TILE-5);}
     ctx.restore();
   }
 
@@ -398,13 +407,15 @@
     }
   }
   function draw(){
-    ctx.clearRect(0,0,innerWidth,innerHeight);drawBackground();drawGrid();
+    ctx.clearRect(0,0,innerWidth,innerHeight);drawBackground();
+    const shake=screenShake*(Math.random()*2-1);screenShake*=0.78;
+    ctx.save();ctx.translate(shake,shake*.55);
     const sx=Math.floor(cameraX-innerWidth/TILE/2)-2,ex=Math.ceil(cameraX+innerWidth/TILE/2)+2;
-    drawLocks();
-    drawDrops();
+    drawGrid();drawLocks();drawDrops();
     for(const b of blocks.values())if(b.x>=sx&&b.x<=ex)drawBlock(b);
     for(const p of plants.values())if(p.x>=sx&&p.x<=ex)drawPlant(p);
     for(const p of remotes.values())drawRemote(p);drawPlayer();drawParticles();drawTargetCell();drawHover();drawMining();
+    ctx.restore();
   }
 
   function collides(x,y){
@@ -435,7 +446,7 @@
         const d=await api('/api/game/action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
           worldId,action:'break',x,y,z,playerX:player.x,playerY:player.y
         })});
-        removeBlock(x,y); inventory[b.type]=(inventory[b.type]||0)+1; renderHotbar();renderInventory(); spawnParticles(x,y,b.type); punch={until:performance.now()+170,dir:player.face,x,y};
+        removeBlock(x,y); inventory[b.type]=(inventory[b.type]||0)+1; renderHotbar();renderInventory(); spawnParticles(x,y,b.type); screenShake=5; punch={until:performance.now()+170,dir:player.face,x,y};
         toast('+1 '+(BLOCKS[b.type]?.name||d.itemId));
       }catch(e){toast(e.message,'error');}
       return;
@@ -477,7 +488,7 @@
         })});
       }catch(e){toast(e.message,'error');return;}
     }
-    addBlock(p.x,p.y,type);inventory[type]--;renderHotbar();renderInventory();spawnParticles(p.x,p.y,type);sfx('place');punch={until:performance.now()+100,dir:Math.sign((p.x+.5)-player.x)||player.face,x:p.x,y:p.y};
+    addBlock(p.x,p.y,type);inventory[type]--;renderHotbar();renderInventory();spawnParticles(p.x,p.y,type);screenShake=2;sfx('place');punch={until:performance.now()+100,dir:Math.sign((p.x+.5)-player.x)||player.face,x:p.x,y:p.y};
     if(!worldId)queueSave();
   }
   async function loadPlants(){
