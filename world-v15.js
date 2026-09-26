@@ -57,6 +57,10 @@
   let gamepadTimer = 0;
   let gamepadPunchLast = false;
   let gamepadBuildLast = false;
+  let equipment = {};
+  let drops = new Map();
+  let worldSettings = {description:'',max_players:20,min_level:1,spawn_x:0,spawn_y:20,background:'day'};
+  let lastDropSync = 0;
   let audioCtx = null;
   let lastSfx = 0;
   function sfx(kind){
@@ -130,12 +134,31 @@
   }
 
   function drawBackground(){
-    const g=ctx.createLinearGradient(0,54,0,innerHeight); g.addColorStop(0,'#8bd8f4');g.addColorStop(.55,'#c8efff');g.addColorStop(1,'#f4fbff');ctx.fillStyle=g;ctx.fillRect(0,54,innerWidth,innerHeight);
-    ctx.fillStyle='rgba(255,255,255,.58)';
-    for(let i=0;i<8;i++){const x=((i*320-cameraX*5)%(innerWidth+380))-170,y=100+(i%3)*62;ctx.beginPath();ctx.arc(x,y,17,0,Math.PI*2);ctx.arc(x+24,y-1,24,0,Math.PI*2);ctx.arc(x+51,y+1,17,0,Math.PI*2);ctx.fill();}
-    ctx.fillStyle='rgba(92,114,186,.12)';
-    for(let i=0;i<5;i++){const x=((i*410-cameraX*2)%(innerWidth+500))-220;ctx.beginPath();ctx.ellipse(x,innerHeight-145,240,58,0,0,Math.PI*2);ctx.fill();}
+    const mode=worldSettings.background||'day';
+    const palettes={
+      day:['#72d7ff','#d6f7ff','#f7fcff'],
+      sunset:['#ff9b9b','#f8c0df','#ffdca8'],
+      night:['#141c4a','#303b78','#5b5da2'],
+      space:['#090a22','#171653','#3a2874']
+    };
+    const p=palettes[mode]||palettes.day;
+    const g=ctx.createLinearGradient(0,54,0,innerHeight);g.addColorStop(0,p[0]);g.addColorStop(.6,p[1]);g.addColorStop(1,p[2]);ctx.fillStyle=g;ctx.fillRect(0,54,innerWidth,innerHeight);
+    if(mode==='night'||mode==='space'){
+      ctx.fillStyle='rgba(255,255,255,.85)';
+      for(let i=0;i<70;i++){const x=((i*173-cameraX*0.35)%(innerWidth+40))-20,y=64+((i*97)%Math.max(160,innerHeight*.62));const s=i%7===0?2:1;ctx.fillRect(x,y,s,s);}
+      if(mode==='night'){ctx.fillStyle='rgba(230,235,255,.9)';ctx.beginPath();ctx.arc(innerWidth-100,95,28,0,Math.PI*2);ctx.fill();ctx.fillStyle=p[0];ctx.beginPath();ctx.arc(innerWidth-89,87,26,0,Math.PI*2);ctx.fill();}
+    }else{
+      ctx.fillStyle='rgba(255,255,255,.65)';
+      for(let i=0;i<7;i++){const x=((i*320-cameraX*4)%(innerWidth+380))-170,y=92+(i%3)*64;ctx.beginPath();ctx.arc(x,y,17,0,Math.PI*2);ctx.arc(x+24,y-1,24,0,Math.PI*2);ctx.arc(x+51,y+1,17,0,Math.PI*2);ctx.fill();}
+      if(mode==='sunset'){ctx.fillStyle='rgba(255,211,110,.62)';ctx.beginPath();ctx.arc(innerWidth-110,112,38,0,Math.PI*2);ctx.fill();}
+    }
+    ctx.fillStyle=mode==='space'?'rgba(90,67,130,.35)':'rgba(92,114,186,.16)';
+    for(let i=0;i<6;i++){const x=((i*410-cameraX*1.7)%(innerWidth+520))-220;ctx.beginPath();ctx.ellipse(x,innerHeight-145,240,58,0,0,Math.PI*2);ctx.fill();}
+    // Far terrain silhouettes add depth without hiding the playable layer.
+    ctx.fillStyle=mode==='space'?'rgba(35,35,72,.6)':'rgba(82,105,165,.2)';
+    for(let i=0;i<8;i++){const x=i*190-(cameraX*.35%190)-220;ctx.beginPath();ctx.arc(x,innerHeight-105,150+(i%2)*35,Math.PI,Math.PI*2);ctx.fill();}
   }
+
   function drawGrid(){ /* Pixel-art world: no visible editor grid. */ }
   function tileNoise(x,y,salt=0){
     const n=Math.sin((x*127.1+y*311.7+salt*74.7)*0.017)*43758.5453;
@@ -217,6 +240,10 @@
       ctx.save();ctx.imageSmoothingEnabled=false;
       ctx.fillStyle='rgba(25,15,37,.22)';ctx.fillRect(px-10,footY+2,20,3);
       ctx.translate(face<0?dx+dw:dx,dy);ctx.scale(face<0?-1:1,1);ctx.drawImage(atlas,sx,sy,32,48,0,0,dw,dh);ctx.restore();
+      // Cosmetic equipment: original VEXORA cap and backpack silhouettes.
+      if(equipment.backpack){ctx.fillStyle='#5a3f78';ctx.fillRect(px-17,footY-31,5,12);ctx.fillStyle='#8b67a8';ctx.fillRect(px-18,footY-28,3,7);}
+      if(equipment.explorer_cap){ctx.fillStyle='#ff7edb';ctx.fillRect(px-11,dy+1,22,5);ctx.fillStyle='#ffe8f8';ctx.fillRect(px-8,dy,10,3);}
+
       if(label){ctx.textAlign='center';ctx.font='800 10px Arial';ctx.fillStyle='rgba(19,15,30,.88)';ctx.fillText(label,px,dy-4);ctx.textAlign='left';}
       return;
     }
@@ -343,10 +370,26 @@
     }catch(e){toast(e.message,'error');}
   }
 
+  function drawDrops(){
+    for(const d of drops.values()){
+      const sx=worldX(d.x),sy=worldY(d.y)-4;
+      if(sx<-50||sx>innerWidth+50||sy<50||sy>innerHeight+30)continue;
+      const def=ITEM_VISUALS[d.item_id]||{color:'#fff',name:d.item_id};
+      ctx.save();
+      ctx.globalAlpha=.96;ctx.fillStyle='rgba(25,18,38,.2)';ctx.fillRect(sx-10,sy+12,20,4);
+      const sp=ATLAS[d.item_id];
+      if(sp){drawAtlas(sp[0],sp[1],32,32,sx-10,sy-10,20,20);}else{
+        ctx.fillStyle=def.color||'#fff';ctx.fillRect(sx-8,sy-8,16,16);
+        ctx.fillStyle='rgba(255,255,255,.25)';ctx.fillRect(sx-6,sy-6,5,4);
+      }
+      ctx.fillStyle='#fff';ctx.font='800 8px Arial';ctx.textAlign='center';ctx.fillText('×'+d.quantity,sx,sy+20);ctx.textAlign='left';ctx.restore();
+    }
+  }
   function draw(){
     ctx.clearRect(0,0,innerWidth,innerHeight);drawBackground();drawGrid();
     const sx=Math.floor(cameraX-innerWidth/TILE/2)-2,ex=Math.ceil(cameraX+innerWidth/TILE/2)+2;
     drawLocks();
+    drawDrops();
     for(const b of blocks.values())if(b.x>=sx&&b.x<=ex)drawBlock(b);
     for(const p of plants.values())if(p.x>=sx&&p.x<=ex)drawPlant(p);
     for(const p of remotes.values())drawRemote(p);drawPlayer();drawParticles();drawTargetCell();drawHover();drawMining();
@@ -397,6 +440,7 @@
     if(paused||modal)return;
     const p=targetForAction(),plant=getPlant(p.x,p.y),b=getBlock(p.x,p.y);
     if(plant?.ready){sfx('harvest');await harvestPlant(p.x,p.y);return;}
+    const drop=nearestDropAt(p.x+.5,p.y+.5);if(drop){await pickupDrop(drop.id);return;}
     if(!b)return;
     if(!inReach(p.x,p.y)){toast('Too far away','error');return;}
     sfx('punch');punch={until:performance.now()+180,dir:Math.sign((p.x+.5)-player.x)||player.face,x:p.x,y:p.y};
@@ -459,6 +503,48 @@
   function openModal(type){modal=type;paused=true;document.querySelectorAll('.modal').forEach(x=>x.hidden=true);const el=$(type+'Modal');if(el)el.hidden=false;if(type==='inventory')renderInventory();stopMine();}
   function closeModal(){document.querySelectorAll('.modal').forEach(x=>x.hidden=true);modal='';paused=false;}
 
+  async function loadEquipment(){
+    try{
+      const d=await api('/api/equipment'); equipment=Object.fromEntries((d.equipment||[]).map(e=>[e.slot,e.item_id||null]));
+    }catch(e){equipment={};}
+  }
+  async function loadWorldSettings(){
+    if(!worldId)return;
+    try{
+      const d=await api('/api/world/settings?worldId='+encodeURIComponent(worldId));
+      worldSettings=d.settings||worldSettings;
+    }catch(e){}
+  }
+  async function loadDrops(){
+    if(!worldId)return;
+    try{
+      const d=await api('/api/drops?worldId='+encodeURIComponent(worldId));
+      drops.clear();for(const x of d.drops||[])drops.set(String(x.id),{...x,id:String(x.id),x:Number(x.x),y:Number(x.y),z:Number(x.z),quantity:Number(x.quantity)});
+    }catch(e){}
+  }
+  function nearestDropAt(x,y){
+    let hit=null,best=0.9;
+    for(const d of drops.values()){const dist=Math.hypot(d.x-x,d.y-y);if(dist<best){best=dist;hit=d;}}
+    return hit;
+  }
+  async function pickupDrop(id){
+    const d=drops.get(String(id));if(!d)return;
+    if(!inReach(d.x,d.y)){toast('Move closer to pick it up','error');return;}
+    try{
+      const out=await api('/api/drops',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'pickup',worldId,id,playerX:player.x,playerY:player.y})});
+      drops.delete(String(id));await loadInventory();sfx('harvest');toast('Picked up '+(ITEM_VISUALS[out.itemId]?.name||out.itemId)+' × '+out.quantity);
+    }catch(e){toast(e.message,'error');}
+  }
+  async function dropSelected(quantity=1){
+    const type=HOTBAR[selected];
+    if(!worldId||!inventory[type]){toast('Nothing to drop','error');return;}
+    try{
+      const out=await api('/api/drops',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'drop',worldId,itemId:type,quantity:Math.max(1,Math.min(quantity,inventory[type])),x:player.x+player.face*.7,y:Math.max(1,player.y)})});
+      inventory[type]-=Math.max(1,Math.min(quantity,inventory[type]));renderHotbar();renderInventory();
+      drops.set(String(out.id),{id:String(out.id),x:player.x+player.face*.7,y:Math.max(1,player.y),z:0,item_id:type,quantity:Math.max(1,Math.min(quantity,inventory[type]+0))});
+      spawnParticles(player.x+.5,player.y,type);toast('Dropped '+ITEM_VISUALS[type].name);
+    }catch(e){toast(e.message,'error');}
+  }
   async function loadInventory(){
     try{
       const d=await api('/api/inventory');
@@ -475,8 +561,11 @@
     try{const d=await api(`/api/worlds?${worldId?`id=${encodeURIComponent(worldId)}`:''}`);const w=d.world||((d.worlds||[]).find(v=>String(v.id)===String(worldId)));if(w)meta=w;}catch(e){console.warn(e);}
     try{if(worldId){const d=await api(`/api/worlds/state?id=${encodeURIComponent(worldId)}`);if(Array.isArray(d.blocks)&&d.blocks.length)loadBlocks(d.blocks);else generateWorld();}else generateWorld();}catch(e){console.warn(e);generateWorld();}
     await loadInventory();
+    await loadEquipment();
+    await loadWorldSettings();
     await loadLocks();
     await loadPlants();
+    await loadDrops();
     $('worldName').textContent=meta.name||'VEXORA WORLD';$('worldMode').textContent=(meta.type||'normal').toUpperCase();
   }
   function queueSave(){clearTimeout(saveTimer);$('saveState').textContent='SAVING…';$('saveState').dataset.state='saving';saveTimer=setTimeout(saveWorld,1200);}
@@ -562,11 +651,12 @@
   addEventListener('keydown',e=>{
     const k=e.key.toLowerCase();
     if(['w','a','s','d','shift',' ','arrowleft','arrowright','arrowup'].includes(k))keys.add(k);
-    if(e.repeat&&['e','t','escape','h'].includes(k))return;
+    if(e.repeat&&['e','t','escape','h','q'].includes(k))return;
     if(/^\d$/.test(k)){const n=Number(k);if(n>=1&&n<=9){selected=n-1;renderHotbar();}}
     if(k==='e'){if(modal==='inventory')closeModal();else if(!chatOpen)openModal('inventory');}
     if(k==='t'){if(chatOpen)closeChat();else openChat();}
     if(k==='h'){if(modal==='help')closeModal();else if(!chatOpen)openModal('help');}
+    if(k==='q'){dropSelected(1);}
     if(k==='escape'){if(chatOpen)closeChat();else if(modal)closeModal();else openModal('menu');}
     if(k==='enter'&&chatOpen){e.preventDefault();$('chatForm').requestSubmit();}
     if(chatOpen||modal)e.preventDefault();
@@ -597,7 +687,7 @@
 
   function loop(now){
     const dt=Math.min(.033,(now-last)/1000);last=now; if(!paused){physics(dt);playSeconds+=dt;updateParticles(dt);} if(now-gamepadTimer>80){gamepadTimer=now;pollGamepad();} draw();
-    presenceTimer+=dt;chatTimer+=dt;if(presenceTimer>2){presenceTimer=0;syncPresence();}if(chatTimer>1.2){chatTimer=0;pollChat();if(Math.floor(now/5000)!==Math.floor((now-dt*1000)/5000))loadPlants();}
+    presenceTimer+=dt;chatTimer+=dt;if(presenceTimer>2){presenceTimer=0;syncPresence();}if(worldId&&now-lastDropSync>2500&&!modal){lastDropSync=now;loadDrops();}if(chatTimer>1.2){chatTimer=0;pollChat();if(Math.floor(now/5000)!==Math.floor((now-dt*1000)/5000))loadPlants();}
     requestAnimationFrame(loop);
   }
 
