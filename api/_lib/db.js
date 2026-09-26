@@ -256,6 +256,24 @@ async function initDb() {
       CHECK (quantity > 0),
       CHECK (price >= 0)
     )`,
+    `CREATE TABLE IF NOT EXISTS world_objects (
+      id TEXT PRIMARY KEY,
+      world_id TEXT NOT NULL,
+      x INTEGER NOT NULL,
+      y INTEGER NOT NULL,
+      type TEXT NOT NULL,
+      label TEXT NOT NULL DEFAULT '',
+      link_world_id TEXT,
+      metadata_json TEXT NOT NULL DEFAULT '{}',
+      created_by TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+      FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE CASCADE,
+      FOREIGN KEY (link_world_id) REFERENCES worlds(id) ON DELETE SET NULL,
+      FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE,
+      UNIQUE(world_id,x,y)
+    )`,
+    `CREATE INDEX IF NOT EXISTS idx_world_objects_world ON world_objects(world_id,x,y)`,
     `CREATE TABLE IF NOT EXISTS audit_logs (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id TEXT,
