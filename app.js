@@ -25,7 +25,7 @@ form.addEventListener('submit', async (event) => {
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || 'Login failed.');
     message.textContent = `Welcome back, ${data.user.displayName || data.user.username}!`;
-    setTimeout(() => { window.location.href = './dashboard.html'; }, 350);
+    setTimeout(() => { window.location.href = './character.html'; }, 350);
   } catch (error) {
     message.textContent = error.message;
     message.classList.add('error');
@@ -34,7 +34,7 @@ form.addEventListener('submit', async (event) => {
 
 guestButton.addEventListener('click', () => {
   sessionStorage.setItem('vexora_guest', '1');
-  window.location.href = './dashboard.html?guest=1';
+  window.location.href = './character.html?guest=1';
 });
 
 document.getElementById('forgotLink').addEventListener('click', (e) => {
