@@ -289,7 +289,7 @@
  
   }
 
-  function drawRemote(p){const sx=worldX(p.x),foot=worldY(p.y-1);if(sx<-80||sx>innerWidth+80)return;drawCharacter(sx,foot,Number(p.face)<0?-1:1,'idle',performance.now(), '@'+(p.username||'Explorer'));}
+  function drawRemote(p){p.x+=(p.tx-p.x)*0.18;p.y+=(p.ty-p.y)*0.18;const sx=worldX(p.x),foot=worldY(p.y-1);if(sx<-80||sx>innerWidth+80)return;const moving=Math.abs(p.tx-p.x)+Math.abs(p.ty-p.y)>.04;drawCharacter(sx,foot,Number(p.face)<0?-1:1,moving?'walk':'idle',performance.now(), '@'+(p.username||'Explorer'));}
   function drawPlayer(){
     const foot=worldY(player.y-1),state=performance.now()<punch.until?'punch':Math.abs(player.vx)>.6?'walk':'idle';
     drawCharacter(worldX(player.x),foot,player.face,state,performance.now(),'You');
@@ -611,7 +611,7 @@
   function closeChat(){chatOpen=false;$('chatPanel').classList.remove('open');if(!modal)paused=false;}
 
   async function syncPresence(){
-    if(!worldId)return;try{await api(`/api/presence?worldId=${encodeURIComponent(worldId)}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({x:player.x,y:player.y,z:0,yaw:player.face})});const d=await api(`/api/presence?worldId=${encodeURIComponent(worldId)}`);const seen=new Set();for(const p of d.players||[]){if(p.userId===d.meId)continue;seen.add(String(p.userId));remotes.set(String(p.userId),{x:Number(p.x)||0,y:Number(p.y)||0,username:p.username||'Explorer',face:Number(p.yaw)||1});}for(const id of remotes.keys())if(!seen.has(id))remotes.delete(id);$('playerCount').textContent=`${Math.max(1,(d.players||[]).length)} online`;}catch(e){}
+    if(!worldId)return;try{await api(`/api/presence?worldId=${encodeURIComponent(worldId)}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({x:player.x,y:player.y,z:0,yaw:player.face})});const d=await api(`/api/presence?worldId=${encodeURIComponent(worldId)}`);const seen=new Set();for(const p of d.players||[]){if(p.userId===d.meId)continue;seen.add(String(p.userId));const id=String(p.userId),old=remotes.get(id);remotes.set(id,{x:old?.x??Number(p.x)||0,y:old?.y??Number(p.y)||0,tx:Number(p.x)||0,ty:Number(p.y)||0,username:p.username||'Explorer',face:Number(p.yaw)||1});}for(const id of remotes.keys())if(!seen.has(id))remotes.delete(id);$('playerCount').textContent=`${Math.max(1,(d.players||[]).length)} online`;}catch(e){}
   }
 
   function targetForAction(){
