@@ -15,6 +15,7 @@ function cleanWorld(row) {
     ownerId: row.owner_id,
     ownerUsername: row.owner_username || null,
     ownerDisplayName: row.owner_display_name || null,
+    onlineCount: Number(row.online_count || 0),
   };
 }
 
