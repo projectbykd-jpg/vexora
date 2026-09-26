@@ -36,6 +36,7 @@ const ITEMS = {
   gem: { id:'gem', name:'Vexa Gem', type:ITEM_TYPES.CURRENCY, stack:999999, tradeable:true },
   event_token: { id:'event_token', name:'Event Token', type:ITEM_TYPES.EVENT, stack:999999, tradeable:false },
   starter_pickaxe: { id:'starter_pickaxe', name:'Starter Pickaxe', type:ITEM_TYPES.TOOL, stack:1, tradeable:false },
+  wrench: { id:'wrench', name:'Vexa Wrench', type:ITEM_TYPES.TOOL, stack:1, tradeable:false },
   backpack: { id:'backpack', name:'Explorer Backpack', type:ITEM_TYPES.CLOTHING, stack:1, tradeable:true, equipmentSlot:'back' },
   explorer_cap: { id:'explorer_cap', name:'Explorer Cap', type:ITEM_TYPES.CLOTHING, stack:1, tradeable:true, equipmentSlot:'head' }
 };
@@ -49,6 +50,7 @@ const STARTER_INVENTORY = {
   sand: 10,
   brick: 10,
   starter_pickaxe: 1,
+  wrench: 1,
   grass_seed: 5,
   crystal_seed: 2,
   wood_seed: 2,
