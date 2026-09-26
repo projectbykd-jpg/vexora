@@ -2,8 +2,8 @@ const { initDb } = require('./_lib/db');
 const { getSessionUserId } = require('./_lib/auth');
 
 const QUESTS = {
-  first_build:{name:'First Builder',description:'Place 10 blocks.',goal:10,xp:50,rewardCoins:25,type:'placed'},
-  miner:{name:'Stone Miner',description:'Break 20 blocks.',goal:20,xp:75,rewardCoins:40,type:'broken'},
+  first_build:{name:'First Builder',description:'Place 10 blocks.',goal:10,xp:50,rewardCoins:25,type:'block.place'},
+  miner:{name:'Stone Miner',description:'Break 20 blocks.',goal:20,xp:75,rewardCoins:40,type:'block.break'},
   farmer:{name:'Green Thumb',description:'Harvest 3 crops.',goal:3,xp:80,rewardCoins:50,type:'harvest'},
   social:{name:'Explorer Social',description:'Send 5 chat messages.',goal:5,xp:60,rewardCoins:30,type:'chat'}
 };
