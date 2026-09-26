@@ -235,15 +235,15 @@
   }
 
   function drawHover(){
-    if(!pointer.inside||paused||modal)return;
-    const p=targetForAction(),plant=getPlant(p.x,p.y),b=getBlock(p.x,p.y);hover=p;
-    if(!b)return;
-    const sx=worldX(p.x),sy=worldY(p.y),name=BLOCKS[b.type].name;
-    ctx.font='700 10px Arial';const tw=ctx.measureText(name).width+14;
+    if((!pointer.inside&&!touchTarget)||paused||modal)return;
+    const p=(touchDevice&&touchTarget)?touchTarget:screenToWorld(pointer.x,pointer.y),b=getBlock(p.x,p.y),plant=getPlant(p.x,p.y);hover=p;
+    if(!b&&!plant)return;
+    const sx=worldX(p.x),sy=worldY(p.y),name=plant?.ready?'READY TO HARVEST':(b?BLOCKS[b.type].name:'Growing');
+    ctx.font='800 10px Arial';const tw=ctx.measureText(name).width+14;
     let tx=sx+TILE/2-tw/2,ty=sy-26;tx=clamp(tx,6,innerWidth-tw-6);if(ty<58)ty=sy+TILE+6;
     ctx.fillStyle='rgba(21,15,35,.92)';ctx.fillRect(tx,ty,tw,20);
-    ctx.strokeStyle='rgba(255,255,255,.16)';ctx.strokeRect(tx+.5,ty+.5,tw-1,19);
-    ctx.fillStyle='#fff8ea';ctx.fillText(name,tx+7,ty+14);
+    ctx.strokeStyle=plant?.ready?'rgba(131,243,167,.65)':'rgba(255,255,255,.16)';ctx.strokeRect(tx+.5,ty+.5,tw-1,19);
+    ctx.fillStyle=plant?.ready?'#a8ffd0':'#fff8ea';ctx.fillText(name,tx+7,ty+14);
   }
 
   function spawnParticles(x,y,type='break'){
@@ -358,7 +358,7 @@
   }
   async function beginMine(){
     if(paused||modal)return;
-    const p=screenToWorld(pointer.x,pointer.y),b=getBlock(p.x,p.y);
+    const p=targetForAction(),plant=getPlant(p.x,p.y),b=getBlock(p.x,p.y);
     if(plant?.ready){await harvestPlant(p.x,p.y);return;}
     if(!b)return;
     if(!inReach(p.x,p.y)){toast('Too far away','error');return;}
