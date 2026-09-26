@@ -180,7 +180,7 @@ body.wrench-mode #touchWrench,body.wrench-mode .top-btn.help{border-color:#ffd86
     </div>
   </div>
 </section>
-<section id="menuModal" class="modal" hidden><div class="modal-card" style="max-width:380px"><div class="modal-head"><div><span class="eyebrow">VEXORA WORLD</span><h2>Game Menu</h2></div><button id="closeMenu" class="close">×</button></div><div class="menu-actions"><button id="saveButton2" class="menu-action primary">SAVE WORLD</button><button id="lockAreaButton" class="menu-action">LOCK 7×7 AREA</button><button id="exitWorld" class="menu-action">EXIT TO WORLDS</button></div></div></section>
+<section id="menuModal" class="modal" hidden><div class="modal-card" style="max-width:380px"><div class="modal-head"><div><span class="eyebrow">VEXORA WORLD</span><h2>Game Menu</h2></div><button id="closeMenu" class="close">×</button></div><div class="menu-actions"><button id="saveButton2" class="menu-action primary">SYNC WORLD</button><button id="lockAreaButton" class="menu-action">LOCK 7×7 AREA</button><button id="exitWorld" class="menu-action">EXIT TO WORLDS</button></div></div></section>
 </div>
 <script type="module" src="./world-v15.js"></script>
 
@@ -309,4 +309,5 @@ $('systemsButton').onclick=open;$('vxSysClose').onclick=close;root.addEventListe
 addEventListener('keydown',e=>{if(e.key==='F2'){e.preventDefault();open()}if(e.key==='Escape'&&root.classList.contains('open'))close()});
 })();
 </script></body>
-</html>
+</html>$('saveButton2').onclick=()=>saveWorld();
+
