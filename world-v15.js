@@ -41,6 +41,7 @@
   let pointer = {x:innerWidth/2,y:innerHeight/2,inside:false};
   let player = {x:0,y:10,vx:0,vy:0,w:.70,h:1.65,grounded:false,face:1,jumpLatch:false};
   let remotes = new Map();
+  let locks = [];
 
   function key(x,y){ return `${x},${y}`; }
   function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
@@ -149,9 +150,41 @@
       });
     }
   }
+  async function loadLocks(){
+    if(!worldId)return;
+    try{
+      const d=await api(`/api/locks?worldId=${encodeURIComponent(worldId)}`);
+      locks=Array.isArray(d.locks)?d.locks:[];
+    }catch(e){locks=[];}
+  }
+
+  function drawLocks(){
+    for(const lock of locks){
+      const sx=worldX(lock.x1), sy=worldY(lock.y2), w=(lock.x2-lock.x1+1)*TILE, h=(lock.y2-lock.y1+1)*TILE;
+      if(sx+w<0||sx>innerWidth||sy+h<55||sy>innerHeight)continue;
+      ctx.fillStyle='rgba(237,118,214,.08)';ctx.fillRect(sx,sy,w,h);
+      ctx.strokeStyle='rgba(237,118,214,.42)';ctx.lineWidth=1;ctx.strokeRect(sx+.5,sy+.5,w-1,h-1);
+    }
+  }
+
+  async function createAreaLock(){
+    if(!worldId){toast('Create a world first','error');return;}
+    const x=Math.round(player.x), y=Math.round(player.y);
+    try{
+      await api(`/api/locks?worldId=${encodeURIComponent(worldId)}`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({x1:x-3,y1:Math.max(1,y-3),x2:x+3,y2:Math.min(MAX_Y,y+3)})
+      });
+      await loadLocks();
+      toast('7×7 area locked');
+    }catch(e){toast(e.message,'error');}
+  }
+
   function draw(){
     ctx.clearRect(0,0,innerWidth,innerHeight);drawBackground();drawGrid();
     const sx=Math.floor(cameraX-innerWidth/TILE/2)-2,ex=Math.ceil(cameraX+innerWidth/TILE/2)+2;
+    drawLocks();
     for(const b of blocks.values())if(b.x>=sx&&b.x<=ex)drawBlock(b);
     for(const p of remotes.values())drawRemote(p);drawPlayer();drawHover();drawMining();
   }
@@ -225,6 +258,7 @@
     try{const d=await api(`/api/worlds?${worldId?`id=${encodeURIComponent(worldId)}`:''}`);const w=d.world||((d.worlds||[]).find(v=>String(v.id)===String(worldId)));if(w)meta=w;}catch(e){console.warn(e);}
     try{if(worldId){const d=await api(`/api/worlds/state?id=${encodeURIComponent(worldId)}`);if(Array.isArray(d.blocks)&&d.blocks.length)loadBlocks(d.blocks);else generateWorld();}else generateWorld();}catch(e){console.warn(e);generateWorld();}
     await loadInventory();
+    await loadLocks();
     $('worldName').textContent=meta.name||'VEXORA WORLD';$('worldMode').textContent=(meta.type||'normal').toUpperCase();
   }
   function queueSave(){clearTimeout(saveTimer);$('saveState').textContent='SAVING…';$('saveState').dataset.state='saving';saveTimer=setTimeout(saveWorld,1200);}
@@ -275,6 +309,7 @@
   $('helpButton').onclick=()=>openModal('help');
   $('menuButton').onclick=()=>openModal('menu');
   $('saveButton').onclick=()=>saveWorld();
+  $('lockAreaButton')?.addEventListener('click',createAreaLock);
   $('closeInventory').onclick=closeModal;$('closeHelp').onclick=closeModal;$('closeMenu').onclick=closeModal;
   $('exitWorld').onclick=()=>{location.href='./worlds.html';};
 
