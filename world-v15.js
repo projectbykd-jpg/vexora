@@ -527,13 +527,32 @@
       plants.delete(key(x,y)); await loadInventory(); toast('Harvested '+(d.itemId||'crop'));
     }catch(e){toast(e.message,'error');}
   }
+  function iconMarkup(t){
+    const d=ITEM_VISUALS[t]||{color:'#fff',name:t},sp=ATLAS[t];
+    if(!sp)return '<i class="item-icon" style="background:'+d.color+'"></i>';
+    const bx=-(sp[0]*.625),by=-(sp[1]*.625);
+    return '<i class="item-icon sprite" style="background-image:url(./assets/vexora-atlas.svg);background-size:320px 120px;background-position:'+bx+'px '+by+'px;background-color:'+d.color+'"></i>';
+  }
   function renderHotbar(){
-    const root=$('hotbar');root.innerHTML='';HOTBAR.forEach((t,i)=>{const d=ITEM_VISUALS[t];const b=document.createElement('button');b.className='slot '+(i===selected?'selected':'');b.innerHTML=`<span class="num">${i+1}</span><i style="background:${d.color}"></i><b>${inventory[t]||0}</b>`;b.title=`${i+1} · ${d.name}`;b.onclick=(e)=>{e.stopPropagation();selected=i;renderHotbar();};root.appendChild(b);});
-    $('selectedName').textContent=ITEM_VISUALS[HOTBAR[selected]].name;
+    const root=$('hotbar');root.innerHTML='';
+    HOTBAR.forEach((t,i)=>{
+      const d=ITEM_VISUALS[t],b=document.createElement('button');b.className='slot '+(i===selected?'selected':'');
+      b.innerHTML='<span class="num">'+(i+1)+'</span>'+iconMarkup(t)+'<b>'+Number(inventory[t]||0)+'</b>';
+      b.title=(i+1)+' · '+d.name;b.onclick=e=>{e.stopPropagation();selected=i;renderHotbar();};
+      root.appendChild(b);
+    });
+    const sel=ITEM_VISUALS[HOTBAR[selected]];$('selectedName').textContent=sel?.name||'Item';
   }
   function renderInventory(){
-    const root=$('inventoryGrid');root.innerHTML='';Object.entries(ITEM_VISUALS).forEach(([t,d])=>{const b=document.createElement('button');b.className='inv-item';b.innerHTML=`<i style="background:${d.color}"></i><span><strong>${d.name}</strong><small>${inventory[t]||0} owned</small></span>`;b.onclick=()=>{const i=HOTBAR.indexOf(t);if(i>=0){selected=i;renderHotbar();closeModal();}};root.appendChild(b);});
+    const root=$('inventoryGrid');root.innerHTML='';
+    Object.entries(ITEM_VISUALS).forEach(([t,d])=>{
+      const b=document.createElement('button');b.className='inv-item';
+      b.innerHTML=iconMarkup(t)+'<span><strong>'+escapeHtml(d.name)+'</strong><small>'+Number(inventory[t]||0)+' owned</small></span>';
+      b.onclick=()=>{const i=HOTBAR.indexOf(t);if(i>=0){selected=i;renderHotbar();closeModal();}else{toast(d.name+' is not on the hotbar');}};
+      root.appendChild(b);
+    });
   }
+
   function openModal(type){modal=type;paused=true;document.querySelectorAll('.modal').forEach(x=>x.hidden=true);const el=$(type+'Modal');if(el)el.hidden=false;if(type==='inventory')renderInventory();stopMine();}
   function closeModal(){document.querySelectorAll('.modal').forEach(x=>x.hidden=true);modal='';paused=false;}
 
