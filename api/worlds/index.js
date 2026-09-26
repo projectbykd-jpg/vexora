@@ -1,6 +1,7 @@
 const { randomUUID } = require('crypto');
 const { initDb } = require('../_lib/db');
 const { getSessionUserId } = require('../_lib/auth');
+const { generateBlocks } = require('../_lib/worldgen');
 
 function cleanWorld(row) {
   return {
@@ -85,11 +86,23 @@ module.exports = async function handler(req, res) {
         seed: Math.floor(Math.random() * 2147483647),
       };
 
-      await db.execute({
-        sql: `INSERT INTO worlds (id, owner_id, name, type, privacy, seed)
-              VALUES (?, ?, ?, ?, ?, ?)`,
-        args: [world.id, world.ownerId, world.name, world.type, world.privacy, world.seed],
-      });
+      const initialBlocks = generateBlocks(world.seed);
+      await db.batch([
+        {
+          sql: `INSERT INTO worlds (id, owner_id, name, type, privacy, seed)
+                VALUES (?, ?, ?, ?, ?, ?)`,
+          args: [world.id, world.ownerId, world.name, world.type, world.privacy, world.seed],
+        },
+        ...initialBlocks.map((block) => ({
+          sql: `INSERT INTO world_blocks (world_id, x, y, z, type) VALUES (?, ?, ?, ?, ?)`,
+          args: [world.id, block.x, block.y, block.z, block.type],
+        })),
+        {
+          sql: `INSERT OR IGNORE INTO world_settings (world_id, spawn_y)
+                VALUES (?, ?)`,
+          args: [world.id, 20]
+        }
+      ], 'write');
 
       return res.status(201).json({ world: cleanWorld({ ...world, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }) });
     }
