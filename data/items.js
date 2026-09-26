@@ -38,7 +38,13 @@ const ITEMS = {
   starter_pickaxe: { id:'starter_pickaxe', name:'Starter Pickaxe', type:ITEM_TYPES.TOOL, stack:1, tradeable:false },
   wrench: { id:'wrench', name:'Vexa Wrench', type:ITEM_TYPES.TOOL, stack:1, tradeable:false },
   backpack: { id:'backpack', name:'Explorer Backpack', type:ITEM_TYPES.CLOTHING, stack:1, tradeable:true, equipmentSlot:'back' },
-  explorer_cap: { id:'explorer_cap', name:'Explorer Cap', type:ITEM_TYPES.CLOTHING, stack:1, tradeable:true, equipmentSlot:'head' }
+  explorer_cap: { id:'explorer_cap', name:'Explorer Cap', type:ITEM_TYPES.CLOTHING, stack:1, tradeable:true, equipmentSlot:'head' },
+  neon_visor: { id:'neon_visor', name:'Neon Visor', type:ITEM_TYPES.CLOTHING, stack:1, tradeable:true, equipmentSlot:'head' },
+  party_hat: { id:'party_hat', name:'Party Hat', type:ITEM_TYPES.CLOTHING, stack:1, tradeable:true, equipmentSlot:'head' },
+  sunset_cape: { id:'sunset_cape', name:'Sunset Cape', type:ITEM_TYPES.CLOTHING, stack:1, tradeable:true, equipmentSlot:'back' },
+  vexa_wings: { id:'vexa_wings', name:'Vexa Wings', type:ITEM_TYPES.CLOTHING, stack:1, tradeable:true, equipmentSlot:'back' },
+  trail_boots: { id:'trail_boots', name:'Trail Boots', type:ITEM_TYPES.CLOTHING, stack:1, tradeable:true, equipmentSlot:'body' },
+  companion_spark: { id:'companion_spark', name:'Spark Companion', type:ITEM_TYPES.PET, stack:1, tradeable:true, equipmentSlot:'pet' }
 };
 
 const STARTER_INVENTORY = {
@@ -54,7 +60,12 @@ const STARTER_INVENTORY = {
   grass_seed: 5,
   crystal_seed: 2,
   wood_seed: 2,
-  flower_seed: 2
+  flower_seed: 2,
+  explorer_cap: 1,
+  backpack: 1,
+  neon_visor: 1,
+  sunset_cape: 1,
+  companion_spark: 1
 };
 
 function getItem(id) {
