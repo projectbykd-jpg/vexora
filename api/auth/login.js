@@ -27,6 +27,6 @@ module.exports = async function handler(req, res) {
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: 'Login failed. Check the Vercel/Turso configuration.' });
+    return res.status(500).json({ error: 'Login failed. Check the Render/Turso configuration.' });
   }
 };
