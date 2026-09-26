@@ -2,6 +2,7 @@ const { randomUUID } = require('crypto');
 const { initDb } = require('../_lib/db');
 const { getSessionUserId } = require('../_lib/auth');
 const { generateBlocks } = require('../_lib/worldgen');
+const WORLD_CATEGORIES = new Set(['adventure','art','farm','parkour','puzzle','roleplay','shop','social','storage','story','trade','info','music']);
 
 function cleanWorld(row) {
   return {
@@ -67,8 +68,8 @@ module.exports = async function handler(req, res) {
     if (req.method === 'POST') {
       const body = req.body || {};
       const name = String(body.name || '').trim().replace(/\s+/g, ' ');
-      const type = ['normal', 'creative', 'adventure'].includes(body.type) ? body.type : 'normal';
-      const privacy = ['private', 'public'].includes(body.privacy) ? body.privacy : 'private';
+      const type = WORLD_CATEGORIES.has(String(body.category||body.type||'').toLowerCase()) ? String(body.category||body.type).toLowerCase() : 'adventure';
+      const privacy = 'public';
 
       if (name.length < 3 || name.length > 24) {
         return res.status(400).json({ error: 'World name must be 3–24 characters.' });
