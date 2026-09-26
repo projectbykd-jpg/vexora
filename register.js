@@ -33,7 +33,7 @@ form.addEventListener('submit', async (event) => {
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || 'Registration failed.');
     message.textContent = 'Account created. Entering VEXORA…';
-    setTimeout(() => { window.location.href = './dashboard.html'; }, 500);
+    setTimeout(() => { window.location.href = './character.html'; }, 500);
   } catch (error) {
     message.textContent = error.message;
     message.classList.add('error');
