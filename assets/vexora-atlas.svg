@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="192" viewBox="0 0 512 192" shape-rendering="crispEdges">
+<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#78d9ff"/><stop offset="1" stop-color="#c9f3ff"/></linearGradient>
+  <filter id="none"><feComponentTransfer/></filter>
+</defs>
+<!-- Original VEXORA block sprites, 32x32 cells -->
+<!-- grass -->
+<g transform="translate(0,0)">
+ <rect width="32" height="32" fill="#8b5739"/><rect width="32" height="8" fill="#36a85b"/>
+ <rect y="6" width="32" height="4" fill="#54ce72"/><rect x="4" y="2" width="3" height="4" fill="#92ed93"/>
+ <rect x="15" y="1" width="3" height="5" fill="#76df84"/><rect x="25" y="3" width="3" height="4" fill="#9af29b"/>
+ <rect x="4" y="14" width="4" height="3" fill="#75462f"/><rect x="19" y="20" width="3" height="4" fill="#70422c"/>
+ <rect x="25" y="13" width="2" height="2" fill="#b47a52"/><rect y="29" width="32" height="3" fill="#71442e"/>
+</g>
+<!-- dirt -->
+<g transform="translate(32,0)">
+ <rect width="32" height="32" fill="#946044"/><rect x="3" y="6" width="4" height="3" fill="#ae7651"/><rect x="17" y="4" width="3" height="4" fill="#6f432f"/>
+ <rect x="24" y="12" width="4" height="3" fill="#b37a55"/><rect x="8" y="19" width="3" height="3" fill="#74432c"/>
+ <rect x="19" y="24" width="5" height="3" fill="#70412c"/><rect y="29" width="32" height="3" fill="#73432e"/>
+</g>
+<!-- stone -->
+<g transform="translate(64,0)">
+ <rect width="32" height="32" fill="#7e8a98"/><rect x="2" y="2" width="7" height="4" fill="#9da8b4"/><rect x="22" y="3" width="6" height="3" fill="#687582"/>
+ <path d="M4 9h6v4H7v5H4zm14 1h5v5h4v3h-9zM7 24h7v3H5zm13-2h4v4h-4z" fill="#596572"/>
+ <rect x="12" y="14" width="5" height="3" fill="#aab2bd"/>
+</g>
+<!-- wood -->
+<g transform="translate(96,0)">
+ <rect width="32" height="32" fill="#a36d43"/><rect x="5" width="5" height="32" fill="#7f4d30"/><rect x="17" width="4" height="32" fill="#7d4b30"/><rect x="26" width="3" height="32" fill="#bb7d4d"/>
+ <rect x="8" y="5" width="6" height="3" fill="#dca46a"/><rect x="21" y="17" width="5" height="3" fill="#cc8d59"/>
+</g>
+<!-- leaf -->
+<g transform="translate(128,0)">
+ <rect width="32" height="32" fill="#3f9d57"/><rect x="3" y="6" width="8" height="6" fill="#65c96f"/><rect x="16" y="3" width="10" height="7" fill="#6cdb78"/>
+ <rect x="22" y="14" width="7" height="7" fill="#2f834a"/><rect x="5" y="20" width="10" height="7" fill="#318a4c"/><rect x="16" y="24" width="8" height="4" fill="#73dc7c"/>
+</g>
+<!-- sand -->
+<g transform="translate(160,0)">
+ <rect width="32" height="32" fill="#e4c477"/><rect x="4" y="5" width="2" height="2" fill="#b99051"/><rect x="18" y="9" width="3" height="2" fill="#bd9656"/>
+ <rect x="8" y="18" width="2" height="2" fill="#c59f5d"/><rect x="24" y="24" width="3" height="2" fill="#b78e4e"/><rect x="14" y="28" width="3" height="2" fill="#f1d995"/>
+</g>
+<!-- brick -->
+<g transform="translate(192,0)">
+ <rect width="32" height="32" fill="#ad5b53"/><path d="M0 10h32M0 21h32M8 0v10M24 0v10M4 10v11M20 10v11M12 21v11M28 21v11" stroke="#743b3c" stroke-width="2"/>
+ <path d="M1 1h5M10 12h7M22 23h5" stroke="#de8476" stroke-width="2"/>
+</g>
+<!-- glass -->
+<g transform="translate(224,0)">
+ <rect width="32" height="32" fill="#9ee8f2" fill-opacity=".65"/><path d="M2 29L29 3M8 32L32 8" stroke="#ecffff" stroke-width="3" opacity=".9"/>
+ <rect x="4" y="4" width="8" height="3" fill="#fff" opacity=".65"/><rect x="24" y="24" width="4" height="3" fill="#52bcd0" opacity=".5"/>
+</g>
+<!-- crystal -->
+<g transform="translate(256,0)">
+ <rect width="32" height="32" fill="#3fb8d4"/><path d="M16 3L27 16 18 29 6 17z" fill="#a2f7ff"/><path d="M16 3v25M6 17h21" stroke="#4ccde7" stroke-width="2"/>
+ <rect x="12" y="7" width="5" height="4" fill="#e7ffff"/><rect x="21" y="17" width="3" height="4" fill="#e7ffff" opacity=".7"/>
+</g>
+<!-- gold -->
+<g transform="translate(288,0)">
+ <rect width="32" height="32" fill="#66717f"/><path d="M0 9h32M0 20h32" stroke="#4f5b68" stroke-width="2"/>
+ <path d="M7 8h7v7H7zM20 13h6v7h-6zM11 23h6v5h-6z" fill="#f2c84b"/><rect x="9" y="9" width="3" height="3" fill="#fff3a5"/>
+</g>
+<!-- foundation -->
+<g transform="translate(320,0)">
+ <rect width="32" height="32" fill="#503b5a"/><rect width="32" height="6" fill="#71516e"/><path d="M2 13h12v7H2zM18 10h11v9H18zM5 23h9v6H5zM18 23h12v6H18z" fill="#6b5367"/>
+</g>
+<!-- seed icons -->
+<g transform="translate(0,32)">
+ <rect width="32" height="32" fill="#4b8d4e"/><circle cx="16" cy="17" r="7" fill="#8de875"/><rect x="13" y="5" width="6" height="6" fill="#b9ff9e"/><rect x="6" y="24" width="20" height="3" fill="#315e36"/>
+</g>
+<g transform="translate(32,32)">
+ <rect width="32" height="32" fill="#3e7b8f"/><path d="M16 7l7 10-7 11L9 17z" fill="#91f4ff"/><rect x="14" y="10" width="4" height="8" fill="#eaffff"/>
+</g>
+<!-- player sprite strip: 32x48 cells -->
+<g transform="translate(0,72)">
+ <!-- idle -->
+ <rect x="10" y="2" width="12" height="13" rx="3" fill="#33233f"/><rect x="12" y="4" width="8" height="9" fill="#f2ba91"/><rect x="10" y="2" width="12" height="4" fill="#633f79"/><rect x="17" y="7" width="2" height="2" fill="#282039"/>
+ <rect x="8" y="16" width="16" height="15" fill="#33233f"/><rect x="10" y="17" width="12" height="11" fill="#d46cd1"/><rect x="7" y="18" width="3" height="10" fill="#f2ba91"/><rect x="22" y="18" width="3" height="10" fill="#f2ba91"/>
+ <rect x="10" y="30" width="5" height="14" fill="#5f73ce"/><rect x="17" y="30" width="5" height="14" fill="#5f73ce"/><rect x="8" y="43" width="8" height="3" fill="#f5f8ff"/><rect x="16" y="43" width="8" height="3" fill="#f5f8ff"/>
+</g>
+<g transform="translate(32,72)">
+ <!-- walk 1 -->
+ <rect x="10" y="2" width="12" height="13" rx="3" fill="#33233f"/><rect x="12" y="4" width="8" height="9" fill="#f2ba91"/><rect x="10" y="2" width="12" height="4" fill="#633f79"/><rect x="17" y="7" width="2" height="2" fill="#282039"/>
+ <rect x="8" y="16" width="16" height="15" fill="#33233f"/><rect x="10" y="17" width="12" height="11" fill="#d46cd1"/><rect x="6" y="18" width="3" height="9" fill="#f2ba91"/><rect x="22" y="19" width="3" height="9" fill="#f2ba91"/>
+ <rect x="8" y="30" width="6" height="14" fill="#5f73ce"/><rect x="18" y="29" width="5" height="13" fill="#5f73ce"/><rect x="7" y="43" width="8" height="3" fill="#f5f8ff"/><rect x="17" y="41" width="8" height="3" fill="#f5f8ff"/>
+</g>
+<g transform="translate(64,72)">
+ <!-- walk 2 -->
+ <rect x="10" y="2" width="12" height="13" rx="3" fill="#33233f"/><rect x="12" y="4" width="8" height="9" fill="#f2ba91"/><rect x="10" y="2" width="12" height="4" fill="#633f79"/><rect x="17" y="7" width="2" height="2" fill="#282039"/>
+ <rect x="8" y="16" width="16" height="15" fill="#33233f"/><rect x="10" y="17" width="12" height="11" fill="#d46cd1"/><rect x="8" y="19" width="3" height="9" fill="#f2ba91"/><rect x="23" y="18" width="3" height="10" fill="#f2ba91"/>
+ <rect x="10" y="29" width="5" height="13" fill="#5f73ce"/><rect x="17" y="30" width="6" height="14" fill="#5f73ce"/><rect x="7" y="41" width="8" height="3" fill="#f5f8ff"/><rect x="18" y="43" width="8" height="3" fill="#f5f8ff"/>
+</g>
+<g transform="translate(96,72)">
+ <!-- punch -->
+ <rect x="10" y="2" width="12" height="13" rx="3" fill="#33233f"/><rect x="12" y="4" width="8" height="9" fill="#f2ba91"/><rect x="10" y="2" width="12" height="4" fill="#633f79"/><rect x="17" y="7" width="2" height="2" fill="#282039"/>
+ <rect x="8" y="16" width="16" height="15" fill="#33233f"/><rect x="10" y="17" width="12" height="11" fill="#d46cd1"/><rect x="6" y="18" width="3" height="8" fill="#f2ba91"/>
+ <rect x="23" y="18" width="8" height="4" fill="#f2ba91"/><rect x="29" y="17" width="3" height="6" fill="#ffe9c9"/><rect x="7" y="30" width="6" height="14" fill="#5f73ce"/><rect x="18" y="30" width="5" height="14" fill="#5f73ce"/><rect x="6" y="43" width="8" height="3" fill="#f5f8ff"/><rect x="17" y="43" width="8" height="3" fill="#f5f8ff"/>
+</g>
+<g transform="translate(128,72)">
+ <!-- punch alt -->
+ <rect x="10" y="2" width="12" height="13" rx="3" fill="#33233f"/><rect x="12" y="4" width="8" height="9" fill="#f2ba91"/><rect x="10" y="2" width="12" height="4" fill="#633f79"/><rect x="17" y="7" width="2" height="2" fill="#282039"/>
+ <rect x="8" y="16" width="16" height="15" fill="#33233f"/><rect x="10" y="17" width="12" height="11" fill="#d46cd1"/><rect x="6" y="18" width="3" height="8" fill="#f2ba91"/>
+ <rect x="24" y="16" width="8" height="5" fill="#f2ba91"/><rect x="29" y="15" width="3" height="7" fill="#ffe9c9"/><rect x="9" y="30" width="6" height="14" fill="#5f73ce"/><rect x="17" y="30" width="6" height="14" fill="#5f73ce"/><rect x="8" y="43" width="8" height="3" fill="#f5f8ff"/><rect x="17" y="43" width="8" height="3" fill="#f5f8ff"/>
+</g>
+<!-- FX -->
+<g transform="translate(0,128)">
+ <rect x="13" y="1" width="6" height="30" fill="#ffe56f"/><rect x="1" y="13" width="30" height="6" fill="#ffe56f"/><rect x="9" y="9" width="14" height="14" fill="#ff8ee2" opacity=".9"/>
+</g>
+<g transform="translate(32,128)">
+ <rect x="3" y="4" width="6" height="6" fill="#fff0a0"/><rect x="22" y="3" width="5" height="5" fill="#75eaff"/><rect x="14" y="22" width="7" height="7" fill="#ff8ede"/><rect x="4" y="22" width="4" height="4" fill="#8ef09d"/>
+</g>
+</svg>
