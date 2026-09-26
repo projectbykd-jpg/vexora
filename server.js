@@ -22,6 +22,7 @@ const routes = {
   '/api/drops': './api/drops.js',
   '/api/objects': './api/objects.js',
   '/api/leaderboard': './api/leaderboard.js',
+  '/api/daily': './api/daily.js',
   '/api/farming': './api/farming.js',
   '/api/trades': './api/trades.js',
   '/api/quests': './api/quests.js',
