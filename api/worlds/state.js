@@ -1,5 +1,6 @@
 const { initDb } = require('../_lib/db');
 const { getSessionUserId } = require('../_lib/auth');
+const { generateBlocks } = require('../_lib/worldgen');
 
 module.exports = async function handler(req, res) {
   const userId = getSessionUserId(req);
@@ -21,10 +22,27 @@ module.exports = async function handler(req, res) {
     if (!access.rows[0]) return res.status(404).json({ error: 'World not found or it is private.' });
 
     if (req.method === 'GET') {
-      const result = await db.execute({
+      let result = await db.execute({
         sql: 'SELECT x, y, z, type FROM world_blocks WHERE world_id = ? ORDER BY y, x, z',
         args: [worldId],
       });
+      if (!result.rows.length) {
+        const world = await db.execute({
+          sql:'SELECT seed FROM worlds WHERE id = ? LIMIT 1',
+          args:[worldId]
+        });
+        if (world.rows[0]) {
+          const generated = generateBlocks(world.rows[0].seed);
+          await db.batch(generated.map((block) => ({
+            sql:'INSERT OR IGNORE INTO world_blocks (world_id,x,y,z,type) VALUES (?,?,?,?,?)',
+            args:[worldId,block.x,block.y,block.z,block.type]
+          })), 'write');
+          result = await db.execute({
+            sql: 'SELECT x, y, z, type FROM world_blocks WHERE world_id = ? ORDER BY y, x, z',
+            args: [worldId],
+          });
+        }
+      }
       return res.status(200).json({ blocks: result.rows });
     }
 
