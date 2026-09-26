@@ -562,6 +562,7 @@
       $('playerDisplay').textContent=playerProfile.displayName||playerProfile.username||'Explorer';
       $('playerUser').textContent='@'+(playerProfile.username||'Explorer');
       $('playerLevel').textContent=playerProfile.level||1;
+      const levelBase=(Number(playerProfile.level||1)-1)*1000,xpPct=Math.max(0,Math.min(100,((Number(playerProfile.totalXp||0)-levelBase)/1000)*100));$('xpFill').style.width=xpPct+'%';$('xpText').textContent=Math.max(0,Number(playerProfile.totalXp||0)-levelBase)+' / 1000 XP';
       $('gems').textContent=playerProfile.gems||0;
       $('coins').textContent=playerProfile.worldCoins||0;
     }catch(e){}
