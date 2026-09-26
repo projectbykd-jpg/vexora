@@ -47,7 +47,7 @@ const $=id=>document.getElementById(id), esc=v=>String(v??'').replace(/[&<>"']/g
 let worlds=[],meUsername='';
 function label(t){return ({normal:'NORMAL',creative:'CREATIVE',adventure:'ADVENTURE'}[t]||String(t||'WORLD')).toUpperCase()}
 function card(w){
- return '<article class="world-card"><div class="wc-top"><div class="world-icon"></div><span class="world-badge">'+label(w.type)+'</span></div><h3>'+esc(w.name)+'</h3><p>'+((w.privacy==='public')?'🌐 Public world':'🔒 Private world')+' · @'+esc(w.ownerUsername||'unknown')+'</p><div class="wc-bottom"><span class="owner">'+(w.ownerDisplayName?esc(w.ownerDisplayName):'Explorer')+'</span><a class="enter" href="./world.html?id='+encodeURIComponent(w.id)+'">ENTER WORLD →</a></div></article>';
+ return '<article class="world-card"><div class="wc-top"><div class="world-icon"></div><span class="world-badge">'+label(w.type)+'</span></div><h3>'+esc(w.name)+'</h3><p>'+((w.privacy==='public')?'🌐 Public world':'🔒 Private world')+' · '+Number(w.onlineCount||0)+' online · @'+esc(w.ownerUsername||'unknown')+'</p><div class="wc-bottom"><span class="owner">'+(w.ownerDisplayName?esc(w.ownerDisplayName):'Explorer')+'</span><a class="enter" href="./world.html?id='+encodeURIComponent(w.id)+'">ENTER WORLD →</a></div></article>';
 }
 function render(){
  const q=$('search').value.trim().toLowerCase(),f=$('filter').value;
