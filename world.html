@@ -110,6 +110,9 @@
 </style><style id="VX_SYSTEM_POLISH">
 .trade-sides{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}.trade-sides>div{padding:8px;border:2px solid #45375e;border-radius:6px;background:#17112d}.trade-sides small{display:block;font-size:6px;color:#9d91b3;font-weight:900;margin-bottom:4px}.trade-sides strong{font-size:8px;line-height:1.4}.vxfield{display:grid;gap:4px;font-size:6px;font-weight:900;color:#9e94ad;flex:1}.vxfield input{width:100%;height:30px;border:2px solid #4d3e68;border-radius:5px;background:#0f0b1e;color:#fff;padding:0 7px;font-size:8px}.vxrow label{font-size:7px;color:#bcb1cc}.vxrow input[type=checkbox]{accent-color:#ff88dd}.vxbtn:disabled{opacity:.4;cursor:not-allowed}
 @media(max-width:620px){.trade-sides{grid-template-columns:1fr}.vxrow{flex-wrap:wrap}.vxrow select,.vxrow input{min-width:90px}}
+</style><style id="VX_HUD_ECONOMY">
+.wallet-line{font-size:10px!important;white-space:nowrap}.wallet-line em{font-style:normal;color:#807693;margin:0 3px}.wallet-card .hud-label b{float:right;color:#ffe78e}
+@media(max-width:760px){.coords-card{display:none!important}.wallet-card{min-width:120px!important}}
 </style></head>
 <body>
 <div id="game">
@@ -126,9 +129,10 @@
   </div>
 </header>
 <div class="left-hud">
-  <div class="hud-card"><span class="hud-label">PLAYER</span><span class="hud-value">Explorer</span><span class="hud-sub">@Vexora</span></div>
+  <div class="hud-card"><span class="hud-label">PLAYER</span><span id="playerDisplay" class="hud-value">Explorer</span><span id="playerUser" class="hud-sub">@Vexora</span></div>
+  <div class="hud-card wallet-card"><span class="hud-label">LEVEL <b id="playerLevel">1</b></span><span class="hud-value wallet-line">💎 <span id="gems">0</span> <em>·</em> 🪙 <span id="coins">0</span></span><span class="hud-sub">your loot</span></div>
   <div class="hud-card"><span class="hud-label">PLAYERS</span><span id="playerCount" class="hud-value">1 online</span><span class="hud-sub">in this world</span></div>
-  <div class="hud-card"><span class="hud-label">POSITION</span><span id="coords" class="hud-value">0 / 0</span><span class="hud-sub">world coordinates</span></div>
+  <div class="hud-card coords-card"><span class="hud-label">POSITION</span><span id="coords" class="hud-value">0 / 0</span><span class="hud-sub">world coordinates</span></div>
 </div>
 <div class="right-hud"><span>MOVE</span><kbd class="keyhint">A</kbd><kbd class="keyhint">D</kbd><span>JUMP</span><kbd class="keyhint">SPACE</kbd><span>PUNCH</span><kbd class="keyhint">LMB</kbd><span>BUILD / GROW</span><kbd class="keyhint">RMB</kbd></div>
 <div id="touchControls" aria-label="Touch controls">
@@ -156,7 +160,7 @@
 </section>
 <section id="inventoryModal" class="modal" hidden><div class="modal-card"><div class="modal-head"><div><span class="eyebrow">VEXORA BACKPACK</span><h2>Inventory</h2></div><button id="closeInventory" class="close">×</button></div><div id="inventoryGrid" class="inv-grid"></div></div></section>
 <section id="helpModal" class="modal" hidden><div class="modal-card"><div class="modal-head"><div><span class="eyebrow">HOW TO PLAY</span><h2>VEXORA World</h2></div><button id="closeHelp" class="close">×</button></div><div class="help-list">
-  <div class="help-row"><span>Keyboard Move</span><b><kbd>A</kbd> <kbd>D</kbd> / <kbd>←</kbd> <kbd>→</kbd></b></div><div class="help-row"><span>Keyboard Jump</span><b><kbd>SPACE</kbd> / <kbd>↑</kbd></b></div><div class="help-row"><span>Mouse Punch / break</span><b><kbd>LEFT CLICK</kbd> (hold)</b></div><div class="help-row"><span>Mouse Build / plant</span><b><kbd>RIGHT CLICK</kbd></b></div><div class="help-row"><span>Touch</span><b>TAP target → PUNCH / BUILD</b></div><div class="help-row"><span>Select block</span><b><kbd>1–9</kbd> / wheel / NEXT</b></div><div class="help-row"><span>Inventory</span><b><kbd>E</kbd> / BAG</b></div><div class="help-row"><span>Chat</span><b><kbd>T</kbd> / Enter</b></div><div class="help-row"><span>Menu</span><b><kbd>ESC</kbd> / MENU</b></div>
+  <div class="help-row"><span>Keyboard Move</span><b><kbd>A</kbd> <kbd>D</kbd> / <kbd>←</kbd> <kbd>→</kbd></b></div><div class="help-row"><span>Keyboard Jump</span><b><kbd>SPACE</kbd> / <kbd>↑</kbd></b></div><div class="help-row"><span>Mouse Punch / break</span><b><kbd>LEFT CLICK</kbd> (hold)</b></div><div class="help-row"><span>Mouse Build / plant</span><b><kbd>RIGHT CLICK</kbd></b></div><div class="help-row"><span>Touch</span><b>TAP target → PUNCH / BUILD</b></div><div class="help-row"><span>Select block</span><b><kbd>1–9</kbd> / wheel / NEXT</b></div><div class="help-row"><span>Inventory</span><b><kbd>E</kbd> / BAG</b></div><div class="help-row"><span>Chat</span><b><kbd>T</kbd> / Enter</b></div><div class="help-row"><span>Drop item</span><b><kbd>Q</kbd> / DROP</b></div><div class="help-row"><span>Menu</span><b><kbd>ESC</kbd> / MENU</b></div>
 </div></div></section>
 <section id="tutorialModal" class="modal" hidden>
   <div class="tutorial-card">
