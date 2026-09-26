@@ -5,5 +5,6 @@
       "runtime": "nodejs24.x",
       "maxDuration": 30
     }
-  }
+  },
+  "ignoreCommand": "echo 'Vercel disabled: VEXORA is hosted on Render.' && exit 0"
 }
