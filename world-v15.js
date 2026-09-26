@@ -255,9 +255,15 @@
       ctx.save();ctx.imageSmoothingEnabled=false;
       ctx.fillStyle='rgba(25,15,37,.22)';ctx.fillRect(px-10,footY+2,20,3);
       ctx.translate(face<0?dx+dw:dx,dy);ctx.scale(face<0?-1:1,1);ctx.drawImage(atlas,sx,sy,32,48,0,0,dw,dh);ctx.restore();
-      // Cosmetic equipment: original VEXORA cap and backpack silhouettes.
+      // Cosmetic equipment: original VEXORA wearable silhouettes.
       if(equipment.backpack){ctx.fillStyle='#5a3f78';ctx.fillRect(px-17,footY-31,5,12);ctx.fillStyle='#8b67a8';ctx.fillRect(px-18,footY-28,3,7);}
+      if(equipment.sunset_cape){ctx.fillStyle='#ff9b8b';ctx.fillRect(px-20,footY-31,5,15);ctx.fillStyle='#ff7ad5';ctx.fillRect(px-23,footY-28,4,12);}
+      if(equipment.vexa_wings){ctx.fillStyle='#76e8ff';ctx.fillRect(px-22,footY-34,4,14);ctx.fillRect(px+18,footY-34,4,14);ctx.fillStyle='#bda3ff';ctx.fillRect(px-26,footY-28,4,8);ctx.fillRect(px+22,footY-28,4,8);}
       if(equipment.explorer_cap){ctx.fillStyle='#ff7edb';ctx.fillRect(px-11,dy+1,22,5);ctx.fillStyle='#ffe8f8';ctx.fillRect(px-8,dy,10,3);}
+      if(equipment.neon_visor){ctx.fillStyle='#73e8ff';ctx.fillRect(px-9,dy+8,18,4);ctx.fillStyle='#d9ffff';ctx.fillRect(px-6,dy+8,4,2);}
+      if(equipment.party_hat){ctx.fillStyle='#ff86de';ctx.beginPath();ctx.moveTo(px,dy-6);ctx.lineTo(px+8,dy+4);ctx.lineTo(px-8,dy+4);ctx.closePath();ctx.fill();ctx.fillStyle='#ffe46e';ctx.fillRect(px-2,dy-8,4,4);}
+      if(equipment.trail_boots){ctx.fillStyle='#ffdc71';ctx.fillRect(px-12,footY-1,6,3);ctx.fillRect(px+7,footY-1,6,3);}
+      if(equipment.companion_spark){const py=footY-22+Math.sin(performance.now()*.005)*4;ctx.fillStyle='#8ef3ff';ctx.fillRect(px+20,py,7,7);ctx.fillStyle='#fff3a8';ctx.fillRect(px+22,py+2,3,3);}
 
       if(label){ctx.textAlign='center';ctx.font='800 10px Arial';ctx.fillStyle='rgba(19,15,30,.88)';ctx.fillText(label,px,dy-4);ctx.textAlign='left';}
       const bubbleText=label==='You'?(performance.now()<playerBubble.until?playerBubble.text:''):(chatBubbles.get(String(label).replace(/^@/,'').toLowerCase())?.until>performance.now()?chatBubbles.get(String(label).replace(/^@/,'').toLowerCase())?.text:'');
@@ -302,7 +308,7 @@
   function drawRemote(p){p.x+=(p.tx-p.x)*0.18;p.y+=(p.ty-p.y)*0.18;const sx=worldX(p.x),foot=worldY(p.y-1);if(sx<-80||sx>innerWidth+80)return;const moving=Math.abs(p.tx-p.x)+Math.abs(p.ty-p.y)>.04;drawCharacter(sx,foot,Number(p.face)<0?-1:1,moving?'walk':'idle',performance.now(), '@'+(p.username||'Explorer'));}
   function drawPlayer(){
     const foot=worldY(player.y-1),state=performance.now()<punch.until?'punch':Math.abs(player.vx)>.6?'walk':'idle';
-    drawCharacter(worldX(player.x),foot,player.face,state,performance.now(),'You');
+    drawCharacter(worldX(player.x),foot,player.face,state,performance.now(),playerProfile.displayName||'You');
   }
 
   function drawTargetCell(){
