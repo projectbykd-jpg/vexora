@@ -72,6 +72,78 @@ button,input{font:inherit}button{cursor:pointer}
 @media(max-width:980px){.layout{grid-template-columns:185px minmax(0,1fr)}.right{display:none}}
 @media(max-width:720px){html,body{overflow:auto}.wrap{height:auto;min-height:100dvh;grid-template-rows:44px auto 30px;padding:8px}.layout{grid-template-columns:1fr}.profile{display:grid;grid-template-columns:92px 1fr;gap:9px;padding:8px}.avatar-box{height:102px;grid-row:span 2}.avatar{left:27px;bottom:17px;transform:scale(.7);transform-origin:bottom}.avatar-shadow{left:14px;bottom:12px;width:65px}.player-name{margin-top:0}.level{margin-top:7px}.wallet{margin-top:7px}.profile-actions{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr}.center{min-height:520px}.hero{min-height:150px}.search{width:145px}.top-actions .top-btn{display:none}.account-chip{margin-left:auto}.footer{padding-bottom:5px}}
 @media(max-width:480px){.brand b{font-size:14px}.brand small{display:none}.hero h1{font-size:24px}.hero p{font-size:7px}.hero-buttons{flex-wrap:wrap}.hero-btn{height:31px;padding:0 10px}.world-head{height:auto;padding:8px;gap:7px;align-items:stretch;flex-direction:column}.search{width:100%}.world-row{grid-template-columns:42px 1fr auto}.world-icon{width:42px;height:42px}.world-name{font-size:8px}.world-meta{font-size:5.5px}.row-btn{font-size:5px;padding:0 6px}.footer{font-size:5px}}
+
+/* VEXORA GAME LOBBY — visual pass based on the approved pixel-art world-select concept */
+:root{
+  --ink:#eef8ff;--deep:#061d3b;--deep2:#0b3561;--cream:#f3fbff;
+  --sky:#29bff5;--sky2:#b9f1ff;--grass:#5fe06d;--soil:#70452d;
+  --pink:#ff58d7;--purple:#8b62ff;--cyan:#4be8ff;--line:#1b8ed0;
+  --muted:#a7c8df;--paper:#0a2a50;
+}
+html,body{font-family:Arial,Helvetica,sans-serif}
+body{background:#079de0}
+.scene{background:linear-gradient(180deg,#20bff5 0%,#83e9ff 52%,#65cf77 53%,#1d864d 100%)}
+.scene:after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 72% 14%,#fff9a966 0 4%,transparent 5%),linear-gradient(120deg,transparent 0 45%,#ffffff12 46% 47%,transparent 48%);pointer-events:none}
+.sun{background:#fff7a8;box-shadow:0 0 70px #fff5a899}
+.cloud{border-color:#2c83b933;box-shadow:0 5px 0 #ffffff33}
+.hill{border-color:#245b7955;background:#4d94bc}
+.h2{background:#4f9e7b}
+.ground{border-top-color:#2f9b55;background:linear-gradient(#63dc6c 0 25%,#744a2e 25% 100%)}
+.wrap{width:min(1440px,100%);padding:7px 12px 10px;grid-template-rows:64px 1fr 25px;gap:7px}
+.topbar{gap:8px}
+.brand{min-width:290px;text-shadow:3px 3px #06305a}
+.brand-mark{width:58px;height:58px;display:grid;place-items:center;font-size:43px;font-weight:1000;color:#fff;text-shadow:3px 3px #164b7b,0 0 9px #8ef6ff;border:4px solid #dffbff;border-radius:12px;background:linear-gradient(160deg,#69e7ff,#3676df 58%,#6d45bd);box-shadow:0 5px 0 #174d80}
+.brand b{font-size:32px;letter-spacing:.05em;color:#f7fdff;text-shadow:3px 3px #14558d}
+.brand small{font-size:8px;letter-spacing:.16em;color:#fff}
+.game-nav{display:flex;align-self:stretch;gap:2px;min-width:0;flex:1;justify-content:center}
+.nav-btn{min-width:74px;padding:4px 8px;border:3px solid #0b4f83;border-radius:7px 7px 2px 2px;background:linear-gradient(#0b4678ee,#082a50ee);color:#dff7ff;font-size:20px;font-weight:900;box-shadow:inset 0 1px #68eaff55,0 3px 0 #06345b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.nav-btn span{font-size:7px;letter-spacing:.04em}
+.nav-btn:hover,.nav-btn.active{background:linear-gradient(#13bff6,#1255a7);border-color:#55e9ff;box-shadow:0 0 0 1px #0b77bb,0 4px 0 #06345b}
+.top-status{display:flex;align-items:center;gap:5px}
+.currency{height:39px;display:flex;align-items:center;gap:5px;padding:0 6px;border:3px solid #0a4e82;border-radius:7px;background:#062b51e8;color:#fff;font-size:10px;font-weight:1000;box-shadow:inset 0 1px #7cefff33}
+.currency b{font-size:17px}.currency button{border:2px solid #dfffe9;border-radius:5px;background:#42e66a;color:#073e25;font-weight:1000;height:25px}
+.account-chip{height:39px;border-color:#0a4e82;background:#062b51e8;font-size:7px}
+.icon-top{width:37px;height:37px;border:3px solid #0a4e82;border-radius:7px;background:#062b51e8;color:#fff;font-size:17px}
+.layout{grid-template-columns:245px minmax(0,1fr) 175px;gap:7px}
+.panel{border:3px solid #0a4d80;border-radius:8px;background:#06294de8;box-shadow:0 7px 0 #06233d77,0 0 22px #003c7755;color:#eafaff}
+.profile{padding:9px;background:linear-gradient(180deg,#092e56ed,#061f3de8)}
+.avatar-box{height:155px;border-color:#0a5c91;background:linear-gradient(#61ddff 0 62%,#54ce69 62%);box-shadow:inset 0 -25px #75492e,0 4px 0 #041a31}
+.avatar .head,.avatar .body,.avatar .leg{border-color:#2d3b69}
+.player-name{color:#fff;font-size:15px}.player-handle{color:#8edbff}
+.level-head{color:#d9f5ff}.xp{border-color:#0b6697;background:#07223e}.xp i{background:linear-gradient(90deg,#42e8ff,#55e870,#ff55d4)}
+.wallet{grid-template-columns:1fr;gap:4px}.wallet div{padding:6px;border-color:#126ca0;background:#082c51}.wallet span{color:#8fbfd9}.wallet b{color:#fff}
+.small-btn{border-color:#0b6598;background:#0a3c68;color:#fff}.small-btn.primary{background:linear-gradient(#18bff5,#2e68e0);border-color:#62edff}
+.hero{min-height:130px;padding:13px 18px;border-bottom-color:#0a4d80;background:linear-gradient(115deg,#082c58,#174e8c 55%,#087e9f)}
+.hero h1{font-size:26px;color:#fff;text-shadow:3px 3px #062b50}.hero p{color:#c9eaff}
+.hero-btn{border-color:#0b4c7e;background:#eafcff;color:#07315b}.hero-btn.play{background:linear-gradient(#51f06a,#20bfe8);color:#06351e;border-color:#b4ffba}
+.world-panel{background:#061f3ce8}
+.world-head{height:58px;padding:0 12px;border-bottom:0;background:#082b52;gap:10px}
+.world-title{display:flex;align-items:center;gap:9px}.world-title strong{display:block;color:#fff;font-size:20px;text-shadow:2px 2px #041a30}.world-title span:not(.globe){color:#7fc8e9}.globe{font-size:27px}
+.world-search{display:flex;align-items:center;gap:5px;margin-left:auto}.search{height:38px;width:245px;border:3px solid #17689b;border-radius:6px;background:#041e3b;color:#fff;outline:none;padding:0 9px;font-size:8px;font-weight:900}.search::placeholder{color:#7ba7c4}
+.go-search,.create-top{height:38px;border:3px solid #0c69a4;border-radius:6px;background:linear-gradient(#25c9ff,#2873dc);color:#fff;font-size:7px;font-weight:1000;padding:0 14px;box-shadow:0 3px 0 #06385d}.create-top{background:linear-gradient(#5bf26d,#22c879);border-color:#a6ffb0;color:#063a23}
+.world-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;padding:0 10px 7px;background:#082b52}.world-tab{height:40px;border:3px solid #145a8c;border-radius:6px;background:#0a3965;color:#d8f4ff;font-size:7px;font-weight:1000}.world-tab.active,.world-tab:hover{background:linear-gradient(#159ff0,#1764c3);border-color:#43eaff;box-shadow:inset 0 0 18px #52dcff33}
+.rows{padding:7px 9px;background:linear-gradient(#072b50,#061f3c);scrollbar-color:#27bce8 #06233f}
+.world-row{grid-template-columns:245px 1fr auto;gap:10px;min-height:70px;padding:6px;border:3px solid #155b88;border-radius:7px;background:linear-gradient(90deg,#0a3a68,#082b51);box-shadow:inset 0 1px #72dcff22,0 3px 0 #041a2e;transition:.12s}
+.world-row:hover{background:linear-gradient(90deg,#0d4c82,#0a3763);border-color:#45dfff;transform:translateY(-1px)}
+.world-icon{width:245px;height:62px;border:3px solid #1b6f9e;border-radius:4px;background:linear-gradient(#60dfff 0 55%,#65d16a 55% 74%,#6f452c 74%);box-shadow:inset 0 0 0 1px #b8f5ff55}
+.world-icon:before{left:20px;bottom:16px;width:55px;height:24px;background:#3f9b57;box-shadow:48px 5px #4aa75a,-38px 7px #4aa75a}
+.world-icon:after{right:22px;top:9px;width:13px;height:13px}
+.world-row:nth-child(2) .world-icon{background:linear-gradient(#101d62 0 55%,#273f77 55% 74%,#6f452c 74%)}.world-row:nth-child(2) .world-icon:after{background:#fff}
+.world-row:nth-child(3) .world-icon{background:linear-gradient(#8be4ff 0 50%,#ce8a47 50% 74%,#75472c 74%)}.world-row:nth-child(4) .world-icon{background:linear-gradient(#79dfff 0 50%,#5bcf6b 50% 74%,#75472c 74%)}.world-row:nth-child(5) .world-icon{background:linear-gradient(#72bff7 0 50%,#e9f7ff 50% 74%,#90a8bf 74%)}.world-row:nth-child(6) .world-icon{background:linear-gradient(#8be5ff 0 50%,#d995b8 50% 74%,#7c5145 74%)}
+.world-name{color:#fff;font-size:12px;text-shadow:1px 2px #041b31}.world-meta{color:#86cce9;font-size:7px}.world-tags{margin-top:5px}.tag{padding:3px 6px;border-color:#2580ad;background:#0b4775;color:#aeeaff}.world-right{min-width:145px}.online{color:#b8efff;font-size:7px}.row-btn{height:36px;margin-top:5px;padding:0 19px;border:3px solid #a7ffb2;border-radius:6px;background:linear-gradient(#5aef63,#25c94e);color:#073c1e;font-size:7px;font-weight:1000;box-shadow:0 3px 0 #0a6531}.fav{min-width:34px;padding:0 7px;margin-left:4px;background:#092e55;color:#ffe96b;border-color:#2b6f96;box-shadow:none}
+.empty{color:#82b6d2}.empty b{color:#eafaff}
+.right{padding:8px;background:linear-gradient(180deg,#082d55ee,#061f3ce8);gap:7px}
+.side-card{padding:9px;border:3px solid #125c8f;border-radius:6px;background:#08284ae8}.side-title{font-size:9px;font-weight:1000;color:#fff;margin-bottom:7px;text-shadow:1px 1px #031a2e}.tag-cloud{display:flex;flex-direction:column;gap:4px}.tag-cloud span{font-size:7px;color:#a7e8ff;font-weight:900}
+.online-card{display:flex;align-items:center;justify-content:space-between;padding:9px;border:3px solid #1b6b91;border-radius:6px;background:linear-gradient(90deg,#0b4e72,#07375b)}.online-card span{font-size:6px;color:#b4e8ff}.online-card b{font-size:15px;color:#8cff9a}
+.quick-card{display:grid;gap:4px}.quick-card button{height:32px;border:2px solid #17648e;border-radius:5px;background:#0a3a64;color:#e7faff;font-size:6px;font-weight:1000;text-align:left;padding:0 7px}.quick-card button:hover{background:#0f5b8d}
+.cat-title{color:#8bcbe8;font-size:6px}.cats{gap:3px}.cat{padding:4px 4px;border:2px solid #17628e;border-radius:4px;background:#082f55;color:#c8efff}.cat.on{background:#126bc0;border-color:#49e9ff;color:#fff}
+.create-card{padding:8px;border-color:#17628e;background:#082e53}.create-card b{color:#fff}.create-card span{color:#8ebbd2}.create-card button{background:linear-gradient(#5df36e,#1ec976);border-color:#9dffad;color:#063b1e}
+.footer{color:#9fd5eb}.footer button{color:#b9e9ff}
+.modal{background:#03172dcc}.modalbox{border-color:#17608e;background:#082d53;color:#fff}.modalbox p{color:#a7cce0}.modal-actions button{border-color:#19618e;background:#0a3b66;color:#fff}.modal-actions .primary{background:linear-gradient(#5af06c,#22c975);color:#073c20}
+#entryOverlay{background:#03172dcc}.entryBox{border-color:#2dd9ff;background:#082d53;color:#fff}.entryBox span{color:#9fd8ee}.entryBox i{background:#0b466f}.entryBox i:after{background:#41e6ff}
+@media(max-width:1180px){.wrap{padding-left:7px;padding-right:7px}.brand{min-width:225px}.brand b{font-size:25px}.game-nav .nav-btn{min-width:55px}.nav-btn{font-size:16px}.nav-btn span{font-size:6px}.layout{grid-template-columns:210px minmax(0,1fr) 155px}.world-row{grid-template-columns:190px 1fr auto}.world-icon{width:190px}}
+@media(max-width:900px){.game-nav{display:none}.layout{grid-template-columns:205px minmax(0,1fr)}.right{display:none}.world-row{grid-template-columns:150px 1fr auto}.world-icon{width:150px}.currency{display:none}}
+@media(max-width:650px){.wrap{grid-template-rows:54px 1fr 24px}.brand{min-width:0}.brand-mark{width:46px;height:46px;font-size:32px}.brand b{font-size:21px}.brand small{font-size:5px}.top-status .account-chip{display:none}.layout{grid-template-columns:1fr}.profile{display:none}.world-search{width:100%}.world-head{flex-direction:column;height:auto;padding:9px}.world-title{justify-content:center}.world-search{margin:0}.search{width:100%}.create-top{display:none}.world-tabs{grid-template-columns:1fr 1fr}.world-tab{font-size:6px}.world-row{grid-template-columns:76px 1fr auto;gap:6px}.world-icon{width:76px;height:55px}.world-name{font-size:9px}.world-right{min-width:72px}.row-btn{height:29px;padding:0 7px}.online{font-size:5px}.hero{min-height:118px}.hero h1{font-size:20px}.hero p{font-size:6px}.hero-btn{height:29px;font-size:5px}.footer{font-size:5px}}
 </style>
 </head>
 <body>
@@ -84,9 +156,24 @@ button,input{font:inherit}button{cursor:pointer}
 
 <div class="wrap">
 <header class="topbar">
-  <a class="brand" href="./worlds.html"><img src="https://i.ibb.co/DDgTvWdb/1c26840c-b04f-43cb-ad6b-936879ce884a.png"><div><b>VEXORA</b><small>BUILD · EXPLORE · CREATE</small></div></a>
-  <div class="account-chip"><i class="dot"></i><span id="account">@EXPLORER</span></div>
-  <div class="top-actions"><button class="top-btn" id="profileBtn">PROFILE</button><button class="top-btn" id="logoutBtn">LOG OUT</button></div>
+  <a class="brand" href="./worlds.html"><div class="brand-mark">V</div><div><b>VEXORA</b><small>BUILD · EXPLORE · GROW · TOGETHER</small></div></a>
+  <nav class="game-nav" aria-label="Main navigation">
+    <button class="nav-btn active" id="worldsNav">🌎<span>WORLDS</span></button>
+    <button class="nav-btn" id="inventoryNav">🎒<span>INVENTORY</span></button>
+    <button class="nav-btn" id="storeNav">🏪<span>STORE</span></button>
+    <button class="nav-btn" id="friendsNav">👥<span>FRIENDS</span></button>
+    <button class="nav-btn" id="guildNav">♜<span>GUILD</span></button>
+    <button class="nav-btn" id="questsNav">📜<span>QUESTS</span></button>
+    <button class="nav-btn" id="rankNav">🏆<span>RANK</span></button>
+    <button class="nav-btn" id="settingsNav">⚙<span>OPTIONS</span></button>
+  </nav>
+  <div class="top-status">
+    <div class="currency"><b>💎</b><span id="topGems">0</span><button>＋</button></div>
+    <div class="currency"><b>🪙</b><span id="topCoins">0</span><button>＋</button></div>
+    <div class="account-chip"><i class="dot"></i><span id="account">@EXPLORER</span></div>
+    <button class="icon-top" id="profileBtn" title="Profile">👤</button>
+    <button class="icon-top" id="logoutBtn" title="Log out">⏻</button>
+  </div>
 </header>
 
 <main class="layout">
@@ -115,22 +202,40 @@ button,input{font:inherit}button{cursor:pointer}
       <div class="hero-buttons"><button class="hero-btn play" id="playRandom">▶ PLAY NOW</button><button class="hero-btn" id="myWorldHero">MY WORLD</button><button class="hero-btn" id="createHero">＋ CREATE WORLD</button></div>
     </div>
     <div class="world-panel">
-      <div class="world-head"><div><strong id="listTitle">WORLD SELECT</strong><span id="count">0 worlds</span></div><input id="search" class="search" placeholder="Search world name…" autocomplete="off"></div>
+      <div class="world-head">
+    <div class="world-title"><span class="globe">🌎</span><div><strong id="listTitle">WORLD SELECT</strong><span id="count">0 worlds</span></div></div>
+    <div class="world-search"><input id="search" class="search" placeholder="Enter World Name…" autocomplete="off"><button class="go-search" id="goSearch">GO</button><button class="create-top" id="createTop">＋ CREATE WORLD</button></div>
+  </div>
+  <div class="world-tabs">
+    <button class="world-tab active" id="myWorldsTab">♥ MY WORLDS</button>
+    <button class="world-tab" id="wotdTab">♛ WORLD OF THE DAY</button>
+    <button class="world-tab" id="favTab">★ FAVORITES</button>
+    <button class="world-tab" id="allTab">🌎 ALL WORLDS</button>
+  </div>
       <div class="rows" id="rows"><div class="empty"><div><b>LOADING WORLDS</b>Connecting to VEXORA…</div></div></div>
     </div>
   </section>
 
   <aside class="panel right">
-    <h3>QUICK PLAY</h3>
-    <p>Everything you need before entering a world.</p>
-    <div class="quick">
+    <div class="side-card">
+      <div class="side-title">POPULAR TAGS</div>
+      <div class="tag-cloud">
+        <span>#ADVENTURE</span><span>#FARM</span><span>#SHOP</span><span>#PARKOUR</span>
+        <span>#ROLEPLAY</span><span>#SOCIAL</span><span>#TRADE</span><span>#PUZZLE</span><span>#ART</span>
+      </div>
+    </div>
+    <div class="online-card">
+      <span>🟢 ONLINE NOW</span><b id="onlineNow">0</b>
+    </div>
+    <div class="side-card quick-card">
+      <div class="side-title">QUICK ACCESS</div>
       <button id="allBtn">🌎 ALL WORLDS</button>
       <button id="favBtn">★ FAVORITES</button>
-      <button id="wotdBtn">✦ WORLD OF THE DAY</button>
+      <button id="wotdBtn">👑 WORLD OF THE DAY</button>
     </div>
     <div class="cat-title">CATEGORIES</div>
     <div class="cats" id="cats"></div>
-    <div class="create-card"><b>YOUR OWN WORLD</b><span>Choose a unique name and start building.</span><button id="createSide">CREATE WORLD →</button></div>
+    <div class="create-card"><b>CREATE YOUR WORLD</b><span>Pick a unique name and start building.</span><button id="createSide">＋ CREATE WORLD</button></div>
   </aside>
 </main>
 
@@ -179,12 +284,25 @@ async function load(){
     const d=await wr.json(),pd=await pr.json();if(!wr.ok)throw Error(d.error||'Unable to load worlds.');
     worlds=d.worlds||[];me=pd.player||{};
     const name=me.displayName||me.username||'Explorer',level=Number(me.level||1),xp=Number(me.xp||0),total=Number(me.totalXp||0),gems=Number(me.gems||0),coins=Number(me.worldCoins||0);
-    $('account').textContent='@'+String(me.username||'explorer').toUpperCase();$('playerName').textContent=name;$('playerHandle').textContent='@'+(me.username||'explorer');$('heroName').textContent=name.toUpperCase();$('level').textContent=level;$('gems').textContent=gems;$('coins').textContent=coins;
+    $('account').textContent='@'+String(me.username||'explorer').toUpperCase();$('topGems').textContent=gems.toLocaleString();$('topCoins').textContent=coins.toLocaleString();$('onlineNow').textContent=worlds.reduce((n,w)=>n+Number(w.onlineCount||0),0).toLocaleString();$('playerName').textContent=name;$('playerHandle').textContent='@'+(me.username||'explorer');$('heroName').textContent=name.toUpperCase();$('level').textContent=level;$('gems').textContent=gems;$('coins').textContent=coins;
     const next=Math.max(100,level*100),cur=Math.max(0,xp%next);$('xpText').textContent=cur+' / '+next+' XP';$('xpBar').style.width=Math.min(100,cur/next*100)+'%';
     buildCats();render();
   }catch(e){$('rows').innerHTML='<div class="empty"><div><b>CONNECTION ERROR</b>'+esc(e.message)+'</div></div>';buildCats()}
 }
 $('search').oninput=render;
+$('goSearch').onclick=()=>{render();$('search').focus()};
+$('createTop').onclick=openCreate;
+$('myWorldsTab').onclick=()=>{const mine=worlds.filter(isMine);view='all';cat='all';$('search').value='';render();if(mine.length){$('rows').scrollTop=0}};
+$('wotdTab').onclick=()=>{setView('wotd');$('wotdTab').classList.add('active')};
+$('favTab').onclick=()=>setView('fav');
+$('allTab').onclick=()=>setView('all');
+$('inventoryNav').onclick=()=>location.href='./world.html';
+$('storeNav').onclick=()=>alert('Open a world and use SYSTEMS → MARKET to trade.');
+$('friendsNav').onclick=()=>location.href='./profile.html';
+$('guildNav').onclick=()=>alert('Guilds are available inside SYSTEMS.');
+$('questsNav').onclick=()=>alert('Quests are available inside SYSTEMS.');
+$('rankNav').onclick=()=>alert('Leaderboard is available inside SYSTEMS.');
+$('settingsNav').onclick=()=>$('settingsBtn').click();
 $('allBtn').onclick=()=>setView('all');$('favBtn').onclick=()=>setView('fav');$('wotdBtn').onclick=()=>setView('wotd');
 $('playRandom').onclick=()=>{const available=worlds.filter(w=>String(w.privacy)==='public');if(available.length)enterWorld(available[Math.floor(Math.random()*available.length)].id);else $('rows').scrollTop=0};
 $('profileBtn').onclick=()=>location.href='./profile.html';$('profileQuick').onclick=()=>location.href='./profile.html';
