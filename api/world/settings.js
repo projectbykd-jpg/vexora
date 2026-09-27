@@ -26,10 +26,10 @@ module.exports = async function(req,res){
     const spawnY = Math.max(1,Math.min(62,Number(req.body?.spawnY ?? 20)));
     const background = MODES.has(req.body?.background) ? req.body.background : 'day';
     await db.execute({
-      sql:\`INSERT INTO world_settings(world_id,description,max_players,min_level,spawn_x,spawn_y,background)
+      sql:`INSERT INTO world_settings(world_id,description,max_players,min_level,spawn_x,spawn_y,background)
             VALUES(?,?,?,?,?,?,?) ON CONFLICT(world_id) DO UPDATE SET
             description=excluded.description,max_players=excluded.max_players,min_level=excluded.min_level,
-            spawn_x=excluded.spawn_x,spawn_y=excluded.spawn_y,background=excluded.background\`,
+            spawn_x=excluded.spawn_x,spawn_y=excluded.spawn_y,background=excluded.background`,
       args:[worldId,description,maxPlayers,minLevel,spawnX,spawnY,background]
     });
     return res.status(200).json({saved:true,settings:{world_id:worldId,description,max_players:maxPlayers,min_level:minLevel,spawn_x:spawnX,spawn_y:spawnY,background}});
