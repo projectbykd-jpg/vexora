@@ -66,8 +66,8 @@ module.exports = async function(req,res){
         const removed = await tx.execute({sql:'DELETE FROM dropped_items WHERE id=? AND world_id=?',args:[id,worldId]});
         if (Number(removed.rowsAffected || 0) !== 1) { await tx.rollback(); return res.status(409).json({error:'Drop was picked up by another player.'}); }
         await tx.execute({
-          sql:\`INSERT INTO player_inventory(user_id,item_id,quantity) VALUES(?,?,?)
-               ON CONFLICT(user_id,item_id) DO UPDATE SET quantity=quantity+excluded.quantity,updated_at=datetime('now')\`,
+          sql:`INSERT INTO player_inventory(user_id,item_id,quantity) VALUES(?,?,?)
+               ON CONFLICT(user_id,item_id) DO UPDATE SET quantity=quantity+excluded.quantity,updated_at=datetime('now')`,
           args:[uid,d.item_id,Number(d.quantity)]
         });
         await tx.commit();
