@@ -761,7 +761,7 @@
   function closeChat(){chatOpen=false;$('chatPanel').classList.remove('open');if(!modal)paused=false;}
 
   async function syncPresence(){
-    if(!worldId)return;try{await api(`/api/presence?worldId=${encodeURIComponent(worldId)}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({x:player.x,y:player.y,z:0,yaw:player.face})});const d=await api(`/api/presence?worldId=${encodeURIComponent(worldId)}`);const seen=new Set();for(const p of d.players||[]){if(p.userId===d.meId)continue;seen.add(String(p.userId));const id=String(p.userId),old=remotes.get(id);remotes.set(id,{x:old?.x??Number(p.x)||0,y:old?.y??Number(p.y)||0,tx:Number(p.x)||0,ty:Number(p.y)||0,username:p.username||'Explorer',face:Number(p.yaw)||1});}for(const id of remotes.keys())if(!seen.has(id))remotes.delete(id);$('playerCount').textContent=`${Math.max(1,(d.players||[]).length)} online`;}catch(e){}
+    if(!worldId)return;try{await api(`/api/presence?worldId=${encodeURIComponent(worldId)}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({x:player.x,y:player.y,z:0,yaw:player.face})});const d=await api(`/api/presence?worldId=${encodeURIComponent(worldId)}`);const seen=new Set();for(const p of d.players||[]){if(p.userId===d.meId)continue;seen.add(String(p.userId));const id=String(p.userId),old=remotes.get(id);remotes.set(id,{x:(old?.x ?? Number(p.x) ?? 0),y:(old?.y ?? Number(p.y) ?? 0),tx:Number(p.x)||0,ty:Number(p.y)||0,username:p.username||'Explorer',face:Number(p.yaw)||1});}for(const id of remotes.keys())if(!seen.has(id))remotes.delete(id);$('playerCount').textContent=`${Math.max(1,(d.players||[]).length)} online`;}catch(e){}
   }
 
   function targetForAction(){
