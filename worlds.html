@@ -1,119 +1,202 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<meta name="theme-color" content="#8fdfff"><link rel="icon" href="https://i.ibb.co/DDgTvWdb/1c26840c-b04f-43cb-ad6b-936879ce884a.png">
-<title>VEXORA — WORLD SELECT</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="theme-color" content="#8bdcff">
+<link rel="icon" href="https://i.ibb.co/DDgTvWdb/1c26840c-b04f-43cb-ad6b-936879ce884a.png">
+<title>VEXORA — Lobby</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial,Helvetica,sans-serif;color:#21172f}
-:root{--purple:#3b2b56;--purple2:#62457e;--cream:#fff6df;--panel:#fffffff2;--pink:#ff77d7;--cyan:#66ddff;--muted:#776b84}
-body{background:#8cddff}
-.scene{position:fixed;inset:0;background:linear-gradient(#70d7ff 0%,#c9f4ff 61%,#d9f0ff 62%,#91ce88 62%,#79bd6f 100%)}
-.sun{position:absolute;right:10%;top:11%;width:86px;height:86px;border-radius:50%;background:#fff3a7;box-shadow:0 0 60px #fff3a755}
-.cloud{position:absolute;width:145px;height:38px;border-radius:18px;background:#fff;border:3px solid #6b5c7a28;opacity:.86}.cloud:before,.cloud:after{content:"";position:absolute;background:#fff;border:3px solid #6b5c7a28;border-bottom:0;border-radius:50% 50% 0 0}.cloud:before{width:55px;height:28px;left:19px;top:-21px}.cloud:after{width:42px;height:24px;right:16px;top:-17px}.c1{left:-3%;top:18%}.c2{left:40%;top:8%;transform:scale(.7)}.c3{right:-3%;top:24%;transform:scale(.85)}
-.hill{position:absolute;bottom:-3%;width:65%;height:29%;background:#7584b6;border:4px solid #4a4b70aa;border-radius:50% 50% 0 0}.h1{left:-20%}.h2{right:-20%;background:#6b9b92}
-.ground{position:absolute;left:0;right:0;bottom:0;height:16%;background:#6ecc6b;border-top:6px solid #438e57}.ground:after{content:"";position:absolute;inset:20% 0 0;background:linear-gradient(#7d9a54,#805235)}
-.decor-tree{position:absolute;left:9%;bottom:11%;width:86px;height:124px}.trunk{position:absolute;left:34px;bottom:0;width:17px;height:66px;background:#8d5a39;border:4px solid #4f3452}.leaf{position:absolute;background:#3fa85c;border:4px solid #31574e;border-radius:12px}.l1{left:16px;top:9px;width:58px;height:39px}.l2{left:0;top:36px;width:70px;height:44px}.l3{right:2px;top:51px;width:54px;height:40px}
-.wrap{position:relative;z-index:3;height:100%;display:flex;flex-direction:column;align-items:center;padding:15px 12px 18px}
-.top{width:min(980px,100%);height:44px;display:flex;justify-content:space-between;align-items:center}.brand{display:flex;align-items:center;gap:8px;color:#fff;text-decoration:none;text-shadow:3px 3px #5b407a}.brand img{width:34px;height:34px;border:3px solid #fff;border-radius:8px}.brand b{font-size:15px;letter-spacing:.08em}.top-right{display:flex;gap:5px}.topbtn{height:34px;padding:0 9px;border:3px solid #46345d;border-radius:6px;background:#241a3caf;color:#fff;font-size:6.5px;font-weight:1000}
-.main{width:min(980px,100%);height:calc(100% - 54px);display:grid;grid-template-rows:auto 1fr auto;gap:10px}
-.titlebar{display:flex;justify-content:space-between;align-items:end;color:#2e2140;text-shadow:2px 2px #fff8}.titlebar h1{margin:0;font-size:27px;line-height:.95}.titlebar p{margin:4px 0 0;font-size:7px;font-weight:900;letter-spacing:.14em;color:#4f4160}.account{padding:6px 9px;border:3px solid #493962;border-radius:6px;background:#ffffffcf;font-size:7px;font-weight:900}
-.selector{min-height:0;display:grid;grid-template-columns:300px 1fr;gap:10px}
-.panel{border:4px solid #46345d;border-radius:9px;background:var(--panel);box-shadow:7px 8px #4032572d;overflow:hidden}
-.left{display:flex;flex-direction:column}.searchbox{padding:10px;border-bottom:4px solid #4f3b61;background:#efe5f0}.searchline{height:38px;display:flex;border:3px solid #4d3a64;border-radius:6px;background:#fff}.searchline span{display:grid;place-items:center;width:34px;font-size:17px;color:#725b82}.searchline input{min-width:0;flex:1;border:0;outline:0;font-size:9px;font-weight:800;color:#30253d}.quicklinks{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:7px}.q{height:30px;border:2px solid #584368;border-radius:5px;background:#fff;font-size:6px;font-weight:1000}.q.active{background:#ffd8f2;border-color:#8d6090}.category-title{padding:10px 11px 5px;font-size:6px;font-weight:1000;color:#73677c;letter-spacing:.13em}.cats{padding:0 10px 10px;display:flex;gap:5px;flex-wrap:wrap;overflow:auto}.cat{padding:6px 7px;border:2px solid #6b577b;border-radius:5px;background:#fff;font-size:5.5px;font-weight:1000;cursor:pointer}.cat.on{background:#d8f8ff;border-color:#3e8296}
-.worldlist{min-height:0;display:flex;flex-direction:column}.list-head{padding:10px 12px;background:#fff;border-bottom:4px solid #49375f;display:flex;justify-content:space-between;align-items:center}.list-head b{font-size:9px}.list-head span{font-size:6px;color:#867a91}.rows{overflow:auto;padding:8px}.world-row{display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:9px;padding:8px;margin-bottom:6px;border:3px solid #5a456e;border-radius:6px;background:#f9f5f0;cursor:pointer;box-shadow:3px 4px #44335512}.world-row:hover{background:#eafaff;border-color:#6688a0}.world-icon{width:44px;height:44px;border:3px solid #584266;border-radius:6px;background:linear-gradient(#82dbff 0 58%,#62bb63 58%);position:relative;box-shadow:2px 2px #422e4e22}.world-icon:after{content:"";position:absolute;left:9px;bottom:8px;width:23px;height:10px;background:#4e9853;border-radius:50%}.world-name{font-size:9px;font-weight:1000}.world-meta{font-size:6px;color:#7b7080;margin-top:3px}.world-right{text-align:right}.players{font-size:6px;font-weight:900;color:#5e536c}.enter{margin-top:4px;height:26px;padding:0 8px;border:2px solid #554069;border-radius:4px;background:#e4d7e7;color:#31213f;font-size:5.5px;font-weight:1000}.empty{height:100%;display:grid;place-items:center;text-align:center;padding:20px;color:#786b82;font-size:7px}.empty b{display:block;color:#3c2d4e;font-size:13px;margin-bottom:4px}
-.bottom{display:flex;justify-content:space-between;align-items:center;gap:8px}.bottom-hint{font-size:6px;color:#4d4160;font-weight:900}.createbar{display:flex;gap:6px}.worldInput{height:40px;width:min(310px,42vw);border:3px solid #49375f;border-radius:6px;background:#fff;padding:0 9px;font-size:8px;font-weight:800;outline:none}.createbtn{height:40px;padding:0 12px;border:3px solid #49375f;border-radius:6px;background:linear-gradient(180deg,#ff84d9,#be7bee 55%,#6ddfff);font-size:7px;font-weight:1000;color:#24142f}
-.modal{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:#24183488;backdrop-filter:blur(5px)}.modal[hidden]{display:none}.modalbox{width:min(430px,calc(100% - 24px));padding:18px;border:4px solid #49365e;border-radius:8px;background:#fff9ed;box-shadow:8px 9px #32234577}.modalbox h2{margin:2px 0 7px;font-size:19px}.modalbox p{font-size:7px;color:#71657a;line-height:1.45}.modal-actions{display:flex;justify-content:flex-end;gap:6px;margin-top:12px}.modal-actions button{height:34px;padding:0 10px;border:3px solid #4e3a65;border-radius:5px;font-size:6px;font-weight:1000}.primary{background:linear-gradient(180deg,#ff84da,#b77af0 55%,#6cdfff);color:#25152f}
-@media(max-width:800px){.selector{grid-template-columns:1fr}.left{max-height:170px}.cats{max-height:55px}.main{height:calc(100% - 54px)}.worldlist{min-height:280px}.bottom{align-items:stretch}.createbar{width:100%}.worldInput{flex:1;width:auto}.bottom{flex-direction:column}.bottom-hint{display:none}}
-@media(max-width:520px){.wrap{padding:9px 7px 10px}.topbtn{font-size:5.5px;padding:0 7px}.topbtn:first-child{display:none}.titlebar h1{font-size:22px}.account{font-size:5.5px}.world-row{grid-template-columns:38px 1fr auto;padding:7px}.world-icon{width:38px;height:38px}.world-name{font-size:8px}.world-meta{font-size:5.5px}.enter{font-size:5px;padding:0 6px}.left{max-height:154px}.quicklinks{grid-template-columns:repeat(4,1fr)}.q{font-size:5px;padding:0 2px}.category-title{padding-top:7px}.cats{padding-bottom:7px}}
+:root{
+  --ink:#2b2140;--deep:#392653;--deep2:#50366d;--cream:#fff7e8;
+  --sky:#8bdcff;--sky2:#d9f5f2;--grass:#77c96e;--soil:#865637;
+  --pink:#ff86d9;--purple:#a778e7;--cyan:#65dcff;--line:#59436e;
+  --muted:#766a7e;--paper:#fff9ef;
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;font-family:Arial,Helvetica,sans-serif;color:var(--ink)}
+body{overflow:hidden;background:var(--sky)}
+button,input{font:inherit}button{cursor:pointer}
+.scene{position:fixed;inset:0;overflow:hidden;background:linear-gradient(180deg,#75d7ff 0%,#d7f4f2 58%,#b7d9c3 59%,#79bd70 100%);z-index:0}
+.sun{position:absolute;right:11%;top:8%;width:92px;height:92px;border-radius:50%;background:#fff0a9;box-shadow:0 0 50px #fff0a966}
+.cloud{position:absolute;width:150px;height:39px;border:3px solid #6c638024;border-radius:20px;background:#fff;opacity:.8}
+.cloud:before,.cloud:after{content:"";position:absolute;background:#fff;border:3px solid #6c638024;border-bottom:0;border-radius:50% 50% 0 0}
+.cloud:before{width:55px;height:29px;left:20px;top:-22px}.cloud:after{width:43px;height:25px;right:17px;top:-18px}
+.c1{left:-2%;top:15%}.c2{left:39%;top:7%;transform:scale(.72)}.c3{right:-4%;top:22%;transform:scale(.86)}
+.hill{position:absolute;bottom:-7%;width:65%;height:30%;border:4px solid #51536b44;border-radius:50% 50% 0 0;background:#7586b3}.h1{left:-20%}.h2{right:-20%;background:#6d9c91}
+.ground{position:absolute;left:0;right:0;bottom:0;height:14%;border-top:5px solid #4e9560;background:linear-gradient(#73ca6c 0 28%,#825436 28% 100%)}
+.ground:before{content:"";position:absolute;left:0;right:0;top:22%;height:7px;background:repeating-linear-gradient(90deg,#81d77b 0 24px,#68bb65 24px 48px)}
+.tree{position:absolute;left:5%;bottom:10%;width:100px;height:135px}.tree .trunk{position:absolute;left:41px;bottom:0;width:19px;height:70px;background:#875438;border:4px solid #4f3652}.leaf{position:absolute;border:4px solid #315a50;border-radius:13px;background:#48ac61}.tl1{left:23px;top:9px;width:61px;height:42px}.tl2{left:3px;top:40px;width:72px;height:47px}.tl3{right:0;top:50px;width:55px;height:43px}
+.wrap{position:relative;z-index:3;width:min(1180px,100%);height:100%;margin:auto;padding:12px 15px 14px;display:grid;grid-template-rows:48px 1fr 35px;gap:9px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:9px;color:#fff;text-decoration:none;text-shadow:3px 3px #67447e}
+.brand img{width:39px;height:39px;border:3px solid #fff;border-radius:9px;background:#fff}
+.brand b{font-size:17px;letter-spacing:.09em}.brand small{display:block;font-size:6px;letter-spacing:.17em;color:#f4efff}
+.top-actions{display:flex;gap:6px}.top-btn{height:34px;padding:0 10px;border:3px solid #46345d;border-radius:6px;background:#3e3151dd;color:#fff;font-size:6.5px;font-weight:1000}.top-btn:hover{background:#564269}
+.account-chip{height:34px;display:flex;align-items:center;gap:7px;padding:0 9px;border:3px solid #49375e;border-radius:6px;background:#fff8;color:#fff;font-size:7px;font-weight:1000}
+.dot{width:8px;height:8px;border-radius:50%;background:#71df86;border:2px solid #fff}
+.layout{min-height:0;display:grid;grid-template-columns:220px minmax(0,1fr) 190px;gap:9px}
+.panel{min-height:0;border:3px solid #5b466d;border-radius:7px;background:#fff8edee;box-shadow:5px 6px #3f304a20;overflow:hidden}
+.profile{display:flex;flex-direction:column;padding:12px;background:linear-gradient(180deg,#f9eee6,#eee4e4)}
+.avatar-box{height:145px;position:relative;border:3px solid #5a456b;border-radius:6px;overflow:hidden;background:linear-gradient(#9ce4ff 0 62%,#6fc56b 62%);box-shadow:inset 0 -24px #865737}
+.avatar-shadow{position:absolute;left:42px;bottom:18px;width:110px;height:19px;border-radius:50%;background:#3c2b3b35}
+.avatar{position:absolute;left:78px;bottom:30px;width:62px;height:100px}
+.avatar .head{position:absolute;left:2px;top:0;width:56px;height:46px;border:4px solid #4a3055;border-radius:10px;background:#f2b48c}
+.avatar .hair{position:absolute;left:0;top:-5px;width:56px;height:19px;border:4px solid #4a3055;border-bottom:0;border-radius:10px 10px 3px 3px;background:#52346f}
+.avatar .eye{position:absolute;top:20px;width:6px;height:6px;background:#292039}.avatar .e1{left:13px}.avatar .e2{right:13px}
+.avatar .body{position:absolute;left:9px;top:44px;width:43px;height:43px;border:4px solid #4a3055;border-radius:7px;background:#b86cda}
+.avatar .leg{position:absolute;top:80px;width:16px;height:28px;border:4px solid #4a3055;border-radius:5px;background:#5972c8}.avatar .l1{left:10px}.avatar .l2{right:10px}
+.avatar .spark{position:absolute;width:11px;height:11px;border:3px solid #4d3780;transform:rotate(45deg);background:#68ddff}.avatar .s1{left:-17px;top:25px}.avatar .s2{right:-18px;top:69px;background:#ff83d8}
+.player-name{margin-top:11px;font-size:14px;font-weight:1000}.player-handle{font-size:7px;color:#786c7d;margin-top:2px}
+.level{margin-top:11px}.level-head{display:flex;justify-content:space-between;font-size:6px;font-weight:1000}.xp{height:8px;margin-top:4px;border:2px solid #554068;border-radius:4px;background:#d9ced8;overflow:hidden}.xp i{display:block;height:100%;width:35%;background:linear-gradient(90deg,#ff8ddc,#a77ae7,#65d9ff)}
+.wallet{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:10px}.wallet div{padding:7px;border:2px solid #6c5875;border-radius:4px;background:#fffaf1}.wallet span{display:block;font-size:5.5px;color:#827681}.wallet b{display:block;margin-top:2px;font-size:9px}
+.profile-actions{display:grid;gap:5px;margin-top:auto}.small-btn{height:31px;border:2px solid #62506e;border-radius:4px;background:#fdf7ed;font-size:6px;font-weight:1000;color:#33263e}.small-btn.primary{background:#d9e9e8}
+.center{display:flex;flex-direction:column;min-width:0}
+.hero{position:relative;min-height:142px;padding:16px 18px;overflow:hidden;border-bottom:3px solid #5a456b;background:linear-gradient(120deg,#4b3268,#73509a 52%,#75c9d4)}
+.hero:after{content:"";position:absolute;right:-25px;bottom:-40px;width:220px;height:150px;border-radius:50%;background:#ffffff18}
+.hero h1{position:relative;z-index:1;margin:0;color:#fff5e5;font-size:28px;line-height:.95;text-shadow:3px 3px #35224d}.hero p{position:relative;z-index:1;max-width:440px;margin:8px 0 0;color:#eee4f2;font-size:8px;line-height:1.5}
+.hero-buttons{position:relative;z-index:2;display:flex;gap:6px;margin-top:13px}.hero-btn{height:34px;padding:0 13px;border:3px solid #432f57;border-radius:5px;background:#fff3df;color:#35263e;font-size:6.5px;font-weight:1000;box-shadow:3px 3px #33234455}.hero-btn.play{background:linear-gradient(180deg,#ff8bdb,#b57bf0 55%,#6ddcff)}
+.world-panel{min-height:0;display:flex;flex-direction:column}.world-head{height:44px;padding:0 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #5c486c;background:#fff6e8}.world-head strong{font-size:9px}.world-head span{font-size:6px;color:#827681}
+.search{height:31px;width:185px;border:2px solid #665370;border-radius:4px;background:#fff;outline:none;padding:0 7px;font-size:7px;font-weight:800}.rows{min-height:0;overflow:auto;padding:7px}.world-row{display:grid;grid-template-columns:48px 1fr auto;gap:8px;align-items:center;padding:7px;margin-bottom:6px;border:2px solid #75657a;border-radius:5px;background:#fbf5ea;cursor:pointer;transition:.12s}.world-row:hover{background:#e8f6f3;border-color:#5f8b8f;transform:translateY(-1px)}
+.world-icon{width:48px;height:48px;border:2px solid #5b466d;border-radius:4px;background:linear-gradient(#82dcff 0 55%,#70c86a 55% 72%,#875536 72%);position:relative;overflow:hidden}.world-icon:before{content:"";position:absolute;left:7px;bottom:14px;width:27px;height:15px;background:#4d9d57;border-radius:50%}.world-icon:after{content:"";position:absolute;right:6px;top:8px;width:7px;height:7px;background:#fff0a5;border-radius:50%}
+.world-name{font-size:9px;font-weight:1000}.world-meta{font-size:6px;color:#7c707d;margin-top:3px}.world-tags{display:flex;gap:4px;margin-top:4px}.tag{padding:3px 4px;border:1px solid #a08f9f;border-radius:3px;font-size:5px;font-weight:1000;color:#66596b}
+.world-right{text-align:right}.online{font-size:6px;font-weight:900;color:#5d7767}.row-btn{height:25px;margin-top:4px;padding:0 8px;border:2px solid #5b456c;border-radius:4px;background:#dfd3e7;color:#35263e;font-size:5.5px;font-weight:1000}.fav{margin-left:3px;min-width:25px;padding:0 5px;background:#fff3e4}
+.empty{height:100%;min-height:200px;display:grid;place-items:center;text-align:center;color:#766a7b;font-size:7px}.empty b{display:block;margin-bottom:5px;color:#3c2d4c;font-size:13px}
+.right{padding:10px;background:#f1e8e0;display:flex;flex-direction:column;gap:8px}.right h3{margin:2px 0 1px;font-size:8px}.right p{margin:0;font-size:6px;line-height:1.45;color:#7a6d7b}
+.quick{display:grid;gap:5px}.quick button{height:37px;text-align:left;padding:0 8px;border:2px solid #685572;border-radius:4px;background:#fff8ee;font-size:6px;font-weight:1000;color:#372941}.quick button:hover{background:#e4f3f1}
+.cat-title{font-size:6px;font-weight:1000;color:#7a6e7b;letter-spacing:.12em;margin-top:5px}.cats{display:flex;flex-wrap:wrap;gap:4px}.cat{padding:5px 5px;border:2px solid #75677a;border-radius:3px;background:#fff8ef;font-size:5px;font-weight:1000}.cat.on{background:#d8ecea;border-color:#668e91}
+.create-card{margin-top:auto;padding:9px;border:2px solid #66516e;border-radius:5px;background:#fff8eb}.create-card b{display:block;font-size:7px}.create-card span{display:block;margin-top:3px;font-size:5.5px;color:#7d717b}.create-card button{width:100%;height:30px;margin-top:7px;border:2px solid #5c466d;border-radius:4px;background:linear-gradient(180deg,#ff8bda,#bb7dec 55%,#69dbff);font-size:6px;font-weight:1000}
+.footer{display:flex;justify-content:space-between;align-items:center;color:#4e425a;font-size:6px;font-weight:900}.footer .links{display:flex;gap:8px}.footer button{border:0;background:none;color:#4e425a;font-size:6px;font-weight:1000;padding:0}
+.modal{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:#30243d66}.modal[hidden]{display:none}.modalbox{width:min(420px,calc(100% - 24px));padding:17px;border:3px solid #59446c;border-radius:6px;background:#fff7e8;box-shadow:6px 7px #33243d55}.modalbox h2{margin:0;font-size:19px}.modalbox p{font-size:7px;line-height:1.5;color:#746879}.modal-actions{display:flex;justify-content:flex-end;gap:6px;margin-top:12px}.modal-actions button{height:34px;padding:0 10px;border:2px solid #59446c;border-radius:4px;font-size:6px;font-weight:1000}.primary{background:linear-gradient(180deg,#ff8ada,#b77bec 55%,#68dbff)}
+#entryOverlay{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:#30243d66;opacity:0;visibility:hidden;transition:.12s}#entryOverlay.show{opacity:1;visibility:visible}.entryBox{min-width:235px;padding:15px 19px;text-align:center;border:3px solid #5a456c;border-radius:6px;background:#fff7e8;box-shadow:5px 6px #32243c44}.entryBox b{display:block;font-size:10px}.entryBox span{display:block;margin-top:4px;font-size:7px;color:#766a78}.entryBox i{display:block;width:130px;height:5px;margin:10px auto 0;background:#d6cad5;overflow:hidden}.entryBox i:after{content:"";display:block;width:40%;height:100%;background:#866b9c;animation:bar 1s linear infinite}@keyframes bar{to{transform:translateX(350%)}}
+@media(max-width:980px){.layout{grid-template-columns:185px minmax(0,1fr)}.right{display:none}}
+@media(max-width:720px){html,body{overflow:auto}.wrap{height:auto;min-height:100dvh;grid-template-rows:44px auto 30px;padding:8px}.layout{grid-template-columns:1fr}.profile{display:grid;grid-template-columns:92px 1fr;gap:9px;padding:8px}.avatar-box{height:102px;grid-row:span 2}.avatar{left:27px;bottom:17px;transform:scale(.7);transform-origin:bottom}.avatar-shadow{left:14px;bottom:12px;width:65px}.player-name{margin-top:0}.level{margin-top:7px}.wallet{margin-top:7px}.profile-actions{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr}.center{min-height:520px}.hero{min-height:150px}.search{width:145px}.top-actions .top-btn{display:none}.account-chip{margin-left:auto}.footer{padding-bottom:5px}}
+@media(max-width:480px){.brand b{font-size:14px}.brand small{display:none}.hero h1{font-size:24px}.hero p{font-size:7px}.hero-buttons{flex-wrap:wrap}.hero-btn{height:31px;padding:0 10px}.world-head{height:auto;padding:8px;gap:7px;align-items:stretch;flex-direction:column}.search{width:100%}.world-row{grid-template-columns:42px 1fr auto}.world-icon{width:42px;height:42px}.world-name{font-size:8px}.world-meta{font-size:5.5px}.row-btn{font-size:5px;padding:0 6px}.footer{font-size:5px}}
 </style>
-<style id="VX_CALM_WORLD_SELECT">
-html,body{background:#9fd7e5;color:#31283b}
-.scene{background:linear-gradient(#9fd7e5 0%,#dbeee9 61%,#dbe7d8 62%,#9bc88d 62%,#7dbb73 100%)}
-.sun{background:#f5e7b1;box-shadow:none}.cloud{opacity:.72;border-color:#877b8d18}.hill{border-color:#675d7028}.ground{border-top:4px solid #638c65}
-.wrap{padding:10px 10px 14px}.top{height:38px}.brand{text-shadow:2px 2px #6c5b7833}.topbtn{border:2px solid #62556d;background:#4b4053;color:#fff;border-radius:5px;box-shadow:2px 2px #2e263533}
-.titlebar h1{font-size:23px;text-shadow:1px 1px #ffffff80}.titlebar p{color:#5e5466}.account{border:2px solid #62556d;background:#f2ece3d8}
-.panel{border:3px solid #62556d;border-radius:6px;background:#f4eee3f4;box-shadow:4px 5px #44364a18}
-.searchbox{padding:8px;border-bottom:3px solid #6b5d72;background:#e9e0dd}.searchline{height:34px;border:2px solid #66586e;border-radius:5px}.searchline input{font-size:8px}
-.q{height:27px;border:2px solid #6a5d72;border-radius:4px;background:#f8f2e9}.q.active{background:#d9e9e8;border-color:#66898c}
-.category-title{padding:8px 9px 4px;color:#766b77}.cat{padding:5px 6px;border:2px solid #716476;border-radius:4px;background:#faf5eb}.cat.on{background:#d7e9e9;border-color:#66898c}
-.list-head{padding:8px 10px;background:#f8f1e7;border-bottom:3px solid #62556d}.list-head b{font-size:8px}
-.world-row{padding:7px;margin-bottom:5px;border:2px solid #756778;border-radius:4px;background:#f7f2ea;box-shadow:2px 2px #4b3b5414}.world-row:hover{background:#e8f3f1;border-color:#66898c}
-.world-icon{width:40px;height:40px;border:2px solid #62556d;border-radius:4px;box-shadow:none}.world-name{font-size:8px}.world-meta{font-size:5.5px}.enter{height:24px;border:2px solid #65586d;border-radius:4px;background:#e2d8de;color:#382c40;font-size:5.5px}
-.bottom-hint{color:#655c69}.worldInput{height:36px;border:2px solid #62556d;border-radius:5px;background:#fbf6ee}.createbtn{height:36px;border:2px solid #62556d;border-radius:5px;background:#d9c6e9;color:#34283f}
-.modal{background:#30264055;backdrop-filter:none}.modalbox{border:3px solid #62556d;border-radius:6px;background:#f4eee3;box-shadow:5px 6px #2f25333d}
-#entryOverlay{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:#30264055;opacity:0;visibility:hidden;transition:opacity .12s ease,visibility .12s ease}
-#entryOverlay.show{opacity:1;visibility:visible}
-.entryBox{min-width:220px;padding:14px 18px;text-align:center;border:3px solid #62556d;border-radius:6px;background:#f4eee3;color:#34283f;box-shadow:5px 6px #2f25333d}
-.entryBox b{display:block;font-size:10px}.entryBox span{display:block;margin-top:4px;font-size:7px;color:#766a78}.entryBox i{display:block;width:120px;height:5px;margin:10px auto 0;background:#d0c4cf;overflow:hidden}.entryBox i:after{content:"";display:block;width:45%;height:100%;background:#8b6e9d;animation:entrybar 1s linear infinite}@keyframes entrybar{to{transform:translateX(250%)}}
-@media(max-width:800px){.selector{gap:7px}.panel{border-width:2px}.titlebar h1{font-size:20px}}
-</style></head>
+</head>
 <body>
-<div class="scene"><div class="sun"></div><div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div><div class="hill h1"></div><div class="hill h2"></div><div class="decor-tree"><div class="leaf l1"></div><div class="leaf l2"></div><div class="leaf l3"></div><div class="trunk"></div></div><div class="ground"></div></div>
-<div class="wrap">
-<header class="top"><a class="brand" href="./worlds.html"><img src="https://i.ibb.co/DDgTvWdb/1c26840c-b04f-43cb-ad6b-936879ce884a.png"><b>VEXORA</b></a><div class="top-right"><button class="topbtn" id="homeBtn">HOME WORLD</button><button class="topbtn" id="profileBtn">PROFILE</button></div></header>
-<main class="main">
-  <div class="titlebar"><div><h1>WORLD SELECT</h1><p>EXPLORE WORLDS · BUILD · GROW · SOCIALIZE</p></div><div class="account" id="account">@EXPLORER</div></div>
-  <section class="selector">
-    <aside class="panel left">
-      <div class="searchbox"><div class="searchline"><span>⌕</span><input id="search" placeholder="Enter world name…" autocomplete="off"></div><div class="quicklinks"><button class="q" data-view="my">MY WORLDS</button><button class="q" data-view="wotd">WORLD OF DAY</button><button class="q" data-view="fav">FAVORITES</button><button class="q active" data-view="all">ALL WORLDS</button></div></div>
-      <div class="category-title">WORLD CATEGORIES</div>
-      <div class="cats" id="cats"></div>
-    </aside>
-    <section class="panel worldlist"><div class="list-head"><b id="listTitle">MY WORLDS</b><span id="count">0 worlds</span></div><div class="rows" id="rows"><div class="empty">Loading worlds…</div></div></section>
-  </section>
-  <footer class="bottom"><div class="bottom-hint">TYPE A UNIQUE WORLD NAME BELOW TO CREATE A NEW WORLD</div><div class="createbar"><input id="worldInput" class="worldInput" maxlength="24" placeholder="New world name…"><button id="create" class="createbtn">CREATE WORLD →</button></div></footer>
-</main>
+<div class="scene">
+  <div class="sun"></div><div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+  <div class="hill h1"></div><div class="hill h2"></div>
+  <div class="tree"><div class="leaf tl1"></div><div class="leaf tl2"></div><div class="leaf tl3"></div><div class="trunk"></div></div>
+  <div class="ground"></div>
 </div>
-<div class="modal" id="modal" hidden><div class="modalbox"><h2>Create World</h2><p><b>Enter a unique world name.</b> VEXORA will create the world, generate the starter terrain and secure the world for you. There is no Creative/Normal/Adventure mode here—world categories describe how the community uses a world.</p><div class="modal-actions"><button id="cancel">CANCEL</button><button class="primary" id="confirm">CREATE & ENTER →</button></div></div></div>
+
+<div class="wrap">
+<header class="topbar">
+  <a class="brand" href="./worlds.html"><img src="https://i.ibb.co/DDgTvWdb/1c26840c-b04f-43cb-ad6b-936879ce884a.png"><div><b>VEXORA</b><small>BUILD · EXPLORE · CREATE</small></div></a>
+  <div class="account-chip"><i class="dot"></i><span id="account">@EXPLORER</span></div>
+  <div class="top-actions"><button class="top-btn" id="profileBtn">PROFILE</button><button class="top-btn" id="logoutBtn">LOG OUT</button></div>
+</header>
+
+<main class="layout">
+  <aside class="panel profile">
+    <div class="avatar-box">
+      <div class="avatar-shadow"></div>
+      <div class="avatar">
+        <div class="head"><div class="hair"></div><i class="eye e1"></i><i class="eye e2"></i></div>
+        <div class="body"></div><div class="leg l1"></div><div class="leg l2"></div>
+        <i class="spark s1"></i><i class="spark s2"></i>
+      </div>
+    </div>
+    <div>
+      <div class="player-name" id="playerName">Explorer</div>
+      <div class="player-handle" id="playerHandle">@explorer</div>
+      <div class="level"><div class="level-head"><span>LEVEL <b id="level">1</b></span><span id="xpText">0 / 100 XP</span></div><div class="xp"><i id="xpBar"></i></div></div>
+      <div class="wallet"><div><span>GEMS</span><b>💎 <span id="gems">0</span></b></div><div><span>COINS</span><b>◈ <span id="coins">0</span></b></div></div>
+    </div>
+    <div class="profile-actions"><button class="small-btn primary" id="profileQuick">MY PROFILE</button><button class="small-btn" id="myWorldQuick">MY WORLD</button></div>
+  </aside>
+
+  <section class="panel center">
+    <div class="hero">
+      <h1>WELCOME BACK, <span id="heroName">EXPLORER</span>!</h1>
+      <p>Your worlds are waiting. Jump into a community world, continue building your own place, or create something completely new.</p>
+      <div class="hero-buttons"><button class="hero-btn play" id="playRandom">▶ PLAY NOW</button><button class="hero-btn" id="myWorldHero">MY WORLD</button><button class="hero-btn" id="createHero">＋ CREATE WORLD</button></div>
+    </div>
+    <div class="world-panel">
+      <div class="world-head"><div><strong id="listTitle">WORLD SELECT</strong><span id="count">0 worlds</span></div><input id="search" class="search" placeholder="Search world name…" autocomplete="off"></div>
+      <div class="rows" id="rows"><div class="empty"><div><b>LOADING WORLDS</b>Connecting to VEXORA…</div></div></div>
+    </div>
+  </section>
+
+  <aside class="panel right">
+    <h3>QUICK PLAY</h3>
+    <p>Everything you need before entering a world.</p>
+    <div class="quick">
+      <button id="allBtn">🌎 ALL WORLDS</button>
+      <button id="favBtn">★ FAVORITES</button>
+      <button id="wotdBtn">✦ WORLD OF THE DAY</button>
+    </div>
+    <div class="cat-title">CATEGORIES</div>
+    <div class="cats" id="cats"></div>
+    <div class="create-card"><b>YOUR OWN WORLD</b><span>Choose a unique name and start building.</span><button id="createSide">CREATE WORLD →</button></div>
+  </aside>
+</main>
+
+<footer class="footer"><span>VEXORA ONLINE · BUILD YOUR STORY</span><div class="links"><button id="helpBtn">HELP</button><button id="settingsBtn">OPTIONS</button></div></footer>
+</div>
+
+<div class="modal" id="modal" hidden><div class="modalbox"><h2>Create your world</h2><p><b>Give it a unique name.</b> VEXORA creates the starter terrain and secures the world for you. Categories describe the kind of community world you want to build.</p><input id="worldInput" class="search" style="width:100%;height:38px;margin-top:5px" maxlength="24" placeholder="e.g. SKYLANDS"><div class="modal-actions"><button id="cancel">CANCEL</button><button class="primary" id="confirm">CREATE & ENTER →</button></div></div></div>
+
 <script>
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const CATS=['adventure','art','farm','parkour','puzzle','roleplay','shop','social','storage','story','trade','info','music'];
 let worlds=[],me=null,view='all',cat='all',favorites=JSON.parse(localStorage.getItem('vexora_favorites')||'[]');
-const catLabel=x=>x.toUpperCase();
-function buildCats(){ $('cats').innerHTML='<button class="cat on" data-cat="all">ALL</button>'+CATS.map(x=>'<button class="cat" data-cat="'+x+'">'+catLabel(x)+'</button>').join('');$('cats').querySelectorAll('.cat').forEach(b=>b.onclick=()=>{cat=b.dataset.cat;$('cats').querySelectorAll('.cat').forEach(x=>x.classList.toggle('on',x===b));render();});}
-function isMine(w){return me&&String(w.ownerId||'')===String(me.id||'');}
+const catLabel=x=>String(x||'adventure').toUpperCase();
+function buildCats(){
+  $('cats').innerHTML='<button class="cat on" data-cat="all">ALL</button>'+CATS.map(x=>'<button class="cat" data-cat="'+x+'">'+catLabel(x)+'</button>').join('');
+  $('cats').querySelectorAll('.cat').forEach(b=>b.onclick=()=>{cat=b.dataset.cat;$('cats').querySelectorAll('.cat').forEach(x=>x.classList.toggle('on',x===b));render();});
+}
+function isMine(w){return me&&String(w.ownerId||'')===String(me.id||'')}
 function matches(w){
- const q=$('search').value.trim().toLowerCase();const category=String(w.type||'adventure').toLowerCase();
- if(cat!=='all'&&category!==cat)return false;
- if(q&&!String(w.name).toLowerCase().includes(q))return false;
- if(view==='my'&&!isMine(w))return false;
- if(view==='fav'&&!favorites.includes(String(w.id)))return false;
- if(view==='wotd')return false;
- return true;
+  const q=$('search').value.trim().toLowerCase(),type=String(w.type||'adventure').toLowerCase();
+  if(cat!=='all'&&type!==cat)return false;if(q&&!String(w.name).toLowerCase().includes(q))return false;
+  if(view==='fav'&&!favorites.includes(String(w.id)))return false;return true;
 }
 function card(w){
- const fav=favorites.includes(String(w.id)),mine=isMine(w);
- return '<article class="world-row" data-id="'+esc(w.id)+'"><div class="world-icon"></div><div><div class="world-name">'+esc(w.name)+'</div><div class="world-meta">'+catLabel(w.type||'adventure')+' · '+(mine?'YOUR WORLD':'@'+esc(w.ownerUsername||'unknown'))+'</div></div><div class="world-right"><div class="players">'+Number(w.onlineCount||0)+' online</div><button class="enter" data-enter="'+esc(w.id)+'">ENTER →</button><button class="enter" data-fav="'+esc(w.id)+'">'+(fav?'★':'☆')+'</button></div></article>';
+  const mine=isMine(w),fav=favorites.includes(String(w.id));
+  return '<article class="world-row" data-id="'+esc(w.id)+'"><div class="world-icon"></div><div><div class="world-name">'+esc(w.name)+'</div><div class="world-meta">'+catLabel(w.type)+' · '+(mine?'YOUR WORLD':'@'+esc(w.ownerUsername||'unknown'))+'</div><div class="world-tags"><span class="tag">'+(mine?'OWNER':'COMMUNITY')+'</span><span class="tag">'+(String(w.privacy)==='public'?'PUBLIC':'LOCKED')+'</span></div></div><div class="world-right"><div class="online">● '+Number(w.onlineCount||0)+' ONLINE</div><button class="row-btn" data-enter="'+esc(w.id)+'">ENTER →</button><button class="row-btn fav" data-fav="'+esc(w.id)+'">'+(fav?'★':'☆')+'</button></div></article>';
 }
 function render(){
- let arr=worlds.filter(matches);
- if(view==='wotd'){arr=worlds.filter(w=>String(w.privacy)==='public').sort((a,b)=>Number(b.onlineCount||0)-Number(a.onlineCount||0)).slice(0,10);}
- $('rows').innerHTML=arr.length?arr.map(card).join(''):'<div class="empty"><div><b>NO WORLDS FOUND</b>Try another name or category.</div></div>';
- $('count').textContent=arr.length+' world'+(arr.length===1?'':'s');
- $('listTitle').textContent=view==='my'?'MY WORLDS':view==='fav'?'FAVORITE WORLDS':view==='wotd'?'WORLD OF THE DAY':'ALL WORLDS';
- $('rows').querySelectorAll('[data-enter]').forEach(b=>b.onclick=e=>{e.stopPropagation();location.href='./world.html?id='+encodeURIComponent(b.dataset.enter);});
- $('rows').querySelectorAll('[data-fav]').forEach(b=>b.onclick=e=>{e.stopPropagation();const id=String(b.dataset.fav);favorites=favorites.includes(id)?favorites.filter(x=>x!==id):[...favorites,id];localStorage.setItem('vexora_favorites',JSON.stringify(favorites));render();});
-}
-async function load(){
- try{
-  const [wr,pr]=await Promise.all([fetch('/api/worlds',{credentials:'include'}),fetch('/api/player',{credentials:'include'})]);
-  const d=await wr.json(),pd=await pr.json();if(!wr.ok)throw Error(d.error||'Unable to load worlds.');
-  worlds=d.worlds||[];me=pd.player||{};$('account').textContent='@'+String(me.username||'EXPLORER').toUpperCase();buildCats();render();
- }catch(e){
-  $('rows').innerHTML='<div class="empty"><div><b>CONNECTING…</b>'+esc(e.message)+'</div></div>';buildCats();
- }
+  let arr=worlds.filter(matches);
+  if(view==='wotd')arr=worlds.filter(w=>String(w.privacy)==='public').sort((a,b)=>Number(b.onlineCount||0)-Number(a.onlineCount||0)).slice(0,10);
+  $('rows').innerHTML=arr.length?arr.map(card).join(''):'<div class="empty"><div><b>NO WORLDS FOUND</b>Try another world name or category.</div></div>';
+  $('count').textContent=arr.length+' WORLD'+(arr.length===1?'':'S');
+  $('listTitle').textContent=view==='fav'?'FAVORITE WORLDS':view==='wotd'?'WORLD OF THE DAY':cat==='all'?'WORLD SELECT':catLabel(cat)+' WORLDS';
+  $('rows').querySelectorAll('[data-enter]').forEach(b=>b.onclick=e=>{e.stopPropagation();enterWorld(b.dataset.enter)});
+  $('rows').querySelectorAll('[data-fav]').forEach(b=>b.onclick=e=>{e.stopPropagation();const id=String(b.dataset.fav);favorites=favorites.includes(id)?favorites.filter(x=>x!==id):[...favorites,id];localStorage.setItem('vexora_favorites',JSON.stringify(favorites));render()});
+  $('rows').querySelectorAll('.world-row').forEach(row=>row.onclick=()=>enterWorld(row.dataset.id));
 }
 const entryOverlay=document.createElement('div');entryOverlay.id='entryOverlay';entryOverlay.innerHTML='<div class="entryBox"><b>ENTERING WORLD</b><span id="entryWorldName">Loading…</span><i></i></div>';document.body.appendChild(entryOverlay);let entering=false;
-function enterWorld(id){if(entering||!id)return;entering=true;const world=worlds.find(x=>String(x.id)===String(id));document.querySelectorAll('[data-enter]').forEach(b=>b.disabled=true);$('entryWorldName').textContent=(world?.name||'WORLD').toUpperCase();entryOverlay.classList.add('show');window.location.assign('./world.html?id='+encodeURIComponent(String(id)));}
-
-function choose(v){view=v;document.querySelectorAll('.q').forEach(b=>b.classList.toggle('active',b.dataset.view===v));render();}
-document.querySelectorAll('.q').forEach(b=>b.onclick=()=>choose(b.dataset.view));
-$('search').oninput=render;$('homeBtn').onclick=()=>{const w=worlds.find(isMine);if(w)location.href='./world.html?id='+encodeURIComponent(w.id);else $('worldInput').focus();};
-$('profileBtn').onclick=()=>location.href='./profile.html';
-$('create').onclick=()=>{if(!$('worldInput').value.trim()){$('worldInput').focus();return;}$('modal').hidden=false;};
-$('cancel').onclick=()=>{$('modal').hidden=true};$('confirm').onclick=async()=>{try{const name=$('worldInput').value.trim();const r=await fetch('/api/worlds',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({name,category:cat==='all'?'adventure':cat})}),d=await r.json();if(!r.ok)throw Error(d.error||'Unable to create world.');location.href='./world.html?id='+encodeURIComponent(d.world.id);}catch(e){$('modal').hidden=true;alert(e.message)}};
-$('worldInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('create').click();});load();
+function enterWorld(id){if(entering||!id)return;entering=true;const w=worlds.find(x=>String(x.id)===String(id));$('entryWorldName').textContent=(w?.name||'WORLD').toUpperCase();entryOverlay.classList.add('show');setTimeout(()=>location.assign('./world.html?id='+encodeURIComponent(String(id))),140)}
+function setView(v){view=v;render()}
+function openCreate(){$('worldInput').value='';$('modal').hidden=false;setTimeout(()=>$('worldInput').focus(),30)}
+function closeCreate(){$('modal').hidden=true}
+async function load(){
+  try{
+    const [wr,pr]=await Promise.all([fetch('/api/worlds',{credentials:'include'}),fetch('/api/player',{credentials:'include'})]);
+    const d=await wr.json(),pd=await pr.json();if(!wr.ok)throw Error(d.error||'Unable to load worlds.');
+    worlds=d.worlds||[];me=pd.player||{};
+    const name=me.displayName||me.username||'Explorer',level=Number(me.level||1),xp=Number(me.xp||0),total=Number(me.totalXp||0),gems=Number(me.gems||0),coins=Number(me.worldCoins||0);
+    $('account').textContent='@'+String(me.username||'explorer').toUpperCase();$('playerName').textContent=name;$('playerHandle').textContent='@'+(me.username||'explorer');$('heroName').textContent=name.toUpperCase();$('level').textContent=level;$('gems').textContent=gems;$('coins').textContent=coins;
+    const next=Math.max(100,level*100),cur=Math.max(0,xp%next);$('xpText').textContent=cur+' / '+next+' XP';$('xpBar').style.width=Math.min(100,cur/next*100)+'%';
+    buildCats();render();
+  }catch(e){$('rows').innerHTML='<div class="empty"><div><b>CONNECTION ERROR</b>'+esc(e.message)+'</div></div>';buildCats()}
+}
+$('search').oninput=render;
+$('allBtn').onclick=()=>setView('all');$('favBtn').onclick=()=>setView('fav');$('wotdBtn').onclick=()=>setView('wotd');
+$('playRandom').onclick=()=>{const available=worlds.filter(w=>String(w.privacy)==='public');if(available.length)enterWorld(available[Math.floor(Math.random()*available.length)].id);else $('rows').scrollTop=0};
+$('profileBtn').onclick=()=>location.href='./profile.html';$('profileQuick').onclick=()=>location.href='./profile.html';
+function myWorld(){const w=worlds.find(isMine);if(w)enterWorld(w.id);else openCreate()}
+$('myWorldQuick').onclick=myWorld;$('myWorldHero').onclick=myWorld;$('createHero').onclick=openCreate;$('createSide').onclick=openCreate;
+$('logoutBtn').onclick=async()=>{try{await fetch('/api/auth/logout',{method:'POST',credentials:'include'})}finally{location.href='./'}};
+$('cancel').onclick=closeCreate;
+$('confirm').onclick=async()=>{const name=$('worldInput').value.trim();if(!name){$('worldInput').focus();return}const b=$('confirm');b.disabled=true;try{const r=await fetch('/api/worlds',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({name,category:cat==='all'?'adventure':cat})}),d=await r.json();if(!r.ok)throw Error(d.error||'Unable to create world.');closeCreate();enterWorld(d.world.id)}catch(e){alert(e.message)}finally{b.disabled=false}};
+$('worldInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('confirm').click()});$('modal').addEventListener('click',e=>{if(e.target===$('modal'))closeCreate()});
+$('helpBtn').onclick=()=>alert('A / D = MOVE · SPACE = JUMP · LEFT CLICK = PUNCH · RIGHT CLICK = BUILD · T = CHAT · W = WRENCH · Q = DROP');
+$('settingsBtn').onclick=()=>alert('Options are available inside a world. Your account and world data are saved online.');
+load();
 </script>
 </body>
 </html>
