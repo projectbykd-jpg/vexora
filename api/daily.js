@@ -20,8 +20,8 @@ module.exports=async function(req,res){
   try{
     await tx.execute({sql:'INSERT OR IGNORE INTO player_wallets(user_id) VALUES(?)',args:[uid]});
     await tx.execute({sql:'UPDATE player_wallets SET world_coins=world_coins+?, gems=gems+?,updated_at=datetime("now") WHERE user_id=?',args:[coins,gems,uid]});
-    await tx.execute({sql:\`INSERT INTO daily_rewards(user_id,streak,last_claim_date,updated_at) VALUES(?,?,?,datetime('now'))
-      ON CONFLICT(user_id) DO UPDATE SET streak=excluded.streak,last_claim_date=excluded.last_claim_date,updated_at=datetime('now')\`,args:[uid,streak,today]});
+    await tx.execute({sql:`INSERT INTO daily_rewards(user_id,streak,last_claim_date,updated_at) VALUES(?,?,?,datetime('now'))
+      ON CONFLICT(user_id) DO UPDATE SET streak=excluded.streak,last_claim_date=excluded.last_claim_date,updated_at=datetime('now')`,args:[uid,streak,today]});
     await tx.execute({sql:'INSERT INTO audit_logs(user_id,action,payload_json) VALUES(?,?,?)',args:[uid,'daily.claim',JSON.stringify({streak,coins,gems})]});
     await tx.commit();return res.status(200).json({claimed:true,streak,coins,gems});
   }catch(e){try{await tx.rollback()}catch{}throw e}
