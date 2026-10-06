@@ -3,28 +3,33 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <meta name="theme-color" content="#0e1330">
   <title>VEXORA</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Crect width=%2716%27 height=%2716%27 rx=%273%27 fill=%27%235b6cff%27/%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Crect width=%2716%27 height=%2716%27 rx=%274%27 fill=%27%235b6cff%27/%3E%3Cpath d=%27M3 4l5 9 5-9%27 stroke=%27white%27 stroke-width=%271.8%27 fill=%27none%27/%3E%3C/svg%3E">
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
   <canvas id="game"></canvas>
   <div id="hud">
-    <div id="gems">💎 <span id="gemCount">0</span></div>
+    <div class="pill" id="gems">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 2l8 7-8 13L4 9z" fill="#5de0ff" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/><path d="M4 9h16M12 2l-3 7 3 13 3-13z" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="1"/></svg>
+      <span id="gemCount">0</span>
+    </div>
     <div id="toast" role="status"></div>
-    <button id="shopBtn" type="button">Toko (B)</button>
+    <button id="muteBtn" class="pill btn" type="button" title="Suara (M)">🔊</button>
+    <button id="shopBtn" class="pill btn" type="button">Toko <kbd>B</kbd></button>
   </div>
   <div id="hotbar"></div>
   <div id="touch" hidden>
     <button data-k="left">◀</button><button data-k="right">▶</button><button data-k="jump">▲</button>
   </div>
   <aside id="shop" hidden>
-    <h2>Toko</h2>
+    <header><h2>Toko</h2><button id="shopClose" class="btn small" type="button">✕</button></header>
     <p class="muted">Harga beli selalu lebih mahal dari harga jual.</p>
     <div id="shopList"></div>
-    <button id="resetBtn" type="button" class="danger">Hapus progres</button>
+    <button id="resetBtn" type="button" class="btn small danger">Hapus progres</button>
   </aside>
-  <div id="help">A/D atau ◀▶ jalan · W/Spasi lompat · Klik: pukul/pasang/tanam · 1-9 pilih item · B toko</div>
+  <div id="help">A/D jalan · W/Spasi lompat · Klik: pukul, pasang, tanam · 1-9 pilih item · B toko · M suara</div>
   <script type="module" src="./src/main.js"></script>
 </body>
 </html>

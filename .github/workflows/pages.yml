@@ -34,6 +34,9 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - run: mkdir _site && cp -r index.html style.css src _site/
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -86,7 +86,7 @@ export function punch(s, tx, ty, now, rng = Math.random) {
   if (rng() < TUNING.blockDropChance) { drops.block = 1; addItem(s, id, 1); }
   if (b.growSec && rng() < TUNING.seedDropChance) { drops.seed = 1; addItem(s, seedOf(id), 1); }
   if (b.gemDrop) { drops.gems = randInt(rng, b.gemDrop); s.gems += drops.gems; }
-  return ok({ broke: true, drops });
+  return ok({ broke: true, drops, color: b.color });
 }
 
 export function place(s, tx, ty, itemId) {
