@@ -33,8 +33,28 @@ export function generate(seed) {
       tiles[idx(x, y)] = id;
     }
   }
+  // caves, kept well away from spawn and from the bedrock floor
+  for (let i = 0; i < 6; i++) {
+    const cx = 5 + rng() * (W - 10), cy = SURFACE + 10 + rng() * (H - SURFACE - 20), rx = 2 + rng() * 3, ry = 1.5 + rng() * 2;
+    if (Math.abs(cx - spawnX) < 12) continue;
+    for (let y = Math.floor(cy - ry); y <= Math.ceil(cy + ry); y++) for (let x = Math.floor(cx - rx); x <= Math.ceil(cx + rx); x++) {
+      if (x < 0 || x >= W || y < SURFACE + 8 || y >= H - 3) continue;
+      if (((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1) tiles[idx(x, y)] = 'air';
+    }
+  }
   tiles[idx(spawnX, SURFACE - 1)] = 'gate';
   return { tiles, spawn: { x: spawnX + 0.15, y: SURFACE - 2 } };
+}
+
+export function normalizeWorldName(name) {
+  return String(name ?? '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 16) || 'START';
+}
+
+// FNV-1a: the same name always gives the same world.
+export function seedFromName(name) {
+  let h = 0x811c9dc5;
+  for (const ch of normalizeWorldName(name)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 0x01000193) >>> 0; }
+  return h >>> 0;
 }
 
 export const isSolid = (id) => id !== 'air' && !!BLOCKS[id]?.solid;

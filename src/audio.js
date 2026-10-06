@@ -35,6 +35,8 @@ export function createAudio() {
     harvest() { [523, 659, 784, 1047].forEach((f, i) => tone(f, f * 1.01, 0.16, 'triangle', 0.3, i * 0.07)); },
     coin() { tone(988, 988, 0.08, 'square', 0.15); tone(1319, 1319, 0.18, 'square', 0.15, 0.07); },
     error() { tone(140, 100, 0.14, 'sawtooth', 0.2); },
+    pickup() { tone(660, 990, 0.07, 'sine', 0.22); },
+    splice() { [392, 523, 659, 784, 1047].forEach((f, i) => tone(f, f * 1.02, 0.2, 'triangle', 0.3, i * 0.08)); },
     jump() { tone(260, 520, 0.12, 'sine', 0.2); },
   };
   return {

@@ -77,6 +77,37 @@ const PAINT = {
     }
     speckle(g, rng, 10, ['rgba(180,160,255,.35)'], 0.5, 1.2);
   },
+  sand(g, rng) {
+    g.fillStyle = vgrad(g, 0, TILE, '#f0dc9c', '#d9bd72'); g.fillRect(0, 0, TILE, TILE);
+    g.strokeStyle = 'rgba(160,120,50,.28)'; g.lineWidth = 1.4;
+    for (let i = 0; i < 4; i++) { const y = 6 + i * 11 + rng() * 3; g.beginPath(); g.moveTo(0, y); g.bezierCurveTo(14, y - 4, 30, y + 4, TILE, y - 1); g.stroke(); }
+    speckle(g, rng, 30, ['rgba(255,255,255,.4)', 'rgba(150,110,40,.35)'], 0.5, 1.4);
+  },
+  grass(g, rng) {
+    g.fillStyle = vgrad(g, 0, TILE, '#6fd16a', '#3f9a4a'); g.fillRect(0, 0, TILE, TILE);
+    g.strokeStyle = 'rgba(30,100,40,.45)'; g.lineWidth = 1.6; g.lineCap = 'round';
+    for (let i = 0; i < 16; i++) { const x = rng() * TILE, y = 6 + rng() * 38; g.beginPath(); g.moveTo(x, y); g.lineTo(x + (rng() - 0.5) * 6, y - 7); g.stroke(); }
+    speckle(g, rng, 14, ['rgba(255,255,255,.22)', 'rgba(20,80,30,.25)'], 0.8, 2);
+  },
+  brick(g, rng) {
+    g.fillStyle = '#6b2f26'; g.fillRect(0, 0, TILE, TILE);
+    for (let r = 0; r < 4; r++) {
+      const off = r % 2 ? 12 : 0;
+      for (let c = -1; c < 3; c++) {
+        const x = c * 24 + off, y = r * 12;
+        g.fillStyle = vgrad(g, y, y + 11, '#c4604a', '#a04634'); g.fillRect(x + 1, y + 1, 22, 10);
+        g.fillStyle = 'rgba(255,255,255,.16)'; g.fillRect(x + 1, y + 1, 22, 2);
+        g.fillStyle = `rgba(0,0,0,${0.05 + rng() * 0.1})`; g.fillRect(x + 1 + rng() * 14, y + 4, 6, 5);
+      }
+    }
+  },
+  glass(g, rng) {
+    g.fillStyle = 'rgba(190,240,250,.38)'; g.fillRect(0, 0, TILE, TILE);
+    g.strokeStyle = 'rgba(255,255,255,.8)'; g.lineWidth = 3; g.strokeRect(2, 2, TILE - 4, TILE - 4);
+    g.strokeStyle = 'rgba(255,255,255,.55)'; g.lineWidth = 3; g.lineCap = 'round';
+    g.beginPath(); g.moveTo(10, 36); g.lineTo(26, 10); g.moveTo(24, 40); g.lineTo(38, 18); g.stroke();
+    g.strokeStyle = 'rgba(80,170,200,.55)'; g.lineWidth = 1.5; g.strokeRect(5, 5, TILE - 10, TILE - 10);
+  },
   back(g, rng) {                                                    // cave back wall
     g.fillStyle = vgrad(g, 0, TILE, '#4a3526', '#3a2a1f'); g.fillRect(0, 0, TILE, TILE);
     speckle(g, rng, 14, ['rgba(0,0,0,.25)', 'rgba(255,220,180,.07)'], 1, 3);
@@ -91,7 +122,7 @@ export function createArt(dpr = 1) {
     for (let v = 0; v < VARIANTS; v++) {
       const [c, g] = canvas(TILE, TILE, dpr);
       PAINT[id](g, mulberry32(id.length * 977 + v * 131 + id.charCodeAt(0)));
-      if (id !== 'back') bevel(g);
+      if (id !== 'back' && id !== 'glass') bevel(g);
       tiles[id].push(c);
     }
   }
@@ -162,5 +193,10 @@ export function createArt(dpr = 1) {
     return (iconCache[id] = blockIcon(id));
   }
 
-  return { tiles, grass, cracks, icon, VARIANTS };
+  const imgCache = {};
+  function iconImg(id) {
+    if (!imgCache[id]) { const im = new Image(); im.src = icon(id); imgCache[id] = im; }
+    return imgCache[id];
+  }
+  return { tiles, grass, cracks, icon, iconImg, VARIANTS };
 }
