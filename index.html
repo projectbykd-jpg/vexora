@@ -15,21 +15,43 @@
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 2l8 7-8 13L4 9z" fill="#5de0ff" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/><path d="M4 9h16M12 2l-3 7 3 13 3-13z" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="1"/></svg>
       <span id="gemCount">0</span>
     </div>
+    <div class="pill" id="worldPill" title="Nama dunia"><span class="dot"></span><span id="worldLabel">START</span></div>
     <div id="toast" role="status"></div>
     <button id="muteBtn" class="pill btn" type="button" title="Suara (M)">🔊</button>
+    <button id="bookBtn" class="pill btn" type="button">Resep <kbd>R</kbd></button>
     <button id="shopBtn" class="pill btn" type="button">Toko <kbd>B</kbd></button>
+    <button id="exitBtn" class="pill btn" type="button" title="Keluar dunia (Esc)">Keluar</button>
   </div>
   <div id="hotbar"></div>
   <div id="touch" hidden>
     <button data-k="left">◀</button><button data-k="right">▶</button><button data-k="jump">▲</button>
   </div>
   <aside id="shop" hidden>
-    <header><h2>Toko</h2><button id="shopClose" class="btn small" type="button">✕</button></header>
+    <header><h2>Toko</h2><button data-close="shop" class="btn small" type="button">✕</button></header>
     <p class="muted">Harga beli selalu lebih mahal dari harga jual.</p>
     <div id="shopList"></div>
     <button id="resetBtn" type="button" class="btn small danger">Hapus progres</button>
   </aside>
-  <div id="help">A/D jalan · W/Spasi lompat · Klik: pukul, pasang, tanam · 1-9 pilih item · B toko · M suara</div>
+  <aside id="book" class="panel" hidden>
+    <header><h2>Buku Resep</h2><button data-close="book" class="btn small" type="button">✕</button></header>
+    <p class="muted">Tanam bibit lain di atas pohon yang sedang tumbuh untuk menggabungkannya. <span id="bookCount"></span></p>
+    <div id="bookList"></div>
+  </aside>
+  <div id="menu">
+    <div class="menuCard">
+      <h1 class="logo">VEXORA</h1>
+      <p class="tag">Pukul blok. Tanam pohon. Gabung bibit. Jelajahi dunia.</p>
+      <form id="worldForm" autocomplete="off">
+        <input id="worldName" maxlength="16" placeholder="NAMA DUNIA" spellcheck="false" autocapitalize="characters" aria-label="Nama dunia">
+        <button class="btn primary" type="submit">Masuk</button>
+      </form>
+      <h3>Dunia cepat</h3>
+      <div class="chips" id="quickWorlds"></div>
+      <div id="recentBox"><h3>Terakhir dimainkan</h3><div class="chips" id="recentWorlds"></div></div>
+      <p class="muted">Setiap nama membuat dunia sendiri. Nama sama berarti dunia yang sama. Progresmu tersimpan di browser ini.</p>
+    </div>
+  </div>
+  <div id="help">A/D jalan · W/Spasi lompat · Klik: pukul, pasang, tanam · 1-9 pilih item · pungut item yang jatuh · R resep · B toko · E di gerbang keluar</div>
   <script type="module" src="./src/main.js"></script>
 </body>
 </html>
