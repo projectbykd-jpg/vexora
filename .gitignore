@@ -1,24 +1,4 @@
-# OS
-.DS_Store
-Thumbs.db
-
-# Editors
-.vscode/
-.idea/
-
-# Logs
-*.log
-
-# Environment / secrets
-.env
-.env.*
-!.env.example
-
-# Dependencies / build
 node_modules/
-dist/
-build/
-
-# Generated caches
-.cache/
-.tmp/
+_site/
+.env
+*.log

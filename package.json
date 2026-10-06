@@ -1,19 +1,12 @@
 {
   "name": "vexora",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
-  "description": "VEXORA online sandbox MMO web foundation",
-  "engines": {
-    "node": "24.x"
-  },
+  "type": "module",
+  "description": "VEXORA - 2D sandbox farming game (static, runs on GitHub Pages)",
+  "engines": { "node": ">=20" },
   "scripts": {
-    "verify": "node scripts/verify.js",
-    "build": "npm run verify",
-    "start": "node server.js"
-  },
-  "dependencies": {
-    "@libsql/client": "^0.18.0",
-    "bcryptjs": "^3.0.3",
-    "express": "^5.1.0"
+    "test": "node --test \"tests/*.test.js\"",
+    "start": "node scripts/serve.mjs"
   }
 }
