@@ -1,44 +1,40 @@
 # VEXORA
 
-VEXORA is an online 3D sandbox game project.
+Game sandbox 2D (pecah blok → kumpulkan bibit → tanam → panen → jual). Berjalan sepenuhnya di browser, jadi bisa dihosting di GitHub Pages.
 
-## Current stage
+## Main sekarang
 
-Account foundation is now connected to Turso:
-- Login with username or email
-- Registration
-- Secure password hashing with bcrypt
-- HTTP-only session cookie
-- Account dashboard
-- Guest mode
-- Logout
-
-## Vercel environment variables
-
-Add these as **server-only** Environment Variables in Vercel:
-
-```text
-TURSO_DATABASE_URL=libsql://your-database.turso.io
-TURSO_AUTH_TOKEN=your_turso_token
-AUTH_SECRET=your_random_secret_at_least_32_characters_long
+```bash
+npm start        # lalu buka http://localhost:8080
+npm test         # tes logika game
 ```
 
-Do not prefix these with `NEXT_PUBLIC_` and never commit real secrets.
+Kontrol: `A/D` jalan · `W`/`Spasi` lompat · klik: pukul / pasang blok / tanam · `1-9` pilih item · `B` toko.
 
-## Database
+## Deploy ke GitHub Pages
 
-The API automatically creates the `users` table on the first authentication request. The reference schema is in `schema.sql`.
+1. Repo → **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+2. Merge ke `main`. Workflow `.github/workflows/pages.yml` menjalankan tes lalu deploy.
+3. Alamat: `https://<username>.github.io/vexora/`.
 
-## Routes
+## Struktur
 
-- `/` — Login
-- `/register.html` — Create account
-- `/dashboard.html` — Account home
-- `/api/auth/register` — Registration API
-- `/api/auth/login` — Login API
-- `/api/auth/me` — Current session API
-- `/api/auth/logout` — Logout API
+| File | Tugas |
+|---|---|
+| `src/items.js` | Semua item dan angka penyeimbang (satu sumber kebenaran) |
+| `src/world.js` | Pembuatan dunia dari seed |
+| `src/game.js` | **Semua aturan game** sebagai aksi: `punch`, `place`, `plant`, `sell`, `buy` |
+| `src/physics.js` | Gerak dan tabrakan pemain |
+| `src/save.js` | Simpan/muat (adapter, bisa diganti server) |
+| `src/render.js`, `src/main.js` | Tampilan, input, UI |
+| `tests/` | Tes otomatis |
 
-## Next stage
+Aturan kerja: UI tidak boleh mengubah state langsung, hanya lewat aksi di `game.js`. Itu yang membuat game bisa dipindah ke server nanti tanpa ditulis ulang.
 
-3D game client, world creation, inventory, multiplayer synchronization, and persistent game data will be added after the account foundation is verified.
+## Batasan saat ini (jujur)
+
+- Satu pemain, data hanya di `localStorage` browser. Bisa diedit lewat DevTools, jadi belum ada anti-cheat.
+- Multiplayer, akun, dan ekonomi antar-pemain butuh backend. Itu fase berikutnya, setelah game ini terbukti menyenangkan.
+- Seni sementara (bentuk sederhana digambar lewat kode, tanpa aset pihak lain).
+
+Versi lama (Express + Turso + Vercel) masih ada di riwayat git branch `main`.

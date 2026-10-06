@@ -1,0 +1,28 @@
+:root { --bg: #14161d; --panel: #1f2330ee; --fg: #f1f3f8; --muted: #9aa3b8; --accent: #ffcf5c; --danger: #ff6b6b; }
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); color: var(--fg); font: 14px/1.4 system-ui, sans-serif; touch-action: none; user-select: none; }
+canvas { display: block; width: 100vw; height: 100vh; image-rendering: pixelated; cursor: crosshair; }
+#hud { position: fixed; top: 12px; left: 12px; right: 12px; display: flex; gap: 12px; align-items: center; pointer-events: none; }
+#hud > * { pointer-events: auto; }
+#gems { background: var(--panel); padding: 6px 12px; border-radius: 8px; font-weight: 700; }
+#toast { flex: 1; text-align: center; opacity: 0; transition: opacity .2s; pointer-events: none; text-shadow: 0 1px 3px #000; }
+#toast.on { opacity: 1; }
+button { font: inherit; color: var(--fg); background: #2d3347; border: 1px solid #3d4560; border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+button:hover { background: #3a4260; }
+button.danger { color: var(--danger); margin-top: 12px; }
+#hotbar { position: fixed; bottom: 36px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; max-width: 96vw; overflow-x: auto; }
+.slot { position: relative; width: 52px; height: 52px; flex: none; background: var(--panel); border: 2px solid #3d4560; border-radius: 8px; display: grid; place-items: center; cursor: pointer; font-size: 11px; text-align: center; }
+.slot.sel { border-color: var(--accent); }
+.slot i { display: block; width: 22px; height: 22px; border-radius: 4px; border: 2px solid #0006; }
+.slot i.seed { border-radius: 50% 50% 50% 0; transform: rotate(-45deg) scale(.8); }
+.slot b { position: absolute; right: 4px; bottom: 2px; font-size: 12px; }
+.slot em { position: absolute; left: 4px; top: 1px; font-size: 10px; color: var(--muted); font-style: normal; }
+#help { position: fixed; bottom: 8px; width: 100%; text-align: center; color: var(--muted); font-size: 12px; pointer-events: none; }
+#shop { position: fixed; top: 60px; right: 12px; width: 300px; max-height: calc(100vh - 140px); overflow: auto; background: var(--panel); border-radius: 12px; padding: 12px 16px; }
+#shop h2 { margin: 0 0 4px; }
+.muted { color: var(--muted); margin: 0 0 8px; font-size: 12px; }
+.row { display: flex; align-items: center; gap: 6px; padding: 4px 0; border-top: 1px solid #ffffff14; }
+.row span { flex: 1; }
+.row button { padding: 3px 8px; font-size: 12px; }
+#touch { position: fixed; bottom: 100px; left: 0; right: 0; display: flex; justify-content: space-between; padding: 0 16px; pointer-events: none; }
+#touch button { pointer-events: auto; width: 64px; height: 64px; font-size: 24px; opacity: .8; }
